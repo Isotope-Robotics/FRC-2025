@@ -30,7 +30,6 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  //
 
   /**
    * This function is run when the robot is first started up and should be used
