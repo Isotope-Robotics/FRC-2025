@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -43,41 +42,46 @@ public class SwerveModule {
         // Angle Motor Config
         mAngleMotor = new TalonFX(moduleConstants.angleMotorId);
         mAngleMotor.getConfigurator().apply(Robot.ctreConfigs.swerveAngleFXConfig);
-       resetToAbsolute();
+        resetToAbsolute();
 
         // Drive Motor Config
         if (this.moduleNumber == 0) {
             mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
             mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig1);
             mDriveMotor.getConfigurator().setPosition(0.0);
-            mAngleMotor.setInverted(true);//TODO: try .getconfigurator
-            mDriveMotor.setInverted(true);
         } else if (this.moduleNumber == 1) {
-            
-            mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
-            mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
-            mDriveMotor.getConfigurator().setPosition(0.0);
-            mAngleMotor.setInverted(true);
-            mDriveMotor.setInverted(false);
 
-        }   else if (this.moduleNumber == 2) {
             mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
             mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
             mDriveMotor.getConfigurator().setPosition(0.0);
-            mDriveMotor.setInverted(false);
-            mAngleMotor.setInverted(true);
-        }   else if (this.moduleNumber == 3) {
+
+        } else if (this.moduleNumber == 2) {
             mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
             mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
             mDriveMotor.getConfigurator().setPosition(0.0);
-            mDriveMotor.setInverted(false);
-            mAngleMotor.setInverted(true);
+
+        } else if (this.moduleNumber == 3) {
+            mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
+            mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
+            mDriveMotor.getConfigurator().setPosition(0.0);
         }
 
     }
 
+    //Pulled from WPILib 2024 before deprecation....hope it works
+    public static SwerveModuleState optimize_me(
+            SwerveModuleState desiredState, Rotation2d currentAngle) {
+        var delta = desiredState.angle.minus(currentAngle);
+        if (Math.abs(delta.getDegrees()) > 90.0) {
+            return new SwerveModuleState(
+                    -desiredState.speedMetersPerSecond, desiredState.angle.rotateBy(Rotation2d.kPi));
+        } else {
+            return new SwerveModuleState(desiredState.speedMetersPerSecond, desiredState.angle);
+        }
+    }
+
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
-        desiredState = SwerveModuleState.optimize(desiredState, getState().angle);
+        desiredState = optimize_me(desiredState, getState().angle);
         mAngleMotor.setControl(anglePosition.withPosition(desiredState.angle.getRotations()));
         setSpeed(desiredState, isOpenLoop);
     }
