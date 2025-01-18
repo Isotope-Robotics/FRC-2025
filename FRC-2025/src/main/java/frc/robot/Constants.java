@@ -15,7 +15,10 @@ import frc.robot.Lib.Util.FalconSwerveConstants;
 import frc.robot.Lib.Util.SwerveModuleConstants;
 
 public class Constants {
-
+        public static final class Conveyor{
+                public static final Integer conveyorMotorID = 20;
+                public static final Integer conveyorSensorID = 0;
+        }
         public static final class Controllers {
                 public static final Joystick driver1 = new Joystick(0);
                 public static final XboxController driver2 = new XboxController(1);
