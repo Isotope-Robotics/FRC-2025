@@ -33,6 +33,11 @@ public class Constants {
                 public static final Integer scoringMotor3ID = 0;
                 public static final Integer sensorID = 0;
         }
+        // Intake Constants
+        public static final class Intake {
+                public static final Integer intakeMotorID = 0;
+                public static final Integer pivotMotorID = 0;
+        }
         // Swerve Module Constants Class
         public static final class Swerve {
 
