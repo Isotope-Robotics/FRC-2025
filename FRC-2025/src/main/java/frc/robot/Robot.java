@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
+import frc.robot.Subsystems.Conveyor;
 import frc.robot.RobotContainer;
 
 /**
@@ -110,6 +111,16 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
+
+    if (Conveyor.isConveyorClear())
+      Conveyor.setSpeed(0);
+    
+    if (!Conveyor.isConveyorClear())
+      Conveyor.setSpeed(.8);
+   
+    if (Conveyor.))
+    
+
   }
 
   /** This function is called once when the robot is disabled. */
