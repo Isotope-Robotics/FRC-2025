@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.Set;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -113,15 +116,18 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
+    boolean isConveyorActive;
 
     if (conveyor.isConveyorClear())
       conveyor.setSpeed(0);
-      
+      isConveyorActive = false;
     
     if (!conveyor.isConveyorClear())
       conveyor.setSpeed(.8);
-   
+      isConveyorActive = true;
     
+    if (isConveyorActive)
+      if 
     
 
   }
