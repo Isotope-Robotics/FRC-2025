@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
+  public Conveyor conveyor;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -39,6 +40,7 @@ public class Robot extends TimedRobot {
    */
   public Robot() {
     swerve = Swerve.getInstance();
+    conveyor = Conveyor.getInstance();
     robotContainer = new RobotContainer();
   }
 
@@ -112,13 +114,13 @@ public class Robot extends TimedRobot {
 
     RobotTelemetry();
 
-    if (Conveyor.isConveyorClear())
-      Conveyor.setSpeed(0);
+    if (conveyor.isConveyorClear())
+      conveyor.setSpeed(0);
     
-    if (!Conveyor.isConveyorClear())
-      Conveyor.setSpeed(.8);
+    if (!conveyor.isConveyorClear())
+      conveyor.setSpeed(.8);
    
-    if (Conveyor.))
+    
     
 
   }
