@@ -25,8 +25,8 @@ public class Intake extends SubsystemBase {
         intakeMotor = new SparkMax(intakeMotorID, motortype.kBrushless);
         pivotMotor = new SparkMax(pivotMotorID, motortype.kBrushless);
 
-        intakeMotor.setIdleMode(Constants.Intake.Brake);
-        pivotMotor.setIdleMode(Constants.Intake.Brake);
+        // intakeMotor.setIdleMode(Constants.Intake.Brake);
+        // pivotMotor.setIdleMode(Constants.Intake.Brake);
 
         coralDetector = new DigitalInput(0); // this port number is probably wrong!!!
     }
