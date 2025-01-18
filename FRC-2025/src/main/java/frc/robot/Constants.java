@@ -31,6 +31,7 @@ public class Constants {
                 public static final Integer scoringMotor1ID = 0;
                 public static final Integer scoringMotor2ID = 0;
                 public static final Integer scoringMotor3ID = 0;
+                public static final Integer rollerID = 0;
                 public static final Integer sensorID = 0;
         }
         // Swerve Module Constants Class
