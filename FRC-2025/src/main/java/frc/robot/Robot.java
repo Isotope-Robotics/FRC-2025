@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.Set;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
+import frc.robot.Subsystems.Conveyor;
 import frc.robot.RobotContainer;
 
 /**
@@ -30,6 +34,7 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
+  public Conveyor conveyor;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -38,6 +43,7 @@ public class Robot extends TimedRobot {
    */
   public Robot() {
     swerve = Swerve.getInstance();
+    conveyor = Conveyor.getInstance();
     robotContainer = new RobotContainer();
   }
 
@@ -110,6 +116,20 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
+    boolean isConveyorActive;
+
+    if (conveyor.isConveyorClear())
+      conveyor.setSpeed(0);
+      isConveyorActive = false;
+    
+    if (!conveyor.isConveyorClear())
+      conveyor.setSpeed(.8);
+      isConveyorActive = true;
+    
+    if (isConveyorActive)
+      if 
+    
+
   }
 
   /** This function is called once when the robot is disabled. */

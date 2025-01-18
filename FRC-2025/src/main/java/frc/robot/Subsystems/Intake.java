@@ -40,9 +40,13 @@ public class Intake extends SubsystemBase {
         // move pivot motor to initial position
     }
 
-    public void run () {
+    public void runIn () {
         // power intake motor
         intakeMotor.set(1.0); // this speed might be wrong!!!
+    }
+
+    public void runOut () {
+        intakeMotor.set(-0.25);
     }
 
     public void intakeStop () {
