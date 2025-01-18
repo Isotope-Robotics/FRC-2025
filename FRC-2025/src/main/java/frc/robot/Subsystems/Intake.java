@@ -1,5 +1,6 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
 
@@ -22,8 +23,8 @@ public class Intake extends SubsystemBase {
     private static Intake m_Instance = null;
 
     public Intake (int intakeMotorID, int pivotMotorID) {
-        intakeMotor = new SparkMax(intakeMotorID, motortype.kBrushless);
-        pivotMotor = new SparkMax(pivotMotorID, motortype.kBrushless);
+        intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
+        pivotMotor = new SparkMax(pivotMotorID, MotorType.kBrushless);
 
         // intakeMotor.setIdleMode(Constants.Intake.Brake);
         // pivotMotor.setIdleMode(Constants.Intake.Brake);
@@ -58,9 +59,8 @@ public class Intake extends SubsystemBase {
     }
 
     public static Intake getInstance() {
-        if (m_Instance == null) {
-            m_Instance = new Intake(Constants.Intake.MotorID);
-        }
+        if (m_Instance == null)
+            m_Instance = new Intake(Constants.Intake.intakeMotorID, Constants.Intake.pivotMotorID);
         return m_Instance;
     }
 
