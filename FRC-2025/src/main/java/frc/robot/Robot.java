@@ -116,6 +116,7 @@ public class Robot extends TimedRobot {
 
     if (conveyor.isConveyorClear())
       conveyor.setSpeed(0);
+      
     
     if (!conveyor.isConveyorClear())
       conveyor.setSpeed(.8);
