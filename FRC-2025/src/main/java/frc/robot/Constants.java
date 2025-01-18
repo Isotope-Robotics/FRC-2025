@@ -15,16 +15,24 @@ import frc.robot.Lib.Util.FalconSwerveConstants;
 import frc.robot.Lib.Util.SwerveModuleConstants;
 
 public class Constants {
+        // Conveyer Constants
         public static final class Conveyor{
                 public static final Integer conveyorMotorID = 20;
                 public static final Integer conveyorSensorID = 0;
         }
+        // Controllers Constants
         public static final class Controllers {
                 public static final Joystick driver1 = new Joystick(0);
                 public static final XboxController driver2 = new XboxController(1);
                 public static final double stickDeadband = 0.3;
         }
-
+        // Scoring Mecanism Constants
+        public static final class Scoring{
+                public static final Integer scoringMotor1ID = 0;
+                public static final Integer scoringMotor2ID = 0;
+                public static final Integer scoringMotor3ID = 0;
+                public static final Integer sensorID = 0;
+        }
         // Swerve Module Constants Class
         public static final class Swerve {
 
@@ -176,12 +184,6 @@ public class Constants {
                         // Constraint for the motion profilied robot angle controller
                         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
                                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-                }
-                public static final class Scoring{
-                        public static final int scoringMotor1ID = 0;
-                        public static final int scoringMotor2ID = 0;
-                        public static final int scoringMotor3ID = 0;
-                        public static final int sensorID = 0;
                 }
         }
 }
