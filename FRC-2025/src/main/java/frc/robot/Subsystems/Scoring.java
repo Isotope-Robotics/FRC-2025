@@ -26,7 +26,7 @@ public class Scoring extends SubsystemBase {
         return sensor.get();
     }
 
-    public void setRollerSpeed(float speed) {
+    public void setRollerSpeed(double speed) {
         roller.set(speed);
     }
  
