@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
   public Conveyor conveyor;
-
+  public Scoring scoringConveyor; 
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     swerve = Swerve.getInstance();
     conveyor = Conveyor.getInstance();
+    scoringConveyor = Scoring.getInstance();
     robotContainer = new RobotContainer();
   }
 
@@ -118,18 +119,18 @@ public class Robot extends TimedRobot {
 
     RobotTelemetry();
     boolean isConveyorActive;
-
-    if (conveyor.isConveyorClear())
-      conveyor.setSpeed(0);
+    
+    if (!scoringConveyor.isScoringMecCLear()){
+      conveyor.turnOffConveyor();
+      scoringConveyor.stopRoller();
       isConveyorActive = false;
-    
-    if (!conveyor.isConveyorClear())
-      conveyor.setSpeed(.8);
+    }
+    if (!conveyor.isConveyorClear()){
+      conveyor.setSpeed(1);
+      scoringConveyor.setRollerSpeed(1);
       isConveyorActive = true;
-    
-
+    }
   }
-
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {

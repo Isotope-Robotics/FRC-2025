@@ -17,7 +17,7 @@ public class Conveyor extends SubsystemBase {
         conveyorMotor = new SparkMax(conveyorMotorID, MotorType.kBrushless);
         conveyorSensor = new DigitalInput(conveyorSensorID);
     }
-
+    //sets a speed from -1 to 1 based of parameter
     public void setSpeed(double speed) {
         conveyorMotor.set(speed);
     }
