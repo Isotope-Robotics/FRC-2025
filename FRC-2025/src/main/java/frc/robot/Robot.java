@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
+import frc.robot.Subsystems.Scoring;
 import frc.robot.RobotContainer;
 
 /**
@@ -125,9 +126,6 @@ public class Robot extends TimedRobot {
     if (!conveyor.isConveyorClear())
       conveyor.setSpeed(.8);
       isConveyorActive = true;
-    
-    if (isConveyorActive)
-      if 
     
 
   }
