@@ -21,7 +21,9 @@ public class Conveyor extends SubsystemBase {
     public void setSpeed(double speed) {
         conveyorMotor.set(speed);
     }
-    
+    public void turnOffConveyor() {
+        conveyorMotor.set(0);
+    }
     public boolean isConveyorClear(){
         return conveyorSensor.get();
     }
