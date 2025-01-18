@@ -177,6 +177,11 @@ public class Constants {
                         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
                                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
                 }
-
+                public static final class Scoring{
+                        public static final int scoringMotor1ID = 0;
+                        public static final int scoringMotor2ID = 0;
+                        public static final int scoringMotor3ID = 0;
+                        public static final int sensorID = 0;
+                }
         }
 }
