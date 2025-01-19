@@ -169,34 +169,34 @@ public class Robot extends TimedRobot {
     }
 
     if (elevatorLevel == 0){
-      scoring.elevatorLevel0 = true;
+      scoring.elevatorLevel0();
     }
     else
-      scoring.elevatorLevel0 = false;
+      scoring.elevatorLevel0();
 
     if (elevatorLevel == 1){
-      scoring.elevatorLevel1 = true;
+      scoring.elevatorLevel1();
     }
     else
-      scoring.elevatorLevel1 = false;
+      scoring.elevatorLevel1();
 
     if (elevatorLevel == 2){
-      scoring.elevatorLevel2 = true;
+      scoring.elevatorLevel2();
     }
     else
-      scoring.elevatorLevel2 = false;
+      scoring.elevatorLevel2();
 
     if (elevatorLevel == 3){
-      scoring.elevatorLevel3 = true;
+      scoring.elevatorLevel3();
     }
     else
-      scoring.elevatorLevel3 = false;
+      scoring.elevatorLevel3();
 
-    if (levatorLevel == 4){
-      scoring.elevatorLevel4 = true;
+    if (elevatorLevel == 4){
+      scoring.elevatorLevel4();
     }
     else
-      scoring.elevatorLevel4 = false;
+      scoring.elevatorLevel4();
 
 
     if (isCoralReady){
