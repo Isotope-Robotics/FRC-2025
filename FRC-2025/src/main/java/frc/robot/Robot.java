@@ -154,7 +154,7 @@ public class Robot extends TimedRobot {
     //else
       //stop LED signal
 
-
+    //moves the elevator position
     if (isCoralReady){
       if (myController.getRightBumperButtonPressed()){
         if (elevatorLevel < 4)
@@ -198,7 +198,7 @@ public class Robot extends TimedRobot {
     else
       scoring.elevatorLevel4();
 
-
+    //switches control to automatic
     if (isCoralReady){
       if (myController.getXButton()){
         //wheel control = 1
@@ -211,7 +211,7 @@ public class Robot extends TimedRobot {
 
     if (myController.getYButton()){
       isCoralReady = false;
-      //scoring.elevatorLevel = 0
+      elevatorLevel = 0;
       //wheel control = 0
     }
 
