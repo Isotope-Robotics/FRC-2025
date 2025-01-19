@@ -43,6 +43,8 @@ public class Robot extends TimedRobot {
 
   boolean isCoralReady = false;
   boolean isConvayorActive = false;
+  Integer elevatorLevel = 0;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -129,13 +131,14 @@ public class Robot extends TimedRobot {
     RobotTelemetry();
     
 
-    
+    //when the first sensor detects something, the conveyor activates
     if (!conveyor.isConveyorClear()){
       conveyor.setSpeed(.8);
       scoring.setRollerSpeed(.8);
       isConvayorActive = true;
     }
 
+    //when the second sensor detects something, the conveyor turns off and activates isCoralReady
     if (isConvayorActive){
       if (!scoring.isScoringMecCLear()){
         conveyor.setSpeed(0);
@@ -145,23 +148,56 @@ public class Robot extends TimedRobot {
       }
     }
     
+    //sends a signal to the driver saying that the coral is ready
     //if (isCoralReady)
       //send an LED signal
     //else
       //stop LED signal
 
+
     if (isCoralReady){
-      if (myController.getRightBumperButton()){
-        //if (elevator position < 4)
-          //elevator position = elevator position + 1
-        //else if (elevator position = 4)
-          //elevator position = 0
+      if (myController.getRightBumperButtonPressed()){
+        if (elevatorLevel < 4)
+          elevatorLevel = elevatorLevel + 1;
+        else if (elevatorLevel == 4)
+          elevatorLevel = 0;
       }
-      else if (myController.getLeftBumperButton()){
-        //if (elevator position > 0)
-          //elevator position = elevator position - 1
+      else if (myController.getLeftBumperButtonPressed()){
+        if (elevatorLevel > 0)
+          elevatorLevel = elevatorLevel - 1;
       }
     }
+
+    if (elevatorLevel == 0){
+      scoring.elevatorLevel0 = true;
+    }
+    else
+      scoring.elevatorLevel0 = false;
+
+    if (elevatorLevel == 1){
+      scoring.elevatorLevel1 = true;
+    }
+    else
+      scoring.elevatorLevel1 = false;
+
+    if (elevatorLevel == 2){
+      scoring.elevatorLevel2 = true;
+    }
+    else
+      scoring.elevatorLevel2 = false;
+
+    if (elevatorLevel == 3){
+      scoring.elevatorLevel3 = true;
+    }
+    else
+      scoring.elevatorLevel3 = false;
+
+    if (levatorLevel == 4){
+      scoring.elevatorLevel4 = true;
+    }
+    else
+      scoring.elevatorLevel4 = false;
+
 
     if (isCoralReady){
       if (myController.getXButton()){
@@ -175,7 +211,7 @@ public class Robot extends TimedRobot {
 
     if (myController.getYButton()){
       isCoralReady = false;
-      //elevator position = 0
+      //scoring.elevatorLevel = 0
       //wheel control = 0
     }
 
