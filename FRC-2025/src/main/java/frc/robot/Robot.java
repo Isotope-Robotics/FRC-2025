@@ -20,6 +20,7 @@ import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
 import frc.robot.Subsystems.Scoring;
 import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -36,7 +37,12 @@ public class Robot extends TimedRobot {
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
   public Conveyor conveyor;
-  public Scoring scoringConveyor; 
+  public Scoring scoring;
+
+  public final XboxController myController = new XboxController(0);
+
+  boolean isCoralReady = false;
+  boolean isConvayorActive = false;
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -45,8 +51,10 @@ public class Robot extends TimedRobot {
   public Robot() {
     swerve = Swerve.getInstance();
     conveyor = Conveyor.getInstance();
-    scoringConveyor = Scoring.getInstance();
+    scoring = Scoring.getInstance();
     robotContainer = new RobotContainer();
+    
+
   }
 
   /**
@@ -106,6 +114,7 @@ public class Robot extends TimedRobot {
       m_AutonomousCommand.cancel();
     }
 
+
     swerve.zeroHeading();
     RobotTelemetry();
   }
@@ -118,19 +127,60 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
-    boolean isConveyorActive;
     
-    if (!scoringConveyor.isScoringMecCLear()){
-      conveyor.turnOffConveyor();
-      scoringConveyor.stopRoller();
-      isConveyorActive = false;
-    }
+
+    
     if (!conveyor.isConveyorClear()){
-      conveyor.setSpeed(1);
-      scoringConveyor.setRollerSpeed(1);
-      isConveyorActive = true;
+      conveyor.setSpeed(.8);
+      scoring.setRollerSpeed(.8);
+      isConvayorActive = true;
     }
-  }
+
+    if (isConvayorActive){
+      if (!scoring.isScoringMecCLear()){
+        conveyor.setSpeed(0);
+        scoring.setRollerSpeed(0);
+        isConvayorActive = false;
+        isCoralReady = true;
+      }
+    }
+    
+    //if (isCoralReady)
+      //send an LED signal
+    //else
+      //stop LED signal
+
+    if (isCoralReady){
+      if (myController.getRightBumperButton()){
+        //if (elevator position < 4)
+          //elevator position = elevator position + 1
+        //else if (elevator position = 4)
+          //elevator position = 0
+      }
+      else if (myController.getLeftBumperButton()){
+        //if (elevator position > 0)
+          //elevator position = elevator position - 1
+      }
+    }
+
+    if (isCoralReady){
+      if (myController.getXButton()){
+        //wheel control = 1
+      }
+
+      if (myController.getBButton()){
+        //wheel control = 2
+      }
+    }
+
+    if (myController.getYButton()){
+      isCoralReady = false;
+      //elevator position = 0
+      //wheel control = 0
+    }
+
+    }
+
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
