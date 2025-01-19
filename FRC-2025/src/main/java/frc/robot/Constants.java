@@ -28,9 +28,8 @@ public class Constants {
         }
         // Scoring Mecanism Constants
         public static final class Scoring{
-                public static final Integer scoringMotor1ID = 0;
-                public static final Integer scoringMotor2ID = 0;
-                public static final Integer scoringMotor3ID = 0;
+                public static final Integer angleID = 0;
+                public static final Integer elevatorID = 0;
                 public static final Integer rollerID = 0;
                 public static final Integer sensorID = 0;
         }
