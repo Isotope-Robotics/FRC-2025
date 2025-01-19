@@ -32,6 +32,8 @@ public class Scoring extends SubsystemBase {
     public void elevatorLevel0(){
     }
     
+    public void elevatorLevel1() {
+    }
     public void elevatorLevel2() {
 
     }
