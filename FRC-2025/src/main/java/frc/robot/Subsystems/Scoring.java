@@ -2,6 +2,8 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
@@ -20,6 +22,20 @@ public class Scoring extends SubsystemBase {
 
     private static Scoring m_Instance = null;
 
+    public static double inputModulus(double input, double minimumInput, double maximumInput) {
+        double modulus = maximumInput - minimumInput;
+    
+        // Wrap input if it's above the maximum input
+        int numMax = (int) ((input - minimumInput) / modulus);
+        input -= numMax * modulus;
+    
+        // Wrap input if it's below the minimum input
+        int numMin = (int) ((input - maximumInput) / modulus);
+        input -= numMin * modulus;
+    
+        return input;
+      }
+    
     public Scoring(int angleID, int elevatorID, int rollerID, int sensorID, int dutyCycleEncoderID) {
         angle = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
@@ -27,6 +43,11 @@ public class Scoring extends SubsystemBase {
         sensor = new DigitalInput(sensorID);
         dutyCycleEncoder = new DutyCycleEncoder(dutyCycleEncoderID, m_fullRange, m_expectedZero);
     }
+
+    double output = dutyCycleEncoder.get();
+    double percentOfRange = m_fullRange * 0.1;
+    double shiftedOutput = inputModulus(output, 0 - percentOfRange, m_fullRange - percentOfRange);
+
     // Checks if limit switch is clear
     public boolean isScoringMecCLear(){
         return sensor.get();
@@ -41,6 +62,7 @@ public class Scoring extends SubsystemBase {
     
     public void elevatorLevel1() {
     }
+
     public void elevatorLevel2() {
 
     }
@@ -51,9 +73,10 @@ public class Scoring extends SubsystemBase {
     public void elevatorLevel4() {
 
     }
+
     public static Scoring getInstance() {
         if(m_Instance == null)
-            m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID, Constants.Scoring.rollerID, Constants.Scoring.sensorID);
+            m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID, Constants.Scoring.rollerID, Constants.Scoring.sensorID, Constants.Scoring.dutyCycleEncoderID);
             return m_Instance;
         }
     }
