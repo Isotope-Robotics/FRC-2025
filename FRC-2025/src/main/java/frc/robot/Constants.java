@@ -37,6 +37,9 @@ public class Constants {
         public static final class Intake {
                 public static final Integer intakeMotorID = 0;
                 public static final Integer pivotMotorID = 0;
+                public static final double kP = 0.1;
+                public static final double kI = 0;
+                public static final double kD = 0;
         }
         // Swerve Module Constants Class
         public static final class Swerve {

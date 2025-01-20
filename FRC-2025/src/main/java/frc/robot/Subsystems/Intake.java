@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkRelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,6 +17,8 @@ public class Intake extends SubsystemBase {
 
     // this runs between two set positions to pivot the intake
     public static SparkMax pivotMotor;
+
+    public static final PIDController pivotPID = new PIDController(Constants.Intake.kP, Constants.Intake.kI, Constants.Intake.kD);
 
     // photoelectric sensor to detect coral
     public static DigitalInput coralDetector;
