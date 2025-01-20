@@ -32,7 +32,6 @@ public class Constants {
                 public static final Integer elevatorID = 0;
                 public static final Integer rollerID = 0;
                 public static final Integer sensorID = 0;
-                public static final Integer dutyCycleEncoderID = 0;
         }
         // Intake Constants
         public static final class Intake {
