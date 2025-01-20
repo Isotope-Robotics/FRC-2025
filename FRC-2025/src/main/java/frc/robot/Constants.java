@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -40,6 +41,8 @@ public class Constants {
                 public static final double kP = 0.1;
                 public static final double kI = 0;
                 public static final double kD = 0;
+                public static final IdleMode Brake = IdleMode.kBrake;
+                public static final IdleMode Coast = IdleMode.kCoast;
         }
         // Swerve Module Constants Class
         public static final class Swerve {

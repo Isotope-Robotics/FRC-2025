@@ -1,6 +1,11 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkRelativeEncoder;
@@ -23,20 +28,26 @@ public class Intake extends SubsystemBase {
     // photoelectric sensor to detect coral
     public static DigitalInput coralDetector;
 
+    public static RelativeEncoder pivotEncoder;
+
     private static Intake m_Instance = null;
 
     public Intake (int intakeMotorID, int pivotMotorID) {
+        SparkMaxConfig intakeConfig = new SparkMaxConfig();
+        SparkMaxConfig pivotConfig = new SparkMaxConfig();
+        intakeConfig.idleMode(IdleMode.kBrake);
+        pivotConfig.idleMode(IdleMode.kBrake);
         intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
         pivotMotor = new SparkMax(pivotMotorID, MotorType.kBrushless);
-
-        // intakeMotor.setIdleMode(Constants.Intake.Brake);
-        // pivotMotor.setIdleMode(Constants.Intake.Brake);
+        intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotEncoder = pivotMotor.getEncoder();
 
         coralDetector = new DigitalInput(0); // this port number is probably wrong!!!
     }
 
     public void extend () {
         // move pivot motor to floor positon
+        
     }
 
     public void retract () {
