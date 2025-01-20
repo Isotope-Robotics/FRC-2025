@@ -1,5 +1,6 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -13,6 +14,8 @@ public class Scoring extends SubsystemBase {
     public static SparkMax elevator;
     public static SparkMax roller;
     public static DigitalInput sensor;
+    public static RelativeEncoder angleEncoder;
+    public static RelativeEncoder elevatorEncoder;
 
     private static Scoring m_Instance = null;
 
@@ -21,6 +24,8 @@ public class Scoring extends SubsystemBase {
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
         roller = new SparkMax(rollerID, MotorType.kBrushless);
         sensor = new DigitalInput(sensorID);
+        angleEncoder = angle.getEncoder();
+        elevatorEncoder = elevator.getEncoder();
     }
 
     // Checks if limit switch is clear
