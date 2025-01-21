@@ -78,11 +78,7 @@ public class Scoring extends SubsystemBase {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
-    // Zero Out Encoder Positions
-    public void zeroEncoders() {
-        angleEncoder.setPosition(0.0);
-        elevatorEncoder.setPosition(0.0);
-    }
+    
     public static Scoring getInstance() {
         if(m_Instance == null)
             m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID, Constants.Scoring.rollerID, Constants.Scoring.sensorID);
