@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
+import frc.robot.Subsystems.IntakeArm;
 import frc.robot.Subsystems.Scoring;
-import frc.robot.Subsystems.intakeArm;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -39,6 +39,7 @@ public class Robot extends TimedRobot {
   public Swerve swerve;
   public Conveyor conveyor;
   public Scoring scoring;
+  public IntakeArm intakeArm;
 
   public final XboxController myController = new XboxController(0);
 
@@ -49,7 +50,7 @@ public class Robot extends TimedRobot {
   boolean isIntakePhase2 = false;
   boolean isIntakePhase3 = false;
   boolean isIntakePhase4 = false;
-  boolean IsArmMovingOut = false;
+  boolean isArmMovingOut = false;
   Integer elevatorLevel = 0;
 
   /**
@@ -61,6 +62,7 @@ public class Robot extends TimedRobot {
     swerve = Swerve.getInstance();
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
+    intakeArm = IntakeArm.getInstance();
     robotContainer = new RobotContainer();
     
 
@@ -145,15 +147,17 @@ public class Robot extends TimedRobot {
     }
     
     if (isIntakePhase1){
-      isIntakePhase1 = false
+      isIntakePhase1 = false;
       intakeArm.moveArmOut() = true;
-      IsArmMovingOut = true;
+      isArmMovingOut = true;
     }
 
-    if (IsArmMovingOut){
+    //if the outside limit switch is pressed, the arm stops moving
+    if (isArmMovingOut){
       if (intakeArm.isOutsideSwitchPressed()){
-        IsArmMovingOut = false;
+        isArmMovingOut = false;
         intakeArm.moveArmOut() = false;
+        //vision.wheelDrive = 
       }
     }
     
