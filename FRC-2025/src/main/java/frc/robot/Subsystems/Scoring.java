@@ -78,9 +78,8 @@ public class Scoring extends SubsystemBase {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
-
+    // Zero Out Encoder Positions
     public void zeroEncoders() {
-        // Zero Out Encoder Positions
         angleEncoder.setPosition(0.0);
         elevatorEncoder.setPosition(0.0);
     }
