@@ -60,23 +60,23 @@ public class Scoring extends SubsystemBase {
     }
     
     public void elevatorLevel1() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 10));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 20));
     }
 
     public void elevatorLevel2() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 20));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 50));
     }
 
     public void elevatorLevel3() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 30));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 60));
     }
 
     public void elevatorLevel4() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 40));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 80));
     }
     
     public static Scoring getInstance() {
