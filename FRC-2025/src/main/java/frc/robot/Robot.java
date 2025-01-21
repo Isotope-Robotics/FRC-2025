@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
 import frc.robot.Subsystems.Scoring;
+import frc.robot.Subsystems.intakeArm;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -43,6 +44,12 @@ public class Robot extends TimedRobot {
 
   boolean isCoralReady = false;
   boolean isConvayorActive = false;
+  boolean isIntakeReady = true;
+  boolean isIntakePhase1 = false;
+  boolean isIntakePhase2 = false;
+  boolean isIntakePhase3 = false;
+  boolean isIntakePhase4 = false;
+  boolean IsArmMovingOut = false;
   Integer elevatorLevel = 0;
 
   /**
@@ -130,6 +137,26 @@ public class Robot extends TimedRobot {
 
     RobotTelemetry();
     
+    if (isIntakeReady){
+      if (myController.getAButtonPressed()){
+        isIntakeReady = false;
+        isIntakePhase1 = true;
+      }
+    }
+    
+    if (isIntakePhase1){
+      isIntakePhase1 = false
+      intakeArm.moveArmOut() = true;
+      IsArmMovingOut = true;
+    }
+
+    if (IsArmMovingOut){
+      if (intakeArm.isOutsideSwitchPressed()){
+        IsArmMovingOut = false;
+        intakeArm.moveArmOut() = false;
+      }
+    }
+    
 
     //when the first sensor detects something, the conveyor activates
     if (!conveyor.isConveyorClear()){
@@ -201,16 +228,17 @@ public class Robot extends TimedRobot {
     //switches control to automatic
     if (isCoralReady){
       if (myController.getXButton()){
-        //wheel control = 1
+        //wheel control = 2
       }
 
       if (myController.getBButton()){
-        //wheel control = 2
+        //wheel control = 3
       }
     }
 
     if (myController.getYButton()){
       isCoralReady = false;
+      isIntakeReady = true;
       elevatorLevel = 0;
       //wheel control = 0
     }
