@@ -4,11 +4,9 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkRelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -40,18 +38,20 @@ public class Intake extends SubsystemBase {
         intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
         pivotMotor = new SparkMax(pivotMotorID, MotorType.kBrushless);
         intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         pivotEncoder = pivotMotor.getEncoder();
 
         coralDetector = new DigitalInput(0); // this port number is probably wrong!!!
     }
 
-    public void extend () {
+    public void toRobot () {
         // move pivot motor to floor positon
-        
+        pivotMotor.set(pivotPID.calculate(pivotEncoder.getPosition(), 0.0));
     }
 
-    public void retract () {
+    public void toFloor () {
         // move pivot motor to initial position
+        pivotMotor.set(pivotPID.calculate(pivotEncoder.getPosition(), 14.0));
     }
 
     public void runIn () {
