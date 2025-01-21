@@ -33,6 +33,9 @@ public class Constants {
                 public static final Integer elevatorID = 0;
                 public static final Integer rollerID = 0;
                 public static final Integer sensorID = 0;
+                public static final double kP = 0.1;
+                public static final double kI = 0.001;
+                public static final double kD = 0.0001;
         }
         // Intake Constants
         public static final class Intake {
@@ -41,8 +44,6 @@ public class Constants {
                 public static final double kP = 0.1;
                 public static final double kI = 0;
                 public static final double kD = 0;
-                public static final IdleMode Brake = IdleMode.kBrake;
-                public static final IdleMode Coast = IdleMode.kCoast;
         }
         // Swerve Module Constants Class
         public static final class Swerve {

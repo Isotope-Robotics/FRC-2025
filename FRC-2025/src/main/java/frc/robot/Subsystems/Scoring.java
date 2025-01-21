@@ -1,8 +1,15 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,16 +23,26 @@ public class Scoring extends SubsystemBase {
     public static DigitalInput sensor;
     public static RelativeEncoder angleEncoder;
     public static RelativeEncoder elevatorEncoder;
+    public static final PIDController wristPID = new PIDController(Constants.Scoring.kP, Constants.Scoring.kI, Constants.Scoring.kD);
 
     private static Scoring m_Instance = null;
 
     public Scoring(int angleID, int elevatorID, int rollerID, int sensorID) {
+        // Moter Declarations
         angle = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
         roller = new SparkMax(rollerID, MotorType.kBrushless);
         sensor = new DigitalInput(sensorID);
+        // Encoder Declarations
         angleEncoder = angle.getEncoder();
         elevatorEncoder = elevator.getEncoder();
+        // Moter Configurations
+        SparkMaxConfig angleConfig = new SparkMaxConfig();
+        SparkMaxConfig elevatorConfig = new SparkMaxConfig();
+        angleConfig.idleMode(IdleMode.kBrake);
+        elevatorConfig.idleMode(IdleMode.kBrake);
+        angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     // Checks if limit switch is clear
@@ -38,22 +55,35 @@ public class Scoring extends SubsystemBase {
     }
     // Set elevator and anlge to levels with encoder ticks
     public void elevatorLevel0(){
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
     
     public void elevatorLevel1() {
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
 
     public void elevatorLevel2() {
-
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
 
     public void elevatorLevel3() {
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
 
     public void elevatorLevel4() {
-
+        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
+        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
 
+    public void zeroEncoders() {
+        // Zero Out Encoder Positions
+        angleEncoder.setPosition(0.0);
+        elevatorEncoder.setPosition(0.0);
+    }
     public static Scoring getInstance() {
         if(m_Instance == null)
             m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID, Constants.Scoring.rollerID, Constants.Scoring.sensorID);
