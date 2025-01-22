@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
         intakeMotor.set(0.0);
     }
 
-    public int getCoralStatus () {
+    public boolean getCoralStatus () {
         return coralStatus;
     }
 
