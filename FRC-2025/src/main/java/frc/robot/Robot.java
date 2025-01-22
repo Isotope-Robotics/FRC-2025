@@ -20,6 +20,7 @@ import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
 import frc.robot.Subsystems.Scoring;
 import frc.robot.Subsystems.IntakeArm;
+import frc.robot.Subsystems.Intake;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot {
   public Conveyor conveyor;
   public Scoring scoring;
   public IntakeArm intakeArm;
+  public Intake intake;
 
   public final XboxController myController = new XboxController(0);
 
@@ -63,6 +65,7 @@ public class Robot extends TimedRobot {
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
     intakeArm = IntakeArm.getInstance();
+    intake = Intake.getInstance();
     robotContainer = new RobotContainer();
     
 
@@ -145,10 +148,11 @@ public class Robot extends TimedRobot {
         isIntakePhase1 = true;
       }
     }
-    
-    if (isIntakePhase1){
+    if(intake.getCoralStatus())
+      intakeArm.moveArmIn();
+    else
       intakeArm.moveArmOut();
-    }
+
 
     //when the first sensor detects something, the conveyor activates
     if (!conveyor.isConveyorClear()){
