@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
-import frc.robot.Subsystems.IntakeArm;
 import frc.robot.Subsystems.Scoring;
+import frc.robot.Subsystems.IntakeArm;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
   boolean isIntakePhase2 = false;
   boolean isIntakePhase3 = false;
   boolean isIntakePhase4 = false;
-  boolean isArmMovingOut = false;
+  boolean IsArmMovingOut = false;
   Integer elevatorLevel = 0;
 
   /**
@@ -147,20 +147,8 @@ public class Robot extends TimedRobot {
     }
     
     if (isIntakePhase1){
-      isIntakePhase1 = false;
-      intakeArm.moveArmOut() = true;
-      isArmMovingOut = true;
+      intakeArm.moveArmOut();
     }
-
-    //if the outside limit switch is pressed, the arm stops moving
-    if (isArmMovingOut){
-      if (intakeArm.isOutsideSwitchPressed()){
-        isArmMovingOut = false;
-        intakeArm.moveArmOut() = false;
-        //vision.wheelDrive = 
-      }
-    }
-    
 
     //when the first sensor detects something, the conveyor activates
     if (!conveyor.isConveyorClear()){
