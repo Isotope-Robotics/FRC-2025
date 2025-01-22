@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.Conveyor;
+import frc.robot.Subsystems.Scoring;
 import frc.robot.Subsystems.IntakeArm;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Scoring;
@@ -41,6 +42,7 @@ public class Robot extends TimedRobot {
   public Conveyor conveyor;
   public Scoring scoring;
   public IntakeArm intakeArm;
+  public Intake intake;
   public Intake intake;
 
   public final XboxController myController = new XboxController(0);
@@ -67,6 +69,7 @@ public class Robot extends TimedRobot {
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
     intakeArm = IntakeArm.getInstance();
+    intake = Intake.getInstance();
     intake = Intake.getInstance();
     robotContainer = new RobotContainer();
     

@@ -20,10 +20,16 @@ public class IntakeArm extends SubsystemBase  {
         return outsideLimitSwitch.get();
     }
     public void moveArmOut(){
-        armMotor.set(1);
+        if(!isOutsideSwitchPressed())
+            armMotor.set(1);
+        else
+            armMotor.set(0);
     }
     public void moveArmIn(){
-        armMotor.set(1);
+        if(!isInsideSwitchPressed())
+            armMotor.set(-1);
+        else
+            armMotor.set(0);
     }
     public void stopArm(){
         armMotor.set(0);

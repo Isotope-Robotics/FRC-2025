@@ -35,7 +35,7 @@ public class Intake extends SubsystemBase {
     public void runIn () {
         // power intake motor
         intakeMotor.set(1.0); // this speed might be wrong!!!
-        if (coralDetector1.get())
+        if (coralDetector.get())
             coralStatus = true;
         else
             coralStatus = false;
@@ -56,7 +56,7 @@ public class Intake extends SubsystemBase {
 
     public static Intake getInstance() {
         if (m_Instance == null)
-            m_Instance = new Intake(Constants.Intake.intakeMotorID, Constants.Intake.pivotMotorID);
+            m_Instance = new Intake(Constants.Intake.intakeMotorID);
         return m_Instance;
     }
 
