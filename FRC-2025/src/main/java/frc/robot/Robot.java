@@ -47,13 +47,7 @@ public class Robot extends TimedRobot {
   public final XboxController myController = new XboxController(0);
 
   boolean isCoralReady = false;
-  //boolean isConvayorActive = false;
-  //boolean isIntakeReady = true;
-  //boolean isIntakePhase1 = false;
-  //boolean isIntakePhase2 = false;
-  //boolean isIntakePhase3 = false;
-  //boolean isIntakePhase4 = false;
-  //boolean isArmMovingOut = false;
+
   //0 represents that the intake is ready
   int coralPhase = 0;
   int elevatorLevel = 0;

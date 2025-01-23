@@ -21,8 +21,6 @@ public class Intake extends SubsystemBase {
 
     private static Intake m_Instance = null;
 
-    private static boolean coralStatus = false;
-
     public Intake (int intakeMotorID) {
         SparkMaxConfig intakeConfig = new SparkMaxConfig();
         intakeConfig.idleMode(IdleMode.kBrake);
@@ -35,10 +33,6 @@ public class Intake extends SubsystemBase {
     public void runIn () {
         // power intake motor
         intakeMotor.set(1.0); // this speed might be wrong!!!
-        if (coralDetector.get())
-            coralStatus = true;
-        else
-            coralStatus = false;
     }
 
     public void runOut () {
@@ -51,7 +45,7 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean getCoralStatus () {
-        return coralStatus;
+        return coralDetector.get();
     }
 
     public static Intake getInstance() {
