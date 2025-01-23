@@ -284,6 +284,15 @@ public class Robot extends TimedRobot {
       swerve.zeroHeading();
       System.out.println("Gyro reset");
     }
+
+    //Swerve Control
+    //If button 3 is pressed the swerve will be robot centric - not recommended for daily driving
+    //Else swerve will be field centric - recommended for daily driving
+    if (Constants.Controllers.driver1.getRawButton(3)) {
+      SwerveDrive(false);
+    } else {
+      SwerveDrive(true);
+    }
   }
 
   private void SwerveDrive(boolean isFieldRel) {
