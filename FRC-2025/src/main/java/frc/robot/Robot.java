@@ -43,7 +43,6 @@ public class Robot extends TimedRobot {
   public Scoring scoring;
   public IntakeArm intakeArm;
   public Intake intake;
-  public Intake intake;
 
   public final XboxController myController = new XboxController(0);
 
