@@ -7,12 +7,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
     SendableChooser<Command> autoChooser;
 
-    public RobotContainer(){
+    public RobotContainer() {
 
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
-    
+
 }

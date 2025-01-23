@@ -17,20 +17,25 @@ public class Conveyor extends SubsystemBase {
         conveyorMotor = new SparkMax(conveyorMotorID, MotorType.kBrushless);
         conveyorSensor = new DigitalInput(conveyorSensorID);
     }
-    //sets the speed of the motor connected to the conveyor belt from -1 to 1 based of parameter
+
+    // sets the speed of the motor connected to the conveyor belt from -1 to 1 based
+    // of parameter
     public void setSpeed(double speed) {
         conveyorMotor.set(speed);
     }
-    //makes the motor connected to the conveyor belt stop moving
+
+    // makes the motor connected to the conveyor belt stop moving
     public void turnOffConveyor() {
         conveyorMotor.set(0);
     }
-    //returns if there is something(coral) in the of the sensor before the conveyor belt
-    public boolean isConveyorClear(){
+
+    // returns if there is something(coral) in the of the sensor before the conveyor
+    // belt
+    public boolean isConveyorClear() {
         return conveyorSensor.get();
     }
 
-    //defines motor and sensor for class
+    // defines motor and sensor for class
     public static Conveyor getInstance() {
         if (m_Instance == null)
             m_Instance = new Conveyor(Constants.Conveyor.conveyorMotorID, Constants.Conveyor.conveyorSensorID);

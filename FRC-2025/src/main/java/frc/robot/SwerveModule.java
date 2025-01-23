@@ -68,7 +68,7 @@ public class SwerveModule {
 
     }
 
-    //Pulled from WPILib 2024 before deprecation....hope it works
+    // Pulled from WPILib 2024 before deprecation....hope it works
     public static SwerveModuleState optimize_me(
             SwerveModuleState desiredState, Rotation2d currentAngle) {
         var delta = desiredState.angle.minus(currentAngle);
