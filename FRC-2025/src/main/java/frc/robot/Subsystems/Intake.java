@@ -29,17 +29,17 @@ public class Intake extends SubsystemBase {
 
         coralDetector = new DigitalInput(0); // this port number is probably wrong!!!
     }
-    
-    public void runIn () {
+
+    public void runIn() {
         // power intake motor
         intakeMotor.set(1.0); // this speed might be wrong!!!
     }
 
-    public void runOut () {
+    public void runOut() {
         intakeMotor.set(-0.25);
     }
 
-    public void intakeStop () {
+    public void intakeStop() {
         // cut power to intake motor
         intakeMotor.set(0.0);
     }

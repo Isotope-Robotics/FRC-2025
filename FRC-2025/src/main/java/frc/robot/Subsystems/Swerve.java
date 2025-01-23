@@ -50,27 +50,28 @@ public class Swerve extends SubsystemBase {
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
 
-     /*    For Auto but 2025 has changes so have to edit this later
-     AutoBuilder.configureHolonomic(
-                this::getPose,
-                this::setPose,
-                this::getSpeeds,
-                this::driveRobotRelative,
-                Constants.Swerve.pathFollowerConfig,
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this);
-        */
+        /*
+         * For Auto but 2025 has changes so have to edit this later
+         * AutoBuilder.configureHolonomic(
+         * this::getPose,
+         * this::setPose,
+         * this::getSpeeds,
+         * this::driveRobotRelative,
+         * Constants.Swerve.pathFollowerConfig,
+         * () -> {
+         * // Boolean supplier that controls when the path will be mirrored for the red
+         * // alliance
+         * // This will flip the path being followed to the red side of the field.
+         * // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+         * 
+         * var alliance = DriverStation.getAlliance();
+         * if (alliance.isPresent()) {
+         * return alliance.get() == DriverStation.Alliance.Red;
+         * }
+         * return false;
+         * },
+         * this);
+         */
 
         // Set up custom logging to add the current path to a field 2d widget
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
@@ -202,11 +203,11 @@ public class Swerve extends SubsystemBase {
         field.setRobotPose(getPose());
 
         for (SwerveModule mod : mSwerveMods) {
-            
-              SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder",
-              mod.getCANCoder().getDegrees());
-              SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle",
-              mod.getPosition().angle.getDegrees());
+
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder",
+                    mod.getCANCoder().getDegrees());
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle",
+                    mod.getPosition().angle.getDegrees());
         }
     }
 

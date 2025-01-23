@@ -126,7 +126,6 @@ public class Robot extends TimedRobot {
       m_AutonomousCommand.cancel();
     }
 
-
     swerve.zeroHeading();
     RobotTelemetry();
   }
@@ -139,103 +138,102 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
-    switch (coralPhase){
-      //0 means that the intake is ready to pick up coral
-      case 0:{
+    switch (coralPhase) {
+      // 0 means that the intake is ready to pick up coral
+      case 0: {
         if (myController.getAButtonPressed())
           coralPhase = 1;
       }
-      break;
-      //moving arm out
-      case 1:{
+        break;
+      // moving arm out
+      case 1: {
         intakeArm.moveArmOut();
-        if (intakeArm.isOutsideSwitchPressed()){
+        if (intakeArm.isOutsideSwitchPressed()) {
           intakeArm.stopArm();
           coralPhase = 2;
         }
       }
-      break;
-      //attempts to pick up coral and 
-      case 2:{
-        //vision trys to pick up coral
+        break;
+      // attempts to pick up coral and
+      case 2: {
+        // vision trys to pick up coral
         intake.runIn();
-        if (intake.getCoralStatus()){
+        if (intake.getCoralStatus()) {
           intake.intakeStop();
-          //wheel control goes back to driver
+          // wheel control goes back to driver
           coralPhase = 3;
         }
       }
-      break;
-      //moving arm back in
-      case 3:{
+        break;
+      // moving arm back in
+      case 3: {
         intakeArm.moveArmIn();
-        if (intakeArm.isInsideSwitchPressed()){
+        if (intakeArm.isInsideSwitchPressed()) {
           intakeArm.stopArm();
           coralPhase = 4;
         }
       }
-      break;
-      //move the coral into the scoring mech
-      case 4:{
+        break;
+      // move the coral into the scoring mech
+      case 4: {
         intake.runIn();
         scoring.runRollerIn();
-        if (!scoring.isScoringMecCLear()){
+        if (!scoring.isScoringMecCLear()) {
           intake.intakeStop();
           scoring.stopRoller();
           coralPhase = 5;
         }
       }
-      break;
-      //scoring mech is ready to be raised
-          //moves the elevator position
-      case 5:{
+        break;
+      // scoring mech is ready to be raised
+      // moves the elevator position
+      case 5: {
 
-        //send LED signal
+        // send LED signal
 
-        if (myController.getRightBumperButtonPressed()){
+        if (myController.getRightBumperButtonPressed()) {
           if (elevatorLevel < 4)
             elevatorLevel = elevatorLevel + 1;
           else if (elevatorLevel == 4)
             elevatorLevel = 0;
-        }
-        else if (myController.getLeftBumperButtonPressed()){
+        } else if (myController.getLeftBumperButtonPressed()) {
           if (elevatorLevel > 0)
             elevatorLevel = elevatorLevel - 1;
         }
-        switch (elevatorLevel){
-          case 0:{
+        switch (elevatorLevel) {
+          case 0: {
             scoring.elevatorLevel0();
           }
-          break;
-      
-          case 1:{
+            break;
+
+          case 1: {
             scoring.elevatorLevel1();
           }
-          break;
-      
-          case 2:{
+            break;
+
+          case 2: {
             scoring.elevatorLevel2();
           }
-          break;
-      
-          case 3:{
+            break;
+
+          case 3: {
             scoring.elevatorLevel3();
           }
-          break;
-      
-          case 4:{
+            break;
+
+          case 4: {
             scoring.elevatorLevel4();
           }
-          break;
-          }
+            break;
+        }
 
-          if (myController.getXButton()){
-            //vision wheel control = 2
-          }
-    
-          if (myController.getBButton()){
-            //vision wheel control = 3
-          }
+        if (myController.getXButton()) {
+          // vision wheel control = 2
+        }
+
+        if (myController.getBButton()) {
+          // vision wheel control = 3
+        }
       }
     }
   }
@@ -280,6 +278,15 @@ public class Robot extends TimedRobot {
     if (Constants.Controllers.driver1.getRawButton(2)) {
       swerve.zeroHeading();
       System.out.println("Gyro reset");
+    }
+
+    //Swerve Control
+    //If button 3 is pressed the swerve will be robot centric - not recommended for daily driving
+    //Else swerve will be field centric - recommended for daily driving
+    if (Constants.Controllers.driver1.getRawButton(3)) {
+      SwerveDrive(false);
+    } else {
+      SwerveDrive(true);
     }
   }
 

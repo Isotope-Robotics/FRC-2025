@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-
 public class Scoring extends SubsystemBase {
     public static SparkMax angle;
     public static SparkMax elevator;
@@ -23,7 +22,8 @@ public class Scoring extends SubsystemBase {
     public static DigitalInput sensor;
     public static RelativeEncoder angleEncoder;
     public static RelativeEncoder elevatorEncoder;
-    public static final PIDController wristPID = new PIDController(Constants.Scoring.kP, Constants.Scoring.kI, Constants.Scoring.kD);
+    public static final PIDController wristPID = new PIDController(Constants.Scoring.kP, Constants.Scoring.kI,
+            Constants.Scoring.kD);
 
     private static Scoring m_Instance = null;
 
@@ -46,25 +46,29 @@ public class Scoring extends SubsystemBase {
     }
 
     // Checks if limit switch is clear
-    public boolean isScoringMecCLear(){
+    public boolean isScoringMecCLear() {
         return sensor.get();
     }
+
     // Turns on Roller on scoring mecanism
     public void runRollerIn() {
         roller.set(0.8);
     }
+
     public void runRollerOut() {
         roller.set(-0.8);
     }
+
     public void stopRoller() {
         roller.set(0);
     }
+
     // Set elevator and anlge to levels with encoder ticks
-    public void elevatorLevel0(){
+    public void elevatorLevel0() {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
     }
-    
+
     public void elevatorLevel1() {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 10));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 20));
@@ -84,10 +88,11 @@ public class Scoring extends SubsystemBase {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 40));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 80));
     }
-    
+
     public static Scoring getInstance() {
-        if(m_Instance == null)
-            m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID, Constants.Scoring.rollerID, Constants.Scoring.sensorID);
-            return m_Instance;
-        }
+        if (m_Instance == null)
+            m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID,
+                    Constants.Scoring.rollerID, Constants.Scoring.sensorID);
+        return m_Instance;
     }
+}
