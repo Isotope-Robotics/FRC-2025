@@ -50,8 +50,14 @@ public class Scoring extends SubsystemBase {
         return sensor.get();
     }
     // Turns on Roller on scoring mecanism
-    public void setRollerSpeed(double speed) {
-        roller.set(speed);
+    public void runRollerIn() {
+        roller.set(0.8);
+    }
+    public void runRollerOut() {
+        roller.set(-0.8);
+    }
+    public void stopRoller() {
+        roller.set(0);
     }
     // Set elevator and anlge to levels with encoder ticks
     public void elevatorLevel0(){
