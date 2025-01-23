@@ -21,6 +21,7 @@ import frc.robot.Subsystems.Conveyor;
 import frc.robot.Subsystems.Scoring;
 import frc.robot.Subsystems.IntakeArm;
 import frc.robot.Subsystems.Intake;
+import frc.robot.Subsystems.Scoring;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -42,18 +43,21 @@ public class Robot extends TimedRobot {
   public Scoring scoring;
   public IntakeArm intakeArm;
   public Intake intake;
+  public Intake intake;
 
   public final XboxController myController = new XboxController(0);
 
   boolean isCoralReady = false;
-  boolean isConvayorActive = false;
-  boolean isIntakeReady = true;
-  boolean isIntakePhase1 = false;
-  boolean isIntakePhase2 = false;
-  boolean isIntakePhase3 = false;
-  boolean isIntakePhase4 = false;
-  boolean IsArmMovingOut = false;
-  Integer elevatorLevel = 0;
+  //boolean isConvayorActive = false;
+  //boolean isIntakeReady = true;
+  //boolean isIntakePhase1 = false;
+  //boolean isIntakePhase2 = false;
+  //boolean isIntakePhase3 = false;
+  //boolean isIntakePhase4 = false;
+  //boolean isArmMovingOut = false;
+  //0 represents that the intake is ready
+  int coralPhase = 0;
+  int elevatorLevel = 0;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -65,6 +69,7 @@ public class Robot extends TimedRobot {
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
     intakeArm = IntakeArm.getInstance();
+    intake = Intake.getInstance();
     intake = Intake.getInstance();
     robotContainer = new RobotContainer();
     
@@ -141,105 +146,106 @@ public class Robot extends TimedRobot {
     Driver1Controls();
 
     RobotTelemetry();
+    switch (coralPhase){
+      //0 means that the intake is ready to pick up coral
+      case 0:{
+        if (myController.getAButtonPressed())
+          coralPhase = 1;
+      }
+      break;
+      //moving arm out
+      case 1:{
+        intakeArm.moveArmOut();
+        if (intakeArm.isOutsideSwitchPressed()){
+          intakeArm.stopArm();
+          coralPhase = 2;
+        }
+      }
+      break;
+      //attempts to pick up coral and 
+      case 2:{
+        //vision trys to pick up coral
+        intake.runIn();
+        if (intake.getCoralStatus()){
+          intake.intakeStop();
+          //wheel control goes back to driver
+          coralPhase = 3;
+        }
+      }
+      break;
+      //moving arm back in
+      case 3:{
+        intakeArm.moveArmIn();
+        if (intakeArm.isInsideSwitchPressed()){
+          intakeArm.stopArm();
+          coralPhase = 4;
+        }
+      }
+      break;
+      //move the coral into the scoring mech
+      case 4:{
+        intake.runIn();
+        scoring.runRollerIn();
+        if (!scoring.isScoringMecCLear()){
+          intake.intakeStop();
+          scoring.stopRoller();
+          coralPhase = 5;
+        }
+      }
+      break;
+      //scoring mech is ready to be raised
+          //moves the elevator position
+      case 5:{
+
+        //send LED signal
+
+        if (myController.getRightBumperButtonPressed()){
+          if (elevatorLevel < 4)
+            elevatorLevel = elevatorLevel + 1;
+          else if (elevatorLevel == 4)
+            elevatorLevel = 0;
+        }
+        else if (myController.getLeftBumperButtonPressed()){
+          if (elevatorLevel > 0)
+            elevatorLevel = elevatorLevel - 1;
+        }
+        switch (elevatorLevel){
+          case 0:{
+            scoring.elevatorLevel0();
+          }
+          break;
+      
+          case 1:{
+            scoring.elevatorLevel1();
+          }
+          break;
+      
+          case 2:{
+            scoring.elevatorLevel2();
+          }
+          break;
+      
+          case 3:{
+            scoring.elevatorLevel3();
+          }
+          break;
+      
+          case 4:{
+            scoring.elevatorLevel4();
+          }
+          break;
+          }
+
+          if (myController.getXButton()){
+            //vision wheel control = 2
+          }
     
-    if (isIntakeReady){
-      if (myController.getAButtonPressed()){
-        isIntakeReady = false;
-        isIntakePhase1 = true;
+          if (myController.getBButton()){
+            //vision wheel control = 3
+          }
       }
     }
-    if(intake.getCoralStatus())
-      intakeArm.moveArmIn();
-    else
-      intakeArm.moveArmOut();
-
-
-    //when the first sensor detects something, the conveyor activates
-    if (!conveyor.isConveyorClear()){
-      conveyor.setSpeed(.8);
-      scoring.setRollerSpeed(.8);
-      isConvayorActive = true;
-    }
-
-    //when the second sensor detects something, the conveyor turns off and activates isCoralReady
-    if (isConvayorActive){
-      if (!scoring.isScoringMecCLear()){
-        conveyor.setSpeed(0);
-        scoring.setRollerSpeed(0);
-        isConvayorActive = false;
-        isCoralReady = true;
-      }
-    }
-    
-    //sends a signal to the driver saying that the coral is ready
-    //if (isCoralReady)
-      //send an LED signal
-    //else
-      //stop LED signal
-
-    //moves the elevator position
-    if (isCoralReady){
-      if (myController.getRightBumperButtonPressed()){
-        if (elevatorLevel < 4)
-          elevatorLevel = elevatorLevel + 1;
-        else if (elevatorLevel == 4)
-          elevatorLevel = 0;
-      }
-      else if (myController.getLeftBumperButtonPressed()){
-        if (elevatorLevel > 0)
-          elevatorLevel = elevatorLevel - 1;
-      }
-    }
-
-    if (elevatorLevel == 0){
-      scoring.elevatorLevel0();
-    }
-    else
-      scoring.elevatorLevel0();
-
-    if (elevatorLevel == 1){
-      scoring.elevatorLevel1();
-    }
-    else
-      scoring.elevatorLevel1();
-
-    if (elevatorLevel == 2){
-      scoring.elevatorLevel2();
-    }
-    else
-      scoring.elevatorLevel2();
-
-    if (elevatorLevel == 3){
-      scoring.elevatorLevel3();
-    }
-    else
-      scoring.elevatorLevel3();
-
-    if (elevatorLevel == 4){
-      scoring.elevatorLevel4();
-    }
-    else
-      scoring.elevatorLevel4();
-
-    //switches control to automatic
-    if (isCoralReady){
-      if (myController.getXButton()){
-        //wheel control = 2
-      }
-
-      if (myController.getBButton()){
-        //wheel control = 3
-      }
-    }
-
-    if (myController.getYButton()){
-      isCoralReady = false;
-      isIntakeReady = true;
-      elevatorLevel = 0;
-      //wheel control = 0
-    }
-
-    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
