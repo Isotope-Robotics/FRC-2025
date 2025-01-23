@@ -3,6 +3,8 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -205,5 +207,10 @@ public class Constants {
                         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
                                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
                 }
+
+                public static final PPHolonomicDriveController pathFollowerConfig = new PPHolonomicDriveController(
+                                new PIDConstants(8.0, 0, 0), // Translation constants kP was 5.0
+                                new PIDConstants(1.0, 0, 0) // Rotation constants kP was 5.0
+                );
         }
 }

@@ -3,6 +3,9 @@ package frc.robot.Subsystems;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -50,28 +53,40 @@ public class Swerve extends SubsystemBase {
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
 
-        /*
-         * For Auto but 2025 has changes so have to edit this later
-         * AutoBuilder.configureHolonomic(
-         * this::getPose,
-         * this::setPose,
-         * this::getSpeeds,
-         * this::driveRobotRelative,
-         * Constants.Swerve.pathFollowerConfig,
-         * () -> {
-         * // Boolean supplier that controls when the path will be mirrored for the red
-         * // alliance
-         * // This will flip the path being followed to the red side of the field.
-         * // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-         * 
-         * var alliance = DriverStation.getAlliance();
-         * if (alliance.isPresent()) {
-         * return alliance.get() == DriverStation.Alliance.Red;
-         * }
-         * return false;
-         * },
-         * this);
-         */
+        // Robot Config pulled from PathPlanner GUI Setting Page
+        //This should change from null to the RobotConfig from PathPlannerGUI
+        RobotConfig config = null;
+
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::setPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT
+                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
+                                                                      // individual module feedforwards
+                Constants.Swerve.pathFollowerConfig,
+                config, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
 
         // Set up custom logging to add the current path to a field 2d widget
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
