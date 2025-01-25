@@ -171,6 +171,7 @@ public class Robot extends TimedRobot {
 
     RobotTelemetry();
 
+    swerve.drive(trajectory, isFieldRel, false);
   }
 
   /** This function is called once when the robot is disabled. */
