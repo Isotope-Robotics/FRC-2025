@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Scoring extends SubsystemBase {
+
+    // hi
     public static SparkMax angle;
     public static SparkMax elevator;
     public static SparkMax roller;
