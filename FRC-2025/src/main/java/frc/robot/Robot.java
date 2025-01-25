@@ -142,13 +142,17 @@ public class Robot extends TimedRobot {
       scoring.elevatorDown();
     }
 
-    if (myController.getXButton()) {
+    if (myController.getXButtonPressed()) {
       // vision wheel control = 2
     }
 
-    if (myController.getBButton()) {
+    if (myController.getBButtonPressed()) {
       // vision wheel control = 3
     }
+    if (myController.getYButtonPressed()){
+      // vision wheel control = 0
+    }
+    
     Driver1Controls();
 
     RobotTelemetry();
