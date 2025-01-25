@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
-    if (myController.getAButtonPressed())
+    if (myController.getAButtonPressed() && !intake.pickingUp)
       intake.coralPhase0();
 
     if (myController.getRightBumperButtonPressed()) {

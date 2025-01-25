@@ -22,6 +22,8 @@ public class Intake extends SubsystemBase {
 
     private static Intake m_Instance = null;
 
+    public boolean pickingUp = false;
+
     Swerve swerve;
     Scoring scoring;
     IntakeArm intakeArm;
@@ -60,6 +62,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void coralPhase0() {
+        pickingUp = true;
         scoring.elevatorReset();
         intakeArm.moveArmOut();
         if (intakeArm.isOutsideSwitchPressed()) {
@@ -94,6 +97,7 @@ public class Intake extends SubsystemBase {
             intakeStop();
             scoring.stopRoller();
         }
+        pickingUp = false;
     }
 
     public static Intake getInstance() {
