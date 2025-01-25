@@ -4,25 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Subsystems.*;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import java.util.Set;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Translation2d;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Subsystems.Swerve;
-import frc.robot.Subsystems.Conveyor;
-import frc.robot.Subsystems.Scoring;
-import frc.robot.Subsystems.IntakeArm;
-import frc.robot.Subsystems.Intake;
-import frc.robot.Subsystems.Scoring;
-import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -43,6 +36,12 @@ public class Robot extends TimedRobot {
   public Scoring scoring;
   public IntakeArm intakeArm;
   public Intake intake;
+
+  public boolean isAligning;
+  public double alignTolerance;
+
+  public Pose2d trajectory;
+  public boolean isFieldRel;
 
   public final XboxController myController = new XboxController(0);
 
@@ -142,18 +141,33 @@ public class Robot extends TimedRobot {
       scoring.elevatorDown();
     }
 
+    Pose2d AlignPose = null;
+
     if (myController.getXButtonPressed()) {
-      // vision wheel control = 2
+      isAligning = true;
+      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
     }
 
     if (myController.getBButtonPressed()) {
-      // vision wheel control = 3
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
-    if (myController.getYButtonPressed()){
-      // vision wheel control = 0
-    }
+
+    /* TODO: Designate button to cancel aligning
     
+    if (myController.get_ButtonPressed()) {
+      isAligning = false;
+    }*/
+
     Driver1Controls();
+
+    try {
+      if (isAligning){
+        AlignRobot(AlignPose);
+      }
+    } catch (NullPointerException e) {
+      System.err.println("No align pose was set!");
+    }
 
     RobotTelemetry();
 
@@ -184,7 +198,7 @@ public class Robot extends TimedRobot {
   public void simulationInit() {
   }
 
-  /** This function is called periodically whilst in simulation. */
+  // This function is called periodically whilst in simulation.
   @Override
   public void simulationPeriodic() {
   }
@@ -192,6 +206,31 @@ public class Robot extends TimedRobot {
   // Add Telemetry Data for Robot
   private void RobotTelemetry() {
 
+  }
+
+  // Move Robot to position and rotation compared to April Tag
+  private void AlignRobot(Pose2d pose){
+
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry targetPosCameraspace = table.getEntry("targetpose_cameraspace");
+
+    double[] targetPoseData = targetPosCameraspace.getDoubleArray(new double[3]);
+
+    Pose2d target = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
+    Pose2d targetspacePose = Pose2d.kZero.relativeTo(target);
+    Pose2d offset = pose.relativeTo(targetspacePose);
+
+    double speed = (1.0-1.0/Math.pow(5.0,offset.getTranslation().getDistance(Translation2d.kZero)))*Constants.Swerve.maxSpeed;
+    double angularSpeed = (1.0-1.0/Math.pow(5.0,offset.getRotation().getDegrees()/30.0))*Constants.Swerve.maxAngularVelocity;
+
+    Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
+    Rotation2d angularVelocity = offset.getRotation().div(Math.abs(offset.getRotation().getDegrees())).times(angularSpeed);
+    
+    if (offset.getTranslation().getDistance(Translation2d.kZero) > alignTolerance) {
+      trajectory = new Pose2d(velocity,angularVelocity);
+    } else {
+      isAligning = false;
+    }
   }
 
   private void Driver1Controls() {
@@ -205,15 +244,6 @@ public class Robot extends TimedRobot {
     // If button 3 is pressed the swerve will be robot centric - not recommended for
     // daily driving
     // Else swerve will be field centric - recommended for daily driving
-    if (Constants.Controllers.driver1.getRawButton(3)) {
-      SwerveDrive(false);
-    } else {
-      SwerveDrive(true);
-    }
-  }
-
-  private void SwerveDrive(boolean isFieldRel) {
-    // Controller Deadbands (Translation, Strafe, Rotation)
 
     double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1)
         * (Constants.Controllers.driver1.getRawAxis(2)),
@@ -224,10 +254,11 @@ public class Robot extends TimedRobot {
     double rot = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3) // we made it unnegatived
         * (Constants.Controllers.driver1.getRawAxis(2)),
         Constants.Controllers.stickDeadband);
-
-    // Drive Function
-    swerve.drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-        rot * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
-
+    
+    // Queue robot's trajectory
+    
+    trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
+    
+    isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
   }
 }

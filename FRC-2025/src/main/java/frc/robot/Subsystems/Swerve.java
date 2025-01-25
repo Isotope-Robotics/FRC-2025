@@ -94,17 +94,17 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putData("Field", field);
     }
 
-    public void drive(Translation2d translation, double rotation, boolean isFieldRel, boolean isOpenLoop) {
+    public void drive(Pose2d pose, boolean isFieldRel, boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 isFieldRel ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translation.getX(),
-                        translation.getY(),
-                        rotation,
+                        pose.getX(),
+                        pose.getY(),
+                        pose.getRotation().getDegrees(),
                         getHeading())
                         : new ChassisSpeeds(
-                                translation.getX(),
-                                translation.getY(),
-                                rotation));
+                                pose.getX(),
+                                pose.getY(),
+                                pose.getRotation().getDegrees()));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
@@ -261,8 +261,7 @@ public class Swerve extends SubsystemBase {
 
         final double xSpeed = 0;
         final double ySpeed = 0;
-        drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-                steering_adjust * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
+        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
 
         // System.out.println("Note error: " + error);
         return closeenough;
@@ -273,8 +272,7 @@ public class Swerve extends SubsystemBase {
         final double xSpeed = -0.7;
         final double ySpeed = 0;
         final double rot = 0;
-        drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-                rot * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
+        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
 
     }
 
@@ -283,8 +281,7 @@ public class Swerve extends SubsystemBase {
         final double xSpeed = 1;
         final double ySpeed = 0;
         final double rot = 0;
-        drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-                rot * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
+        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
 
     }
 
@@ -293,8 +290,7 @@ public class Swerve extends SubsystemBase {
         final double xSpeed = -1;
         final double ySpeed = 0;
         final double rot = 0;
-        drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-                rot * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
+        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
 
     }
 
@@ -344,9 +340,7 @@ public class Swerve extends SubsystemBase {
 
         final double xSpeed = 0;
         final double ySpeed = 0;
-        drive(new Translation2d(xSpeed, ySpeed).times(Constants.Swerve.maxSpeed),
-                steering_adjust * Constants.Swerve.maxAngularVelocity, isFieldRel, false);
-
+        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
         // System.out.println("raw angle: " + currentGyro + ", mapped angle: " +
         // mappedAngle + ", april tag error: " + error);
     }
