@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
 
@@ -21,7 +22,11 @@ public class Intake extends SubsystemBase {
 
     private static Intake m_Instance = null;
 
-    public Intake (int intakeMotorID) {
+    Swerve swerve;
+    Scoring scoring;
+    IntakeArm intakeArm;
+
+    public Intake(int intakeMotorID) {
         SparkMaxConfig intakeConfig = new SparkMaxConfig();
         intakeConfig.idleMode(IdleMode.kBrake);
         intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
@@ -44,8 +49,51 @@ public class Intake extends SubsystemBase {
         intakeMotor.set(0.0);
     }
 
-    public boolean getCoralStatus () {
+    public boolean getCoralStatus() {
         return coralDetector.get();
+    }
+
+    public void defineSubsystems() {
+        swerve = Swerve.getInstance();
+        scoring = Scoring.getInstance();
+        intakeArm = IntakeArm.getInstance();
+    }
+
+    public void coralPhase0() {
+        scoring.elevatorReset();
+        intakeArm.moveArmOut();
+        if (intakeArm.isOutsideSwitchPressed()) {
+            intakeArm.stopArm();
+            coralPhase1();
+        }
+    }
+
+    public void coralPhase1() {
+        // vision trys to pick up coral
+        runIn();
+        if (getCoralStatus()) {
+            intakeStop();
+            // wheel control goes back to driver
+            coralPhase2();
+        }
+    }
+
+    public void coralPhase2() {
+        intakeArm.moveArmIn();
+        if (intakeArm.isInsideSwitchPressed()) {
+            intakeArm.stopArm();
+            coralPhase3();
+        }
+    }
+
+    public void coralPhase3() {
+        // move the coral into the scoring mech
+        runIn();
+        scoring.runRollerIn();
+        if (!scoring.isScoringMecClear()) {
+            intakeStop();
+            scoring.stopRoller();
+        }
     }
 
     public static Intake getInstance() {

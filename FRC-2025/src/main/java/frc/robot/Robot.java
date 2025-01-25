@@ -48,9 +48,8 @@ public class Robot extends TimedRobot {
 
   boolean isCoralReady = false;
 
-  //0 represents that the intake is ready
+  // 0 represents that the intake is ready
   int coralPhase = 0;
-  int elevatorLevel = 0;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -65,7 +64,6 @@ public class Robot extends TimedRobot {
     intake = Intake.getInstance();
     intake = Intake.getInstance();
     robotContainer = new RobotContainer();
-    
 
   }
 
@@ -125,7 +123,7 @@ public class Robot extends TimedRobot {
     if (m_AutonomousCommand != null) {
       m_AutonomousCommand.cancel();
     }
-
+    intake.defineSubsystems();
     swerve.zeroHeading();
     RobotTelemetry();
   }
@@ -135,107 +133,26 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
+    if (myController.getAButtonPressed())
+      intake.coralPhase0();
+
+    if (myController.getRightBumperButtonPressed()) {
+      scoring.elevatorUp();
+    } else if (myController.getLeftBumperButtonPressed()) {
+      scoring.elevatorDown();
+    }
+
+    if (myController.getXButton()) {
+      // vision wheel control = 2
+    }
+
+    if (myController.getBButton()) {
+      // vision wheel control = 3
+    }
     Driver1Controls();
 
     RobotTelemetry();
-    switch (coralPhase) {
-      // 0 means that the intake is ready to pick up coral
-      case 0: {
-        if (myController.getAButtonPressed())
-          coralPhase = 1;
-      }
-        break;
-      // moving arm out
-      case 1: {
-        intakeArm.moveArmOut();
-        if (intakeArm.isOutsideSwitchPressed()) {
-          intakeArm.stopArm();
-          coralPhase = 2;
-        }
-      }
-        break;
-      // attempts to pick up coral and
-      case 2: {
-        // vision trys to pick up coral
-        intake.runIn();
-        if (intake.getCoralStatus()) {
-          intake.intakeStop();
-          // wheel control goes back to driver
-          coralPhase = 3;
-        }
-      }
-        break;
-      // moving arm back in
-      case 3: {
-        intakeArm.moveArmIn();
-        if (intakeArm.isInsideSwitchPressed()) {
-          intakeArm.stopArm();
-          coralPhase = 4;
-        }
-      }
-        break;
-      // move the coral into the scoring mech
-      case 4: {
-        intake.runIn();
-        scoring.runRollerIn();
-        if (!scoring.isScoringMecCLear()) {
-          intake.intakeStop();
-          scoring.stopRoller();
-          coralPhase = 5;
-        }
-      }
-        break;
-      // scoring mech is ready to be raised
-      // moves the elevator position
-      case 5: {
 
-        // send LED signal
-
-        if (myController.getRightBumperButtonPressed()) {
-          if (elevatorLevel < 4)
-            elevatorLevel = elevatorLevel + 1;
-          else if (elevatorLevel == 4)
-            elevatorLevel = 0;
-        } else if (myController.getLeftBumperButtonPressed()) {
-          if (elevatorLevel > 0)
-            elevatorLevel = elevatorLevel - 1;
-        }
-        switch (elevatorLevel) {
-          case 0: {
-            scoring.elevatorLevel0();
-          }
-            break;
-
-          case 1: {
-            scoring.elevatorLevel1();
-          }
-            break;
-
-          case 2: {
-            scoring.elevatorLevel2();
-          }
-            break;
-
-          case 3: {
-            scoring.elevatorLevel3();
-          }
-            break;
-
-          case 4: {
-            scoring.elevatorLevel4();
-          }
-            break;
-        }
-
-        if (myController.getXButton()) {
-          // vision wheel control = 2
-        }
-
-        if (myController.getBButton()) {
-          // vision wheel control = 3
-        }
-      }
-    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -280,9 +197,10 @@ public class Robot extends TimedRobot {
       System.out.println("Gyro reset");
     }
 
-    //Swerve Control
-    //If button 3 is pressed the swerve will be robot centric - not recommended for daily driving
-    //Else swerve will be field centric - recommended for daily driving
+    // Swerve Control
+    // If button 3 is pressed the swerve will be robot centric - not recommended for
+    // daily driving
+    // Else swerve will be field centric - recommended for daily driving
     if (Constants.Controllers.driver1.getRawButton(3)) {
       SwerveDrive(false);
     } else {

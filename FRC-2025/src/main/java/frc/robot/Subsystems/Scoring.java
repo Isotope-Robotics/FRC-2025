@@ -27,6 +27,8 @@ public class Scoring extends SubsystemBase {
 
     private static Scoring m_Instance = null;
 
+    private int elevatorLevel = 0;
+
     public Scoring(int angleID, int elevatorID, int rollerID, int sensorID) {
         // Moter Declarations
         angle = new SparkMax(angleID, MotorType.kBrushless);
@@ -46,7 +48,7 @@ public class Scoring extends SubsystemBase {
     }
 
     // Checks if limit switch is clear
-    public boolean isScoringMecCLear() {
+    public boolean isScoringMecClear() {
         return sensor.get();
     }
 
@@ -61,6 +63,12 @@ public class Scoring extends SubsystemBase {
 
     public void stopRoller() {
         roller.set(0);
+    }
+
+
+    public void elevatorReset() {
+        elevatorLevel0();
+        elevatorLevel = 0;
     }
 
     // Set elevator and anlge to levels with encoder ticks
@@ -87,6 +95,36 @@ public class Scoring extends SubsystemBase {
     public void elevatorLevel4() {
         angle.set(wristPID.calculate(angleEncoder.getPosition(), 40));
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 80));
+    }
+
+    public void goToLevel() {
+        switch (elevatorLevel % 5) {
+            case 0: {
+                elevatorLevel0();
+            }
+            case 1: {
+                elevatorLevel1();
+            }
+            case 2: {
+                elevatorLevel2();
+            }
+            case 3: {
+                elevatorLevel3();
+            }
+            case 4: {
+                elevatorLevel4();
+            }
+        }
+    }
+
+    public void elevatorUp() {
+        elevatorLevel++;
+        goToLevel();
+    }
+
+    public void elevatorDown() {
+        elevatorLevel--;
+        goToLevel();
     }
 
     public static Scoring getInstance() {
