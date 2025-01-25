@@ -229,6 +229,7 @@ public class Robot extends TimedRobot {
     
     if (offset.getTranslation().getDistance(Translation2d.kZero) > alignTolerance) {
       trajectory = new Pose2d(velocity,angularVelocity);
+      isFieldRel = false;
     } else {
       isAligning = false;
     }
