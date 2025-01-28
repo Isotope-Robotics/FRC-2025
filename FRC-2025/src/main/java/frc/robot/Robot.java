@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   public Swerve swerve;
   public Conveyor conveyor;
   public Scoring scoring;
-  public IntakeArm intakeArm;
+  public Intake intake;
   public Intake intake;
 
   public boolean isAligning;
@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
     swerve = Swerve.getInstance();
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
-    intakeArm = IntakeArm.getInstance();
+    intake = Intake.getInstance();
     intake = Intake.getInstance();
     intake = Intake.getInstance();
     robotContainer = new RobotContainer();
