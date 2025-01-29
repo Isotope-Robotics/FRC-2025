@@ -42,6 +42,12 @@ public class Constants {
                 public static final double kD = 0.0001;
         }
 
+        // Vision Constants
+
+        public static final class Vision {
+                public static final double aligningTolerance = 0.05;
+        }
+
         // Intake Constants
         public static final class Intake {
                 public static final Integer intakeMotorID = 0;

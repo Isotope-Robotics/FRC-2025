@@ -35,10 +35,8 @@ public class Robot extends TimedRobot {
   public Conveyor conveyor;
   public Scoring scoring;
   public Intake intake;
-  public Intake intake;
 
   public boolean isAligning;
-  public double alignTolerance;
 
   public Pose2d trajectory;
   public boolean isFieldRel;
@@ -227,7 +225,7 @@ public class Robot extends TimedRobot {
     Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
     Rotation2d angularVelocity = offset.getRotation().div(Math.abs(offset.getRotation().getDegrees())).times(angularSpeed);
     
-    if (offset.getTranslation().getDistance(Translation2d.kZero) > alignTolerance) {
+    if (offset.getTranslation().getDistance(Translation2d.kZero) > Constants.Vision.aligningTolerance) {
       trajectory = new Pose2d(velocity,angularVelocity);
       isFieldRel = false;
     } else {
