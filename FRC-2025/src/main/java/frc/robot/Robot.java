@@ -152,11 +152,10 @@ public class Robot extends TimedRobot {
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
 
-    /* TODO: Designate button to cancel aligning
-    
-    if (myController.get_ButtonPressed()) {
+    //Designate Y button to cancel aligning
+    if (myController.getYButtonPressed()) {
       isAligning = false;
-    }*/
+    }
 
     Driver1Controls();
 
