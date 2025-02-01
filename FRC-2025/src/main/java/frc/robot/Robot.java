@@ -44,6 +44,8 @@ public class Robot extends TimedRobot {
 
   public final XboxController myController = new XboxController(0);
 
+  Pose2d AlignPose = null;
+
   boolean isCoralReady = false;
 
   // 0 represents that the intake is ready
@@ -131,31 +133,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
-    if (myController.getAButtonPressed() && !intake.pickingUp)
-      intake.coralPhase0();
-
-    if (myController.getRightBumperButtonPressed()) {
-      scoring.elevatorUp();
-    } else if (myController.getLeftBumperButtonPressed()) {
-      scoring.elevatorDown();
-    }
-
-    Pose2d AlignPose = null;
-
-    if (myController.getXButtonPressed()) {
-      isAligning = true;
-      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
-    }
-
-    if (myController.getBButtonPressed()) {
-      isAligning = true;
-      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
-    }
-
-    //Designate Y button to cancel aligning
-    if (myController.getYButtonPressed()) {
-      isAligning = false;
-    }
+    AlignPose = null;
 
     Driver1Controls();
 
@@ -260,5 +238,31 @@ public class Robot extends TimedRobot {
     trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
+  }
+
+  private void Driver2Controls() {
+    if (myController.getAButtonPressed() && !intake.pickingUp)
+      intake.coralPhase0();
+
+    if (myController.getRightBumperButtonPressed()) {
+      scoring.elevatorUp();
+    } else if (myController.getLeftBumperButtonPressed()) {
+      scoring.elevatorDown();
+    }
+
+    if (myController.getXButtonPressed()) {
+      isAligning = true;
+      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
+    }
+
+    if (myController.getBButtonPressed()) {
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+    }
+
+    //Designate Y button to cancel aligning
+    if (myController.getYButtonPressed()) {
+      isAligning = false;
+    }
   }
 }
