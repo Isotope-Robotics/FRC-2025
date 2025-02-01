@@ -137,6 +137,8 @@ public class Robot extends TimedRobot {
 
     Driver1Controls();
 
+    Driver2Controls();
+
     try {
       if (isAligning){
         AlignRobot(AlignPose);
@@ -249,6 +251,11 @@ public class Robot extends TimedRobot {
       isAligning = true;
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
+    
+    //Designate button to cancel aligning
+    if (Constants.Controllers.driver1.getRawButton(4)) {
+      isAligning = false;
+    }
 
   }
 
@@ -260,11 +267,6 @@ public class Robot extends TimedRobot {
       scoring.elevatorUp();
     } else if (myController.getLeftBumperButtonPressed()) {
       scoring.elevatorDown();
-    }
-
-    //Designate Y button to cancel aligning
-    if (myController.getYButtonPressed()) {
-      isAligning = false;
     }
   }
 }
