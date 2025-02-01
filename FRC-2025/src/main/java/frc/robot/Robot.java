@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
   public Conveyor conveyor;
   public Scoring scoring;
   public Intake intake;
+  public IntakeArm intakeArm;
 
   public boolean isAligning;
 
@@ -58,8 +59,8 @@ public class Robot extends TimedRobot {
     conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
     intake = Intake.getInstance();
-    intake = Intake.getInstance();
-    intake = Intake.getInstance();
+    intakeArm = IntakeArm.getInstance();
+
     robotContainer = new RobotContainer();
 
   }
