@@ -238,6 +238,18 @@ public class Robot extends TimedRobot {
     trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
+
+    // Controls for auto-aligning robot
+    if (Constants.Controllers.driver1.getRawButton(5)) {
+      isAligning = true;
+      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
+    }
+
+    if (Constants.Controllers.driver1.getRawButton(6)) {
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+    }
+
   }
 
   private void Driver2Controls() {
@@ -248,16 +260,6 @@ public class Robot extends TimedRobot {
       scoring.elevatorUp();
     } else if (myController.getLeftBumperButtonPressed()) {
       scoring.elevatorDown();
-    }
-
-    if (myController.getXButtonPressed()) {
-      isAligning = true;
-      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
-    }
-
-    if (myController.getBButtonPressed()) {
-      isAligning = true;
-      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
 
     //Designate Y button to cancel aligning
