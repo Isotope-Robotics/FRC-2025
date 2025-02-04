@@ -131,6 +131,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    trajectory = Pose2d.kZero;
+
     swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
     AlignPose = null;
@@ -195,9 +197,9 @@ public class Robot extends TimedRobot {
 
     double[] targetPoseData = targetPosCameraspace.getDoubleArray(new double[3]);
 
-    Pose2d target = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
-    Pose2d targetspacePose = Pose2d.kZero.relativeTo(target);
-    Pose2d offset = pose.relativeTo(targetspacePose);
+    Pose2d targetRelRobot = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
+    Pose2d robotRelTarget = Pose2d.kZero.relativeTo(targetRelRobot);
+    Pose2d offset = pose.relativeTo(robotRelTarget);
 
     double speed = (1.0-1.0/Math.pow(5.0,offset.getTranslation().getDistance(Translation2d.kZero)))*Constants.Swerve.maxSpeed;
     double angularSpeed = (1.0-1.0/Math.pow(5.0,offset.getRotation().getDegrees()/30.0))*Constants.Swerve.maxAngularVelocity;
