@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj2.command.Command;
+
 
 public class Intake extends SubsystemBase {
 
@@ -98,6 +100,11 @@ public class Intake extends SubsystemBase {
             scoring.stopRoller();
         }
         pickingUp = false;
+    }
+
+    public Command dropCoralCommand() {
+        scoring.elevatorLevel4();
+        return this.runOnce(() -> coralPhase3());
     }
 
     public static Intake getInstance() {

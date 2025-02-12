@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  public Conveyor conveyor;
+  // public Conveyor conveyor;
   public Scoring scoring;
   public Intake intake;
   public IntakeArm intakeArm;
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
    */
   public Robot() {
     swerve = Swerve.getInstance();
-    conveyor = Conveyor.getInstance();
+    // conveyor = Conveyor.getInstance();
     scoring = Scoring.getInstance();
     intake = Intake.getInstance();
     intakeArm = IntakeArm.getInstance();
