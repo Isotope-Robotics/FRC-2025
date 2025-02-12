@@ -102,6 +102,10 @@ public class Intake extends SubsystemBase {
         pickingUp = false;
     }
 
+    public Command groundCoralCommand() {
+        return this.runOnce(() -> coralPhase0());
+    }
+
     public Command dropCoralCommand() {
         scoring.elevatorLevel4();
         return this.runOnce(() -> coralPhase3());
