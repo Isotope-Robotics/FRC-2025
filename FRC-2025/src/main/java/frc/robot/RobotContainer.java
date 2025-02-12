@@ -1,4 +1,6 @@
 package frc.robot;
+import frc.robot.Subsystems.*;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -7,8 +9,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
     SendableChooser<Command> autoChooser;
 
-    public RobotContainer() {
+    public Swerve swerve;
+    public Scoring scoring;
+    public Intake intake;
+    public IntakeArm intakeArm;
 
+    public RobotContainer() {
+        swerve = Swerve.getInstance();
+        scoring = Scoring.getInstance();
+        intake = Intake.getInstance();
+        intakeArm = IntakeArm.getInstance();
+        NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
+        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundIntakeCommand());
     }
 
     public Command getAutonomousCommand() {
