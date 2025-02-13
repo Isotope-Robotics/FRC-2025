@@ -20,7 +20,7 @@ public class RobotContainer {
         intake = Intake.getInstance();
         intakeArm = IntakeArm.getInstance();
         NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
-        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundIntakeCommand());
+        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
     }
 
     public Command getAutonomousCommand() {
