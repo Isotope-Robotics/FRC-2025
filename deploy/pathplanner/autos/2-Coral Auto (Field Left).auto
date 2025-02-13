@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Score Coral from Preload"
+            "pathName": "Score Coral from Preload (Field Left)"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "To Coral Station"
+            "pathName": "To Coral Station (Field Left)"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Coral Station to Reef"
+            "pathName": "Coral Station to Reef (Field Left)"
           }
         },
         {
