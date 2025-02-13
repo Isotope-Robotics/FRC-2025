@@ -15,12 +15,12 @@ public class RobotContainer {
     public IntakeArm intakeArm;
 
     public RobotContainer() {
-        swerve = Swerve.getInstance();
+        /*swerve = Swerve.getInstance();
         scoring = Scoring.getInstance();
         intake = Intake.getInstance();
         intakeArm = IntakeArm.getInstance();
         NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
-        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
+        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());*/
     }
 
     public Command getAutonomousCommand() {

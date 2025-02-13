@@ -57,12 +57,6 @@ public class Intake extends SubsystemBase {
         return coralDetector.get();
     }
 
-    public void defineSubsystems() {
-        swerve = Swerve.getInstance();
-        scoring = Scoring.getInstance();
-        intakeArm = IntakeArm.getInstance();
-    }
-
     public void coralPhase0() {
         pickingUp = true;
         scoring.elevatorReset();

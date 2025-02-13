@@ -140,7 +140,7 @@ public class Constants {
 
                 // Swerve Profiling Values
                 // Meters per Second
-                public static final double maxSpeed = 5.21;
+                public static final double maxSpeed = 0.5;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
                 public static final double maxAngularVelocity = maxSpeed / driveRadius;

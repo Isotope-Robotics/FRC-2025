@@ -14,6 +14,8 @@ import frc.robot.Subsystems.*;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import java.util.Set;
+
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -42,7 +44,6 @@ public class Robot extends TimedRobot {
   public Pose2d trajectory;
   public boolean isFieldRel;
 
-  public final XboxController myController = new XboxController(0);
 
   Pose2d AlignPose = null;
 
@@ -59,9 +60,9 @@ public class Robot extends TimedRobot {
   public Robot() {
     swerve = Swerve.getInstance();
     // conveyor = Conveyor.getInstance();
-    scoring = Scoring.getInstance();
+    /*scoring = Scoring.getInstance();
     intake = Intake.getInstance();
-    intakeArm = IntakeArm.getInstance();
+    intakeArm = IntakeArm.getInstance();*/
 
     robotContainer = new RobotContainer();
 
@@ -123,7 +124,6 @@ public class Robot extends TimedRobot {
     if (m_AutonomousCommand != null) {
       m_AutonomousCommand.cancel();
     }
-    intake.defineSubsystems();
     swerve.zeroHeading();
     RobotTelemetry();
   }
@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
 
     Driver1Controls();
 
-    Driver2Controls();
+    //Driver2Controls();
 
     try {
       if (isAligning){
@@ -262,12 +262,12 @@ public class Robot extends TimedRobot {
   }
 
   private void Driver2Controls() {
-    if (myController.getAButtonPressed() && !intake.pickingUp)
+    if (Constants.Controllers.driver2.getAButtonPressed() && !intake.pickingUp)
       intake.coralPhase0();
 
-    if (myController.getRightBumperButtonPressed()) {
+    if (Constants.Controllers.driver2.getRightBumperButtonPressed()) {
       scoring.elevatorUp();
-    } else if (myController.getLeftBumperButtonPressed()) {
+    } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
       scoring.elevatorDown();
     }
   }
