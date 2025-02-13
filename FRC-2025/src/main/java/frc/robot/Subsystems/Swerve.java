@@ -289,7 +289,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void limelightAprilTagAim(boolean isFieldRel) {
-        double currentGyro = gyro.getAngle();
+        double currentGyro = gyro.getYaw().getValueAsDouble();
         double mappedAngle = 0.0f;
         double angy = ((currentGyro % 360.0f));
         if (currentGyro >= 0.0f) {
