@@ -215,7 +215,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  private void Driver1Controls() {
+  /* private void Driver1Controls() {
     // Back to robot centric while button seven is pushed
     if (Constants.Controllers.driver1.getRawButton(2)) {
       swerve.zeroHeading();
@@ -256,6 +256,48 @@ public class Robot extends TimedRobot {
     
     //Designate button to cancel aligning
     if (Constants.Controllers.driver1.getRawButton(4)) {
+      isAligning = false;
+    }
+
+  }
+*/
+  private void Driver1Controls() {
+    // Back to robot centric while button seven is pushed
+    if (Constants.Controllers.driver1Xbox.getLeftBumperButton()) {
+      swerve.zeroHeading();
+      System.out.println("Gyro reset");
+    }
+
+
+    double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftY()
+        * (Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+        Constants.Controllers.stickDeadband);
+    double ySpeed = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
+        * (Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+        Constants.Controllers.stickDeadband);
+    double rot = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX(),
+        Constants.Controllers.stickDeadband);
+    
+    // Queue robot's trajectory
+    
+    trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
+    
+    // Field Relative
+    isFieldRel = !Constants.Controllers.driver1Xbox.getRightBumperButton();
+
+    // Controls for auto-aligning robot
+    if (Constants.Controllers.driver1Xbox.getAButton()) {
+      isAligning = true;
+      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
+    }
+
+    if (Constants.Controllers.driver1Xbox.getYButton()) {
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+    }
+    
+    //Designate button to cancel aligning
+    if (Constants.Controllers.driver1Xbox.getBButton()) {
       isAligning = false;
     }
 
