@@ -28,6 +28,7 @@ public class Constants {
         // Controllers Constants
         public static final class Controllers {
                 public static final Joystick driver1 = new Joystick(0);
+                public static final XboxController driver1Xbox = new XboxController(0);
                 public static final XboxController driver2 = new XboxController(1);
                 public static final double stickDeadband = 0.05;
         }
