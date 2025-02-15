@@ -186,7 +186,13 @@ public class Robot extends TimedRobot {
 
   // Add Telemetry Data for Robot
   private void RobotTelemetry() {
-
+    for (SwerveModule mod : swerve.mSwerveMods) {
+      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANCoder().getDegrees());
+      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
+      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Drive Current", mod.getDriveCurrent());
+      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Current", mod.getDriveCurrent());
+    }
   }
 
   // Move Robot to position and rotation compared to April Tag
@@ -227,10 +233,10 @@ public class Robot extends TimedRobot {
     // daily driving
     // Else swerve will be field centric - recommended for daily driving
 
-    double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1)
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1)
         * (Constants.Controllers.driver1.getRawAxis(2)),
         Constants.Controllers.stickDeadband);
-    double ySpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0)
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0)
         * (Constants.Controllers.driver1.getRawAxis(2)),
         Constants.Controllers.stickDeadband);
     double rot = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3) // we made it unnegatived

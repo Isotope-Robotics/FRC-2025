@@ -57,7 +57,7 @@ public class SwerveModule {
 
         } else if (this.moduleNumber == 2) {
             mDriveMotor = new TalonFX(moduleConstants.driveMotorId);
-            mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
+            mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig1);
             mDriveMotor.getConfigurator().setPosition(0.0);
 
         } else if (this.moduleNumber == 3) {
