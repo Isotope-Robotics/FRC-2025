@@ -137,9 +137,11 @@ public class Robot extends TimedRobot {
 
     AlignPose = null;
 
-    Driver1Controls();
+    //Driver1Controls();
 
-    //Driver2Controls();
+    Driver1ControlsXbox();
+
+    Driver2Controls();
 
     try {
       if (isAligning){
@@ -275,13 +277,13 @@ public class Robot extends TimedRobot {
     }
 
 
-    double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftY()
-        * (Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftY()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double ySpeed = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
-        * (Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double rot = MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX(),
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX(),
         Constants.Controllers.stickDeadband);
     
     // Queue robot's trajectory
