@@ -73,7 +73,7 @@ public class Constants {
                 public static final FalconSwerveConstants chosenModule = FalconSwerveConstants.SDS.MK4i
                                 .Falcon500(FalconSwerveConstants.SDS.MK4i.driveRatios.L69);
 
-                public static final FalconSwerveConstants module0 = FalconSwerveConstants.SDS.MK4i
+                public static final FalconSwerveConstants module2 = FalconSwerveConstants.SDS.MK4i
                                 .Falcon500Inverted(FalconSwerveConstants.SDS.MK4i.driveRatios.L69);
 
                 // Drivetrain Constants
