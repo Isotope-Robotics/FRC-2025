@@ -19,7 +19,8 @@ public class Scoring extends SubsystemBase {
 
     public static SparkMax angle;
     public static SparkMax elevator;
-    public static SparkMax roller;
+    public static SparkMax roller1;
+    public static SparkMax roller2;
     public static DigitalInput sensor;
     public static RelativeEncoder angleEncoder;
     public static RelativeEncoder elevatorEncoder;
@@ -30,11 +31,12 @@ public class Scoring extends SubsystemBase {
 
     private int elevatorLevel = 0;
 
-    public Scoring(int angleID, int elevatorID, int rollerID, int sensorID) {
+    public Scoring(int angleID, int elevatorID, int roller1ID, int roller2ID, int sensorID) {
         // Moter Declarations
         angle = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
-        roller = new SparkMax(rollerID, MotorType.kBrushless);
+        roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
+        roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
         sensor = new DigitalInput(sensorID);
         // Encoder Declarations
         angleEncoder = angle.getEncoder();
@@ -55,15 +57,18 @@ public class Scoring extends SubsystemBase {
 
     // Turns on Roller on scoring mecanism
     public void runRollerIn() {
-        roller.set(0.8);
+        roller1.set(0.8);
+        roller2.set(0.8);
     }
 
     public void runRollerOut() {
-        roller.set(-0.8);
+        roller1.set(-0.8);
+        roller2.set(-0.8);
     }
 
     public void stopRoller() {
-        roller.set(0);
+        roller1.set(0);
+        roller2.set(0);
     }
 
 
@@ -131,7 +136,7 @@ public class Scoring extends SubsystemBase {
     public static Scoring getInstance() {
         if (m_Instance == null)
             m_Instance = new Scoring(Constants.Scoring.angleID, Constants.Scoring.elevatorID,
-                    Constants.Scoring.rollerID, Constants.Scoring.sensorID);
+                    Constants.Scoring.roller1ID, Constants.Scoring.roller2ID, Constants.Scoring.sensorID);
         return m_Instance;
     }
 }

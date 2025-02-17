@@ -35,7 +35,8 @@ public class Constants {
         public static final class Scoring {
                 public static final Integer angleID = 0;
                 public static final Integer elevatorID = 0;
-                public static final Integer rollerID = 0;
+                public static final Integer roller1ID = 0;
+                public static final Integer roller2ID = 0;
                 public static final Integer sensorID = 0;
                 public static final double kP = 0.1;
                 public static final double kI = 0.001;
