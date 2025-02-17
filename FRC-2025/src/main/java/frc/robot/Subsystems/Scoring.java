@@ -73,8 +73,7 @@ public class Scoring extends SubsystemBase {
 
 
     public void elevatorReset() {
-        elevatorLevel0();
-        elevatorLevel = 0;
+        goToLevel(0);
     }
 
     // Set elevator and anlge to levels with encoder ticks
@@ -103,8 +102,9 @@ public class Scoring extends SubsystemBase {
         elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 80));
     }
 
-    public void goToLevel() {
-        switch (elevatorLevel % 5) {
+    public void goToLevel(int l) {
+        setLevel(l);
+        switch (elevatorLevel) {
             case 0: {
                 elevatorLevel0();
             }
@@ -124,13 +124,17 @@ public class Scoring extends SubsystemBase {
     }
 
     public void elevatorUp() {
-        elevatorLevel++;
-        goToLevel();
+        setLevel(elevatorLevel + 1);
+        goToLevel(elevatorLevel);
     }
 
     public void elevatorDown() {
-        elevatorLevel--;
-        goToLevel();
+        setLevel(elevatorLevel - 1);
+        goToLevel(elevatorLevel);
+    }
+
+    public void setLevel(int l) {
+        elevatorLevel = l % 5;
     }
 
     public static Scoring getInstance() {
