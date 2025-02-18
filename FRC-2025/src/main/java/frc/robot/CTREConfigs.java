@@ -77,7 +77,7 @@ public class CTREConfigs {
         swerveDriveFXConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Swerve.closedLoopRamp;
 
         /* Motor Inverts and Neutral Mode */
-        swerveDriveFXConfig1.MotorOutput.Inverted = Constants.Swerve.module0.driveMotorInvert;
+        swerveDriveFXConfig1.MotorOutput.Inverted = Constants.Swerve.module2.driveMotorInvert;
         swerveDriveFXConfig1.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         /* Gear Ratio Config */
