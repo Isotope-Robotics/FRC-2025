@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj2.command.Command;
 
-
 public class Intake extends SubsystemBase {
 
     // this spins in an arbitrary direction to intake a coral
