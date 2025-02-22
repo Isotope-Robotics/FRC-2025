@@ -20,7 +20,7 @@ public class Constants {
         // Conveyer Constants
         public static final class Conveyor {
                 public static final Integer conveyorMotorID = 20;
-                public static final Integer conveyorSensorID = 0;
+                public static final Integer conveyorSensorID = 104;
         }
 
         // Controllers Constants
@@ -33,11 +33,11 @@ public class Constants {
 
         // Scoring Mecanism Constants
         public static final class Scoring {
-                public static final Integer angleID = 0;
-                public static final Integer elevatorID = 0;
-                public static final Integer roller1ID = 0;
-                public static final Integer roller2ID = 0;
-                public static final Integer sensorID = 0;
+                public static final Integer angleID = 99;
+                public static final Integer elevatorID = 100;
+                public static final Integer roller1ID = 101;
+                public static final Integer roller2ID = 102;
+                public static final Integer sensorID = 103;
                 public static final double kP = 0.1;
                 public static final double kI = 0.001;
                 public static final double kD = 0.0001;
@@ -51,8 +51,8 @@ public class Constants {
 
         // Intake Constants
         public static final class Intake {
-                public static final Integer intakeMotorID = 0;
-                public static final Integer pivotMotorID = 0;
+                public static final Integer intakeMotorID = 105;
+                public static final Integer pivotMotorID = 106;
                 public static final double kP = 0.1;
                 public static final double kI = 0;
                 public static final double kD = 0;
@@ -111,7 +111,7 @@ public class Constants {
                 public static final double angleCurrentThresholdTime = 0.1;
                 public static final boolean angleEnableCurrentLimit = true;
 
-                public static final int driveCurrentLimit = 100;
+                public static final int driveCurrentLimit = 50;
                 public static final int driveCurrentThreshold = 120;
                 public static final double driveCurrentThresholdTime = 0.1;
                 public static final boolean driveEnableCurrentLimit = true;
@@ -141,10 +141,10 @@ public class Constants {
 
                 // Swerve Profiling Values
                 // Meters per Second
-                public static final double maxSpeed = 10.0;
+                public static final double maxSpeed = 5.0;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
-                public static final double maxAngularVelocity = maxSpeed / driveRadius;
+                public static final double maxAngularVelocity = maxSpeed / driveRadius / 20;
 
                 // Neutral Modes
                 public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;

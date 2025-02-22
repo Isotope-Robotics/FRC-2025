@@ -278,7 +278,8 @@ public class Robot extends TimedRobot {
     double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
         * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX(),
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
     
     // Queue robot's trajectory
@@ -308,12 +309,12 @@ public class Robot extends TimedRobot {
 
   private void Driver2Controls() {
     if (Constants.Controllers.driver2.getAButtonPressed() && !intake.pickingUp)
-      intake.coralPhase0();
+     // intake.coralPhase0();
 
     if (Constants.Controllers.driver2.getRightBumperButtonPressed()) {
-      scoring.elevatorUp();
+     // scoring.elevatorUp();
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
-      scoring.elevatorDown();
+     // scoring.elevatorDown();
     }
   }
 }
