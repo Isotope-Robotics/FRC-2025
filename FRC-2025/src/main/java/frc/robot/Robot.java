@@ -55,9 +55,9 @@ public class Robot extends TimedRobot {
   public Robot() {
     swerve = Swerve.getInstance();
     // conveyor = Conveyor.getInstance();
-    /*scoring = Scoring.getInstance();
+    //scoring = Scoring.getInstance();
     intake = Intake.getInstance();
-    intakeArm = IntakeArm.getInstance();*/
+   // intakeArm = IntakeArm.getInstance();*/
 
     robotContainer = new RobotContainer();
 
@@ -132,9 +132,9 @@ public class Robot extends TimedRobot {
 
     AlignPose = null;
 
-    //Driver1Controls();
+    Driver1Controls();
 
-    Driver1ControlsXbox();
+    //Driver1ControlsXbox();
 
     Driver2Controls();
 
@@ -236,7 +236,7 @@ public class Robot extends TimedRobot {
     double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0)
         * (Constants.Controllers.driver1.getRawAxis(2)),
         Constants.Controllers.stickDeadband);
-    double rot = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3) // we made it unnegatived
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3)
         * (Constants.Controllers.driver1.getRawAxis(2)),
         Constants.Controllers.stickDeadband);
     
@@ -308,9 +308,12 @@ public class Robot extends TimedRobot {
   }
 
   private void Driver2Controls() {
-    if (Constants.Controllers.driver2.getAButtonPressed() && !intake.pickingUp)
+    if (Constants.Controllers.driver2.getAButton() /*&& !intake.pickingUp*/) {
      // intake.coralPhase0();
-
+      intake.runIn();
+    } else {
+      intake.intakeStop();
+    }
     if (Constants.Controllers.driver2.getRightBumperButtonPressed()) {
      // scoring.elevatorUp();
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {

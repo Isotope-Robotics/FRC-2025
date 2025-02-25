@@ -34,9 +34,9 @@ public class Constants {
         // Scoring Mecanism Constants
         public static final class Scoring {
                 public static final Integer angleID = 99;
-                public static final Integer elevatorID = 100;
-                public static final Integer roller1ID = 101;
-                public static final Integer roller2ID = 102;
+                public static final Integer elevatorID = 6;
+                public static final Integer roller1ID = 4;
+                public static final Integer roller2ID = 3;
                 public static final Integer sensorID = 103;
                 public static final double kP = 0.1;
                 public static final double kI = 0.001;
@@ -51,15 +51,14 @@ public class Constants {
 
         // Intake Constants
         public static final class Intake {
-                public static final Integer intakeMotorID = 105;
-                public static final Integer pivotMotorID = 106;
+                public static final Integer intakeMotorID = 20;
                 public static final double kP = 0.1;
                 public static final double kI = 0;
                 public static final double kD = 0;
         }
 
         public static final class IntakeArm {
-                public static final Integer intakeArmMotorID = 9;
+                public static final Integer intakeArmMotorID = 5;
         }
 
         // Swerve Module Constants Class

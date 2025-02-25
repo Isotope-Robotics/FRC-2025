@@ -57,12 +57,12 @@ public class Intake extends SubsystemBase {
 
     public void coralPhase0() {
         pickingUp = true;
-        scoring.elevatorReset();
-        intakeArm.moveArmOut();
-        if (intakeArm.isOutsideSwitchPressed()) {
+       // scoring.elevatorReset();
+        //intakeArm.moveArmOut();
+       /*  if (intakeArm.isOutsideSwitchPressed()) {
             intakeArm.stopArm();
             coralPhase1();
-        }
+        } */
     }
 
     public void coralPhase1() {
