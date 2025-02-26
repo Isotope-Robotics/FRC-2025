@@ -18,10 +18,6 @@ import frc.robot.Lib.Util.SwerveModuleConstants;
 
 public class Constants {
         // Conveyer Constants
-        public static final class Conveyor {
-                public static final Integer conveyorMotorID = 20;
-                public static final Integer conveyorSensorID = 104;
-        }
 
         // Controllers Constants
         public static final class Controllers {
@@ -61,6 +57,12 @@ public class Constants {
                 public static final Integer intakeArmMotorID = 5;
         }
 
+        public static final class Climber {
+                public static final Integer climbMotorID = 6;
+                public static final double kP = 0.1;
+                public static final double kI = 0.001;
+                public static final double kD = 0.0001;
+        }
         // Swerve Module Constants Class
         public static final class Swerve {
 
