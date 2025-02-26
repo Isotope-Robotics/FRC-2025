@@ -29,10 +29,10 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  // public Conveyor conveyor;
-  public Scoring scoring;
+  //public Conveyor conveyor;
+  //public Scoring scoring;
   public Intake intake;
-  public IntakeArm intakeArm;
+  //public IntakeArm intakeArm;
 
   public boolean isAligning;
 
@@ -40,113 +40,123 @@ public class Robot extends TimedRobot {
   public boolean isFieldRel;
 
 
-  Pose2d AlignPose = null;
+  public Pose2d AlignPose = null;
 
-  boolean isCoralReady = false;
+  public boolean isCoralReady = false;
 
   // 0 represents that the intake is ready
-  int coralPhase = 0;
-
-  /**
-   * This function is run when the robot is first started up and should be used
-   * for any
-   * initialization code.
-   */
-  public Robot() {
-    swerve = Swerve.getInstance();
-    // conveyor = Conveyor.getInstance();
-    //scoring = Scoring.getInstance();
-    intake = Intake.getInstance();
-   // intakeArm = IntakeArm.getInstance();*/
-
-    robotContainer = new RobotContainer();
-
-  }
-
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items
-   * like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    swerve.swerveCurrents();
-    RobotTelemetry();
-  }
-
-  /**
-   * This autonomous (along with the chooser code above) shows how to select
-   * between different
-   * autonomous modes using the dashboard. The sendable chooser code works with
-   * the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
-   * chooser code and
-   * uncomment the getString line to get the auto name from the text box below the
-   * Gyro
-   *
-   * <p>
-   * You can add additional auto modes by adding additional comparisons to the
-   * switch structure
-   * below with additional strings. If using the SendableChooser make sure to add
-   * them to the
-   * chooser code above as well.
-   */
-  @Override
-  public void autonomousInit() {
-    Command m_AutonomousCommand = robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_AutonomousCommand != null) {
-      m_AutonomousCommand.schedule();
+  public int coralPhase = 0;
+  
+  public boolean isLooking;
+  
+    /**
+     * This function is run when the robot is first started up and should be used
+     * for any
+     * initialization code.
+     */
+    public Robot() {
+      swerve = Swerve.getInstance();
+      //conveyor = Conveyor.getInstance();
+      //scoring = Scoring.getInstance();
+      intake = Intake.getInstance();
+      //intakeArm = IntakeArm.getInstance();
+  
+      robotContainer = new RobotContainer();
+  
     }
-  }
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-    swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
-    RobotTelemetry();
-  }
-
-  /** This function is called once when teleop is enabled. */
-  @Override
-  public void teleopInit() {// Destroy Auto Commands When Switching To TeleOP
-    if (m_AutonomousCommand != null) {
-      m_AutonomousCommand.cancel();
+  
+    /**
+     * This function is called every 20 ms, no matter the mode. Use this for items
+     * like diagnostics
+     * that you want ran during disabled, autonomous, teleoperated and test.
+     *
+     * <p>
+     * This runs after the mode specific periodic functions, but before LiveWindow
+     * and
+     * SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic() {
+      swerve.swerveCurrents();
+      RobotTelemetry();
     }
-    swerve.zeroHeading();
-    RobotTelemetry();
-  }
-
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
-    trajectory = Pose2d.kZero;
-
-    swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
-
-    AlignPose = null;
-
-    Driver1Controls();
-
-    //Driver1ControlsXbox();
-
-    Driver2Controls();
-
-    try {
-      if (isAligning){
-        AlignRobot(AlignPose);
+  
+    /**
+     * This autonomous (along with the chooser code above) shows how to select
+     * between different
+     * autonomous modes using the dashboard. The sendable chooser code works with
+     * the Java
+     * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+     * chooser code and
+     * uncomment the getString line to get the auto name from the text box below the
+     * Gyro
+     *
+     * <p>
+     * You can add additional auto modes by adding additional comparisons to the
+     * switch structure
+     * below with additional strings. If using the SendableChooser make sure to add
+     * them to the
+     * chooser code above as well.
+     */
+    @Override
+    public void autonomousInit() {
+      Command m_AutonomousCommand = robotContainer.getAutonomousCommand();
+  
+      // schedule the autonomous command (example)
+      if (m_AutonomousCommand != null) {
+        m_AutonomousCommand.schedule();
       }
-    } catch (NullPointerException e) {
-      System.err.println("No align pose was set!");
+    }
+  
+    /** This function is called periodically during autonomous. */
+    @Override
+    public void autonomousPeriodic() {
+      swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
+      RobotTelemetry();
+    }
+  
+    /** This function is called once when teleop is enabled. */
+    @Override
+    public void teleopInit() {// Destroy Auto Commands When Switching To TeleOP
+      if (m_AutonomousCommand != null) {
+        m_AutonomousCommand.cancel();
+      }
+      swerve.zeroHeading();
+      RobotTelemetry();
+    }
+  
+    /** This function is called periodically during operator control. */
+    @Override
+    public void teleopPeriodic() {
+      trajectory = Pose2d.kZero;
+  
+      swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
+  
+      AlignPose = null;
+  
+      //Driver1Controls();
+  
+      Driver1ControlsXbox();
+  
+      //Driver2Controls();
+  
+      try {
+        if (isAligning){
+          AlignRobot(AlignPose);
+        }
+      } catch (NullPointerException e) {
+        System.err.println("No align pose was set!");
+      }
+  
+    
+    if (isLooking){
+      lookAtCoral();
     }
 
     RobotTelemetry();
+
+    //SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
+    //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
 
     swerve.drive(trajectory, isFieldRel, false);
   }
@@ -218,6 +228,14 @@ public class Robot extends TimedRobot {
     }
   }
 
+  private void lookAtCoral(){
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("CoralDetector");
+    NetworkTableEntry x = table.getEntry("tx");
+    NetworkTableEntry y = table.getEntry("ty");
+    
+    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(x.getDouble(0)/(y.getDouble(0)-21)-0.5,1)*Constants.Swerve.maxAngularVelocity)));
+  }
+
   private void Driver1Controls() {
     // Back to robot centric while button seven is pushed
     if (Constants.Controllers.driver1.getRawButton(2)) {
@@ -266,20 +284,20 @@ public class Robot extends TimedRobot {
 
   private void Driver1ControlsXbox() {
     // Back to robot centric while button seven is pushed
-    if (Constants.Controllers.driver1Xbox.getLeftBumperButton()) {
+    if (Constants.Controllers.driver2.getLeftBumperButton()) {
       swerve.zeroHeading();
       System.out.println("Gyro reset");
     }
 
 
-    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftY()
-        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY()
+        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
-        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftX()
+        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX()
-        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver2.getRightX()
+        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
     
     // Queue robot's trajectory
@@ -287,37 +305,50 @@ public class Robot extends TimedRobot {
     trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
     
     // Field Relative
-    isFieldRel = !Constants.Controllers.driver1Xbox.getRightBumperButton();
+    isFieldRel = !Constants.Controllers.driver2.getRightBumperButton();
 
     // Controls for auto-aligning robot
-    if (Constants.Controllers.driver1Xbox.getAButton()) {
+    if (Constants.Controllers.driver2.getAButton()) {
       isAligning = true;
       AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
     }
 
-    if (Constants.Controllers.driver1Xbox.getYButton()) {
+    if (Constants.Controllers.driver2.getYButton()) {
       isAligning = true;
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
+
+    if (Constants.Controllers.driver2.getXButton()) {
+      isLooking = true;
+    }
     
     //Designate button to cancel aligning
-    if (Constants.Controllers.driver1Xbox.getBButton()) {
+    if (Constants.Controllers.driver2.getBButton()) {
       isAligning = false;
+      isLooking = false;
     }
 
   }
 
   private void Driver2Controls() {
     if (Constants.Controllers.driver2.getAButton() /*&& !intake.pickingUp*/) {
-     // intake.coralPhase0();
+      //intake.coralPhase0();
       intake.runIn();
     } else {
       intake.intakeStop();
     }
     if (Constants.Controllers.driver2.getRightBumperButtonPressed()) {
-     // scoring.elevatorUp();
+      //scoring.elevatorUp();
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
-     // scoring.elevatorDown();
+      //scoring.elevatorDown();
+    }
+    if (Constants.Controllers.driver2.getYButton()) {
+      isLooking = true;
+    }
+    
+    //Designate button to cancel aligning
+    if (Constants.Controllers.driver2.getBButton()) {
+      isLooking = false;
     }
   }
 }

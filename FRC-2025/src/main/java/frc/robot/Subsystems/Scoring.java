@@ -33,20 +33,20 @@ public class Scoring extends SubsystemBase {
 
     public Scoring(int angleID, int elevatorID, int roller1ID, int roller2ID, int sensorID) {
         // Moter Declarations
-        angle = new SparkMax(angleID, MotorType.kBrushless);
+        //angle = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
-        roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
-        roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
-        sensor = new DigitalInput(sensorID);
+        //roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
+        //roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
+        //sensor = new DigitalInput(sensorID);
         // Encoder Declarations
-        angleEncoder = angle.getEncoder();
+        //angleEncoder = angle.getEncoder();
         elevatorEncoder = elevator.getEncoder();
         // Moter Configurations
-        SparkMaxConfig angleConfig = new SparkMaxConfig();
+        //SparkMaxConfig angleConfig = new SparkMaxConfig();
         SparkMaxConfig elevatorConfig = new SparkMaxConfig();
-        angleConfig.idleMode(IdleMode.kBrake);
+        //angleConfig.idleMode(IdleMode.kBrake);
         elevatorConfig.idleMode(IdleMode.kBrake);
-        angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        //angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
@@ -143,4 +143,11 @@ public class Scoring extends SubsystemBase {
                     Constants.Scoring.roller1ID, Constants.Scoring.roller2ID, Constants.Scoring.sensorID);
         return m_Instance;
     }
+    public double getElevatorEncoder() {
+        return elevatorEncoder.getPosition();
+    }
+    public double getAngleEncoder() {
+        return angleEncoder.getPosition();
+    }
+
 }

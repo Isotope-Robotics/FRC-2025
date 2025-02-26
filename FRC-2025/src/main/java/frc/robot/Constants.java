@@ -143,7 +143,7 @@ public class Constants {
                 public static final double maxSpeed = 5.0;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
-                public static final double maxAngularVelocity = maxSpeed / driveRadius / 20;
+                public static final double maxAngularVelocity = maxSpeed / driveRadius / 200;
 
                 // Neutral Modes
                 public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;
