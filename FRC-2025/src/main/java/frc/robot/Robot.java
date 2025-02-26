@@ -205,7 +205,7 @@ public class Robot extends TimedRobot {
   // Move Robot to position and rotation compared to April Tag
   private void AlignRobot(Pose2d pose){
 
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("ScoringLimelight");
     NetworkTableEntry targetPosCameraspace = table.getEntry("targetpose_cameraspace");
 
     double[] targetPoseData = targetPosCameraspace.getDoubleArray(new double[3]);
@@ -233,7 +233,7 @@ public class Robot extends TimedRobot {
     NetworkTableEntry x = table.getEntry("tx");
     NetworkTableEntry y = table.getEntry("ty");
     
-    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(x.getDouble(0)/(y.getDouble(0)-21)-0.5,1)*Constants.Swerve.maxAngularVelocity)));
+    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(x.getDouble(0)-((y.getDouble(0)-21.0)*0.5),1)*Constants.Swerve.maxAngularVelocity)));
   }
 
   private void Driver1Controls() {
