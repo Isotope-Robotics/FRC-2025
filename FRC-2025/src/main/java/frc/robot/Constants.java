@@ -21,7 +21,7 @@ public class Constants {
 
         // Controllers Constants
         public static final class Controllers {
-                public static final Joystick driver1 = new Joystick(0);
+                public static final Joystick driver1 = new Joystick(2);
                 public static final XboxController driver1Xbox = new XboxController(0);
                 public static final XboxController driver2 = new XboxController(1);
                 public static final double stickDeadband = 0.15;
@@ -43,7 +43,7 @@ public class Constants {
 
         public static final class Vision {
                 public static final double aligningTolerance = 0.05;
-                public static final double limelightHeight = 0;
+                public static final double limelightHeight = 0.5334;
         }
 
         // Intake Constants
@@ -143,7 +143,7 @@ public class Constants {
 
                 // Swerve Profiling Values
                 // Meters per Second
-                public static final double maxSpeed = 5.0;
+                public static final double maxSpeed = 1.0;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
                 public static final double maxAngularVelocity = maxSpeed / driveRadius / 200;

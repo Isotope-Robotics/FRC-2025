@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
         intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
         intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        coralDetector = new DigitalInput(0); // this port number is probably wrong!!!
+        coralDetector = new DigitalInput(2); // this port number is probably wrong!!!
     }
 
     public void runIn() {
@@ -58,11 +58,11 @@ public class Intake extends SubsystemBase {
     public void coralPhase0() {
         pickingUp = true;
        // scoring.elevatorReset();
-        //intakeArm.moveArmOut();
-       /*  if (intakeArm.isOutsideSwitchPressed()) {
+        intakeArm.moveArmOut();
+        if (intakeArm.isOutsideSwitchPressed()) {
             intakeArm.stopArm();
             coralPhase1();
-        } */
+        } 
     }
 
     public void coralPhase1() {

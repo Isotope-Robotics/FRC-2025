@@ -7,13 +7,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakeArm extends SubsystemBase {
-    private static SparkMax armMotor;
+    private SparkMax armMotor;
     private static IntakeArm m_Instance = null;
-    private static DigitalInput outsideLimitSwitch = new DigitalInput(0);
-    private static DigitalInput insideLimitSwitch = new DigitalInput(1);
+    private DigitalInput outsideLimitSwitch;
+    private DigitalInput insideLimitSwitch;
 
     public IntakeArm(int intakeArmMotorID) {
         armMotor = new SparkMax(intakeArmMotorID, MotorType.kBrushless);
+        outsideLimitSwitch = new DigitalInput(0);
+        insideLimitSwitch = new DigitalInput(1);
     }
 
     public boolean isInsideSwitchPressed() {

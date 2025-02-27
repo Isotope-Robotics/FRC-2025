@@ -89,6 +89,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
       swerve.swerveCurrents();
       RobotTelemetry();
+      CommandScheduler.getInstance().run();
     }
   
     /**
@@ -144,7 +145,7 @@ public class Robot extends TimedRobot {
   
       AlignPose = null;
   
-      //Driver1Controls();
+      Driver1Controls();
   
       //Driver1ControlsXbox();
   
@@ -253,8 +254,8 @@ public class Robot extends TimedRobot {
     double kI = 0.1;
     double steering_adjust = 0.0; // between 0 and 1
     double acceptable_error_threshold = 7.0 / 360.0; // 15 degrees allowable
-    double offset = 0.3; // in meters
-    error = ((tx / tx_max) - (ty / ty_max) * (offset/Constants.Vision.limelightHeight*Math.tan(Math.toRadians(48))*tx_max/ty_max) + ty_max) * (31.25 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
+    double offset = -0.3; // in meters
+    error = ((tx / tx_max) - (ty / ty_max * offset/Constants.Vision.limelightHeight*Math.tan(Math.toRadians(48))*tx_max/ty_max) + ty_max) * (31.25 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
     //error = (tx / tx_max) * (31.25 / 180) + (offset/180.0f); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
 
     if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
@@ -319,20 +320,20 @@ public class Robot extends TimedRobot {
 
   private void Driver1ControlsXbox() {
     // Back to robot centric while button seven is pushed
-    if (Constants.Controllers.driver2.getLeftBumperButton()) {
+    if (Constants.Controllers.driver1Xbox.getLeftBumperButton()) {
       swerve.zeroHeading();
       System.out.println("Gyro reset");
     }
 
 
-    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY()
-        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftY()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftX()
-        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getLeftX()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
-    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver2.getRightX()
-        * 0.5 * (1 + Constants.Controllers.driver2.getRightTriggerAxis()),
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1Xbox.getRightX()
+        * 0.5 * (1 + Constants.Controllers.driver1Xbox.getRightTriggerAxis()),
         Constants.Controllers.stickDeadband);
     
     // Queue robot's trajectory
@@ -385,6 +386,22 @@ public class Robot extends TimedRobot {
       intakeArm.moveArmOut();
     } else {
       intakeArm.stopArm();
+    }
+
+    if (Constants.Controllers.driver2.getYButton()) {
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+    }
+
+    if (Constants.Controllers.driver2.getXButton()) {
+      //isLooking = true;
+      coralAutoAim();
+    }
+    
+    //Designate button to cancel aligning
+    if (Constants.Controllers.driver2.getBButton()) {
+      isAligning = false;
+      //isLooking = false;
     }
 
   }

@@ -2,7 +2,10 @@ package frc.robot;
 import frc.robot.Subsystems.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 
@@ -17,6 +20,8 @@ public class RobotContainer {
 
     public RobotContainer() {
         swerve = Swerve.getInstance();
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Autochooser", autoChooser);
         // scoring = Scoring.getInstance();
         // intake = Intake.getInstance();
         // instakeArm = IntakeArm.getInstance();
