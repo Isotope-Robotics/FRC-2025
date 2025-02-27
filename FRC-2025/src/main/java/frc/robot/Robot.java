@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
       //conveyor = Conveyor.getInstance();
       //scoring = Scoring.getInstance();
       intake = Intake.getInstance();
-      //intakeArm = IntakeArm.getInstance();
+      intakeArm = IntakeArm.getInstance();
   
       robotContainer = new RobotContainer();
   
@@ -142,9 +142,9 @@ public class Robot extends TimedRobot {
   
       //Driver1Controls();
   
-      Driver1ControlsXbox();
+      //Driver1ControlsXbox();
   
-      //Driver2Controls();
+      Driver2Controls();
   
       try {
         if (isAligning){
@@ -336,26 +336,26 @@ public class Robot extends TimedRobot {
     trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
     
     // Field Relative
-    isFieldRel = !Constants.Controllers.driver2.getRightBumperButton();
+    isFieldRel = !Constants.Controllers.driver1Xbox.getRightBumperButton();
 
     // Controls for auto-aligning robot
-    if (Constants.Controllers.driver2.getAButton()) {
+    if (Constants.Controllers.driver1Xbox.getAButton()) {
       isAligning = true;
       AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
     }
 
-    if (Constants.Controllers.driver2.getYButton()) {
+    if (Constants.Controllers.driver1Xbox.getYButton()) {
       isAligning = true;
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
 
-    if (Constants.Controllers.driver2.getXButton()) {
+    if (Constants.Controllers.driver1Xbox.getXButton()) {
       //isLooking = true;
       coralAutoAim();
     }
     
     //Designate button to cancel aligning
-    if (Constants.Controllers.driver2.getBButton()) {
+    if (Constants.Controllers.driver1Xbox.getBButton()) {
       isAligning = false;
       //isLooking = false;
     }
@@ -374,10 +374,7 @@ public class Robot extends TimedRobot {
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
       //scoring.elevatorDown();
     }
-    // if (Constants.Controllers.driver2.getYButton()) {
-    //   isLooking = true;
-    // }
-
+ 
     if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
       intakeArm.moveArmIn();
     } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
@@ -386,9 +383,5 @@ public class Robot extends TimedRobot {
       intakeArm.stopArm();
     }
 
-    //Designate button to cancel aligning
-    // if (Constants.Controllers.driver2.getBButton()) {
-    //   isLooking = false;
-    // }
   }
 }
