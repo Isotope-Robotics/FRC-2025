@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   //public Conveyor conveyor;
   //public Scoring scoring;
   public Intake intake;
-  //public IntakeArm intakeArm;
+  public IntakeArm intakeArm;
 
   public boolean isAligning;
 
@@ -342,13 +342,21 @@ public class Robot extends TimedRobot {
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
       //scoring.elevatorDown();
     }
-    if (Constants.Controllers.driver2.getYButton()) {
-      isLooking = true;
+    // if (Constants.Controllers.driver2.getYButton()) {
+    //   isLooking = true;
+    // }
+
+    if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
+      intakeArm.moveArmIn();
+    } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
+      intakeArm.moveArmOut();
+    } else {
+      intakeArm.stopArm();
     }
-    
+
     //Designate button to cancel aligning
-    if (Constants.Controllers.driver2.getBButton()) {
-      isLooking = false;
-    }
+    // if (Constants.Controllers.driver2.getBButton()) {
+    //   isLooking = false;
+    // }
   }
 }

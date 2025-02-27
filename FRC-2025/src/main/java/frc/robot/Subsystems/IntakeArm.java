@@ -9,8 +9,8 @@ import frc.robot.Constants;
 public class IntakeArm extends SubsystemBase {
     private static SparkMax armMotor;
     private static IntakeArm m_Instance = null;
-    DigitalInput outsideLimitSwitch = new DigitalInput(0);
-    DigitalInput insideLimitSwitch = new DigitalInput(1);
+    private static DigitalInput outsideLimitSwitch = new DigitalInput(0);
+    private static DigitalInput insideLimitSwitch = new DigitalInput(1);
 
     public IntakeArm(int intakeArmMotorID) {
         armMotor = new SparkMax(intakeArmMotorID, MotorType.kBrushless);
@@ -26,14 +26,14 @@ public class IntakeArm extends SubsystemBase {
 
     public void moveArmOut() {
         if (!isOutsideSwitchPressed())
-            armMotor.set(1);
+            armMotor.set(.15);
         else
             armMotor.set(0);
     }
 
     public void moveArmIn() {
         if (!isInsideSwitchPressed())
-            armMotor.set(-1);
+            armMotor.set(-0.15);
         else
             armMotor.set(0);
     }
