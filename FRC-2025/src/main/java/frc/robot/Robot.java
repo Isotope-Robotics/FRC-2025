@@ -13,6 +13,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
+
+import static edu.wpi.first.units.Units.derive;
+
 import edu.wpi.first.math.MathUtil;
 
 /**
@@ -39,6 +42,9 @@ public class Robot extends TimedRobot {
   public Pose2d trajectory;
   public boolean isFieldRel;
 
+  public NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-coral");
+  public NetworkTableEntry coralx = table.getEntry("tx");
+  public NetworkTableEntry coraly = table.getEntry("ty");
 
   public Pose2d AlignPose = null;
 
@@ -149,9 +155,9 @@ public class Robot extends TimedRobot {
       }
   
     
-    if (isLooking){
-      lookAtCoral();
-    }
+    //if (isLooking){
+    //  lookAtCoral();
+    //}
 
     RobotTelemetry();
 
@@ -229,11 +235,36 @@ public class Robot extends TimedRobot {
   }
 
   private void lookAtCoral(){
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("CoralDetector");
-    NetworkTableEntry x = table.getEntry("tx");
-    NetworkTableEntry y = table.getEntry("ty");
+    System.out.println(coralx.getDouble(0));
+    if(coralx.getDouble(40) == 40) return;
     
-    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(x.getDouble(0)-((y.getDouble(0)-21.0)*0.5),1)*Constants.Swerve.maxAngularVelocity)));
+    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(coralx.getDouble(0)-((coraly.getDouble(0)-21.0)*-0.5)/31.25,1)*Constants.Swerve.maxAngularVelocity)));
+  }
+
+  public boolean coralAutoAim() {
+    boolean closeenough = false;
+    double tx = coralx.getDouble(0);
+    double tx_max = 30.0f; // detemined empirically as the limelights field of view
+    double error = 0.0f;
+    double kP = 0.6f; // should be between 0 and 1, but can be greater than 1 to go even faster
+    double kI = 0.1f;
+    double steering_adjust = 0.0f; // between 0 and 1
+    double acceptable_error_threshold = 7.0f / 360.0f; // 15 degrees allowable
+    double offset = 10.0f; // in degrees
+    error = (tx / tx_max) * (31.65 / 180) + (offset/180.0f); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
+
+    if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
+      steering_adjust = (kP * error + kI * error);
+      closeenough = false;
+    } else {
+        closeenough = true;
+    }
+
+    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity));
+    System.out.println("tx: " + tx);
+    System.out.println("Note error: " + error);
+    System.out.println("steering adjust: " + steering_adjust);
+    return closeenough;
   }
 
   private void Driver1Controls() {
@@ -319,13 +350,14 @@ public class Robot extends TimedRobot {
     }
 
     if (Constants.Controllers.driver2.getXButton()) {
-      isLooking = true;
+      //isLooking = true;
+      coralAutoAim();
     }
     
     //Designate button to cancel aligning
     if (Constants.Controllers.driver2.getBButton()) {
       isAligning = false;
-      isLooking = false;
+      //isLooking = false;
     }
 
   }
