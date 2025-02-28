@@ -304,9 +304,13 @@ public class Robot extends TimedRobot {
     }
     
     //Designate button to cancel everything
-    if (Constants.Controllers.driver1.getRawButton(2)) {
+    if (Constants.Controllers.driver1.getRawButton(4)) {
       isAligning = false;
       isPickingUp = false;
+    }
+
+    if (Constants.Controllers.driver1.getRawButton(1)) {
+      swerve.lock();
     }
 
   }
