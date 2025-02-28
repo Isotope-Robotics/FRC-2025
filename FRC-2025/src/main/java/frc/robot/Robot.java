@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
 
   public boolean isAligning;
 
+  public boolean isPickingUp;
+
   public int POVPressTime;
 
   public Pose2d trajectory;
@@ -52,7 +54,6 @@ public class Robot extends TimedRobot {
   public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-scoring");
   public NetworkTableEntry targetPosCameraspace = april.getEntry("targetpose_cameraspace");
 
-
   public Pose2d AlignPose = null;
 
   public boolean isCoralReady = false;
@@ -60,7 +61,6 @@ public class Robot extends TimedRobot {
   // 0 represents that the intake is ready
   public int coralPhase = 0;
   
-  public boolean isLooking;
   
     /**
      * This function is run when the robot is first started up and should be used
@@ -232,8 +232,8 @@ public class Robot extends TimedRobot {
     Pose2d robotRelTarget = Pose2d.kZero.relativeTo(targetRelRobot);
     Pose2d offset = pose.relativeTo(robotRelTarget);
 
-    double speed = -(1.0-1.0/Math.pow(5.0,offset.getTranslation().getDistance(Translation2d.kZero)))*Constants.Swerve.maxSpeed;
-    double angularSpeed = -(1.0-1.0/Math.pow(5.0,offset.getRotation().getDegrees()/30.0))*Constants.Swerve.maxAngularVelocity;
+    double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero));
+    double angularSpeed = Constants.PIDs.AlignRotPID.calculate(offset.getRotation().getDegrees());
 
     Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
     Rotation2d angularVelocity = offset.getRotation().div(Math.abs(offset.getRotation().getDegrees())).times(angularSpeed);
@@ -253,33 +253,12 @@ public class Robot extends TimedRobot {
     trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(coralx.getDouble(0)-((coraly.getDouble(0)-21.0)*-0.5)/31.25,1)*Constants.Swerve.maxAngularVelocity)));
   }*/
 
-  public boolean coralAutoAim() {
-    boolean closeenough = false;
+  public void coralAutoAim() {
     double tx = coralx.getDouble(0);
-    double tx_max = 31.25; // detemined empirically as the limelights horizontal field of view
     double ty = coralx.getDouble(0);
     double ty_max = 21; // detemined empirically as the limelights vertical field of view
-    double error = 0.0;
-    double kP = 0.6; // should be between 0 and 1, but can be greater than 1 to go even faster
-    double kI = 0.1;
-    double steering_adjust = 0.0; // between 0 and 1
-    double acceptable_error_threshold = 7.0 / 360.0; // 15 degrees allowable
-    double offset = -0.3; // in meters
-    error = ((tx / tx_max) - (ty / ty_max * offset/Constants.Vision.limelightHeight*Math.tan(Math.toRadians(48))*tx_max/ty_max) + ty_max) * (31.25 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
-    //error = (tx / tx_max) * (31.25 / 180) + (offset/180.0f); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180 degrees away
-
-    if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
-      steering_adjust = (kP * error + kI * error);
-      closeenough = false;
-    } else {
-        closeenough = true;
-    }
-
-    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity));
-    System.out.println("tx: " + tx);
-    System.out.println("Note error: " + error);
-    System.out.println("steering adjust: " + steering_adjust);
-    return closeenough;
+    double offset = -0.3; // inverse slope of focal line
+    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(Constants.PIDs.AimingPID.calculate(tx - offset * (ty-ty_max), 0)));
   }
 
   private void Driver1Controls() {
