@@ -350,7 +350,6 @@ public class Swerve extends SubsystemBase {
                 mod.setDesiredState(sw, false);
             } else {
                 mod.setDesiredState(sw2, false);
-
             }
         }
     }

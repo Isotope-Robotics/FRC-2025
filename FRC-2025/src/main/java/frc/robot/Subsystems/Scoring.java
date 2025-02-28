@@ -10,7 +10,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -56,7 +56,7 @@ public class Scoring extends SubsystemBase {
             elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
         }
         wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
-
+        System.out.println(elevatorEncoder.getPosition() + ", " + wristEncoder.getPosition());
     }
 
     // Checks if limit switch is clear
@@ -128,7 +128,7 @@ public class Scoring extends SubsystemBase {
         } else if (level == 4) {
             Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist4);
         } else {
-            System.out.println("wristRun level incorrect, level value = " + level);
+            System.err.println("wristRun level incorrect, level value = " + level);
         }
     }
 

@@ -38,11 +38,16 @@ public class Robot extends TimedRobot {
   public Intake intake;
   public IntakeArm intakeArm;
 
+  public long ns = 0;
+  public long lastnano = System.nanoTime();
+
   public boolean isAligning;
 
   public boolean isPickingUp;
 
   public int POVPressTime;
+
+  public Pose2d alignPose;
 
   public Pose2d trajectory;
   public boolean isFieldRel;
@@ -52,7 +57,7 @@ public class Robot extends TimedRobot {
   public NetworkTableEntry coraly = table.getEntry("ty");
 
   public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
-  public NetworkTableEntry robotPosTargetspace = april.getEntry("robotpose_targetspace");
+  public NetworkTableEntry robotPosTargetspace = april.getEntry("botpose_targetspace");
 
   public Pose2d AlignPose = null;
 
@@ -93,12 +98,23 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+      ns = -lastnano + (lastnano = System.nanoTime());
       swerve.swerveCurrents();
       RobotTelemetry();
       CommandScheduler.getInstance().run();
       //intake.intakePeriodic();
       scoring.scoringPeriodic();
       intakeArm.intakeArmPeriodic();
+      if(isPickingUp){
+        PickUpCoralPeriodic();
+      }
+      try {
+        if (isAligning){
+          AlignRobotPeriodic();
+        }
+      } catch (NullPointerException e) {
+        System.err.println("No align pose was set!");
+      }
     }
   
     /**
@@ -159,15 +175,6 @@ public class Robot extends TimedRobot {
       //Driver1ControlsXbox();
   
       Driver2Controls();
-  
-      try {
-        if (isAligning){
-          AlignRobot(AlignPose);
-        }
-      } catch (NullPointerException e) {
-        System.err.println("No align pose was set!");
-      }
-  
     
     //if (isLooking){
     //  lookAtCoral();
@@ -227,19 +234,23 @@ public class Robot extends TimedRobot {
   }
 
   // Move Robot to position and rotation compared to April Tag
-  private void AlignRobot(Pose2d pose){
+  private void AlignRobotPeriodic(){
 
-    double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[3]);
-  
-    Pose2d robotRelTarget = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
-    Pose2d offset = pose.relativeTo(robotRelTarget);
+    double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
+
+    Pose2d offset = Pose2d.kZero;
+
+    if(targetPoseData.length == 6){
+      Pose2d robotRelTarget = new Pose2d(targetPoseData[0], targetPoseData[2], new Rotation2d(targetPoseData[4]));
+      offset = alignPose.relativeTo(robotRelTarget);
+    }
 
     double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero));
     double angularSpeed = Constants.PIDs.AlignRotPID.calculate(offset.getRotation().getDegrees());
 
     Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
     Rotation2d angularVelocity = offset.getRotation().div(Math.abs(offset.getRotation().getDegrees())).times(angularSpeed);
-    
+
     if (offset.getTranslation().getDistance(Translation2d.kZero) > Constants.Vision.aligningTolerance) {
       trajectory = new Pose2d(velocity,angularVelocity);
       isFieldRel = false;
@@ -248,14 +259,34 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /*private void lookAtCoral(){
-    System.out.println(coralx.getDouble(0));
-    if(coralx.getDouble(40) == 40) return;
-    
-    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(-Math.max(-1,Math.min(coralx.getDouble(0)-((coraly.getDouble(0)-21.0)*-0.5)/31.25,1)*Constants.Swerve.maxAngularVelocity)));
-  }*/
+  public void PickUpCoral(){
+    isPickingUp = true;
+  }
 
-  public void coralAutoAim() {
+  public void stopPickingUp(){
+    isPickingUp = false;
+  }
+
+  public void AlignRobot(Pose2d pose){
+    isAligning = true;
+    alignPose = pose;
+  }
+
+  public void stopAligning(){
+    isAligning = false;
+  }
+
+  private void PickUpCoralPeriodic(){
+    trajectory = new Pose2d(new Translation2d(0,0.5), new Rotation2d(0));
+    coralAutoAim();
+    if(intake.getCoralDetector()){
+      isPickingUp = false;
+      intake.intakeStop();
+      intakeArm.setArmPosIn();
+    }
+  }
+
+  private void coralAutoAim() {
     double tx = coralx.getDouble(0);
     double ty = coraly.getDouble(0);
     double ty_max = 21; // detemined empirically as the limelights vertical field of view
@@ -287,36 +318,36 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
 
-    if (Constants.Controllers.driver1.getRawButton(1)) { // X Lock for Defense
-      swerve.lock();
-    }
-
-    if (Constants.Controllers.driver1.getRawButton(2)) { // Reset gyro rotation to 0
-      swerve.zeroHeading();
-      System.out.println("Gyro reset");
-    }
-
-    //Designate button to cancel everything
-    if (Constants.Controllers.driver1.getRawButton(4)) {
+    if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
       isAligning = false;
       isPickingUp = false;
+      //climber.release();
+    }
+
+    if (Constants.Controllers.driver1.getRawButton(5)) { // Align with coral
+      coralAutoAim();
+    }
+
+    if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
+      //climber.hang();
     }
 
     // Controls for auto-aligning robot
-    if (Constants.Controllers.driver1.getRawButton(5)) {
+    // TODO: Set coral reef offsets
+    if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
       isAligning = true;
-      AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
+      AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
     }
 
-    if (Constants.Controllers.driver1.getRawButton(6)) {
+    if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
       isAligning = true;
-      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+      AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
+    }
+
+    if (Constants.Controllers.driver1.getRawButton(7) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+      PickUpCoral();
     }
     
-    
-
-    
-
   }
 
   // Remember, ctrl + k + c to comment, ctrl + k + u to uncomment
@@ -373,22 +404,21 @@ public class Robot extends TimedRobot {
   private void Driver2Controls() {
 
     // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
-    if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
-      if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
-        intakeArm.setArmPosOut();
-        intake.runIn(1.0);
-      } else {
-        intakeArm.setArmPosIn();
-        intake.intakeStop();
-      }
-     } else // little confusing but this is an else if 
+    if (Constants.Controllers.driver2.getAButton() ) { // Enable Intake
+      intake.runIn(1.0);
+      intakeArm.setArmPosOut();
+    }
 
-      // Backup control for intakeArm in/out
-     if (Constants.Controllers.driver2.getRightBumperButton()) { // Right Bumper Extend IntakeArm Out
-       intakeArm.setArmPosOut();
-     } else {
-       intakeArm.setArmPosIn();
-     }
+    if (Constants.Controllers.driver2.getXButton() ) { // Disable Intake
+      intake.intakeStop();
+      intakeArm.setArmPosIn();
+    }
+
+    if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton() ) { // reset gyros
+      swerve.zeroHeading();
+      System.out.println("Gyro reset");
+    }
+
  
      // Backup control for intake suck/spit
      if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
@@ -399,16 +429,18 @@ public class Robot extends TimedRobot {
 
      // Elevator control starts from d-pad down and goes clockwise, press leftbumper to reset back to 0 to recieve coral
      // this makes sense to me but tweak it if u want 
-    if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
+    int angle = Constants.Controllers.driver2.getPOV();
+    
+    if (angle > 150 && angle < 210) { // D-pad Down
       scoring.elevatorRun(1);
       scoring.wristRun(1);
-    } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
+    } else if (angle > 240 && angle < 300) { // D-pad Left
       scoring.elevatorRun(2);
       scoring.wristRun(2);
-    } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
+    } else if (angle > 330 || angle < 30) { // D-pad Up
       scoring.elevatorRun(3);
       scoring.wristRun(3);
-    } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
+    } else if (angle > 60 && angle < 120) { // D-pad Right
       scoring.elevatorRun(4);
       scoring.wristRun(4);
     } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
@@ -417,27 +449,24 @@ public class Robot extends TimedRobot {
     }
 
     // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-    if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton()) { // Start or Back Button
+    if (Constants.Controllers.driver2.getYButton()){
       scoring.toggleManualControl();
     }
 
     // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
     if (scoring.isManualControl()) {
-      scoring.manualControl(-Constants.Controllers.driver2.getRawAxis(1)); // Left Stick Y Axis
+      scoring.manualControl(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
     }
 
     if (Constants.Controllers.driver2.getBButton()) { // B Button Spits From Rollers
       scoring.runRollerOut();
-    } else if (Constants.Controllers.driver2.getXButton()) { // X Button Sucks From Rollers
-      scoring.runRollerIn();
-    } else {
+      intake.runOut(1.0);
+      intakeArm.setArmPosOut();
+    }if(Constants.Controllers.driver2.getBButtonReleased()) {
       scoring.stopRoller();
+      intake.intakeStop();
+      intakeArm.setArmPosIn();
     }
-
-
-
-    
-
   }
 
   // I'm not deleting these to keep the order for the movements, but they cannot be used

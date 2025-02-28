@@ -25,10 +25,10 @@ public class Climber {
             climbMotor.set(Constants.PIDs.climberPID.calculate(climbEncoder.getPosition()));
         }
 
-        public void setClimbPosition(){
+        public void hang(){
             Constants.PIDs.climberPID.setSetpoint(210);
         }
-        public void setNonClimbPosition(){
+        public void release(){
             Constants.PIDs.climberPID.setSetpoint(0);
         }
 
