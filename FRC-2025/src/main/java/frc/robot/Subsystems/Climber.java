@@ -32,4 +32,8 @@ public class Climber {
             Constants.PIDs.climberPID.setSetpoint(0);
         }
 
+        public void clearStickyFaults() {
+            climbMotor.clearFaults();
+        }
+
 }

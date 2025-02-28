@@ -73,9 +73,12 @@ public class Robot extends TimedRobot {
       scoring = Scoring.getInstance();
       intake = Intake.getInstance();
       intakeArm = IntakeArm.getInstance();
-  
-      //robotContainer = new RobotContainer();
-  
+      
+      //robotContainer = new RobotContainer(); TODO: uncomment this
+      
+      scoring.clearStickyFaults();
+      intake.clearStickyFaults();
+      intakeArm.clearStickyFaults();
     }
   
     /**
@@ -309,7 +312,7 @@ public class Robot extends TimedRobot {
   }
 
   // Remember, ctrl + k + c to comment, ctrl + k + u to uncomment
-  
+
   // private void Driver1ControlsXbox() {
   //   // Back to robot centric while button seven is pushed
   //   if (Constants.Controllers.driver1Xbox.getLeftBumperButton()) {
@@ -406,7 +409,7 @@ public class Robot extends TimedRobot {
     }
 
     // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-    if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton()) {
+    if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton()) { // Start or Back Button
       scoring.toggleManualControl();
     }
 
@@ -415,9 +418,9 @@ public class Robot extends TimedRobot {
       scoring.manualControl(-Constants.Controllers.driver2.getRawAxis(1)); // Left Stick Y Axis
     }
 
-    if (Constants.Controllers.driver2.getBButton()) {
+    if (Constants.Controllers.driver2.getBButton()) { // B Button Spits From Rollers
       scoring.runRollerOut();
-    } else if (Constants.Controllers.driver2.getBButton()) {
+    } else if (Constants.Controllers.driver2.getXButton()) { // X Button Sucks From Rollers
       scoring.runRollerIn();
     } else {
       scoring.stopRoller();

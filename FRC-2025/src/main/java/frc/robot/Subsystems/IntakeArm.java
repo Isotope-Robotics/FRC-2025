@@ -51,6 +51,10 @@ public class IntakeArm extends SubsystemBase {
         Constants.PIDs.intakeArmPID.setSetpoint(-35);
     }
 
+    public void clearStickyFaults() {
+        armMotor.clearFaults();
+    }
+
     public static IntakeArm getInstance() {
         if (m_Instance == null)
             m_Instance = new IntakeArm(Constants.IntakeArm.intakeArmMotorID);

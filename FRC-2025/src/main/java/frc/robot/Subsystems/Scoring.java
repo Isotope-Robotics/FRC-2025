@@ -132,6 +132,13 @@ public class Scoring extends SubsystemBase {
         }
     }
 
+    public void clearStickyFaults() {
+        wrist.clearFaults();
+        elevator.clearFaults();
+        roller1.clearFaults();
+        roller2.clearFaults();
+    }
+
 
     // public void elevatorReset() {
     //     goToLevel(0);

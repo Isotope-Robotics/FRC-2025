@@ -60,7 +60,9 @@ public class Intake extends SubsystemBase {
         intakeMotor.set(0.0);
     }
 
-    
+    public void clearStickyFaults() {
+        intakeMotor.clearFaults();
+    }
 
     // public Command groundCoralCommand() {
     //     return this.runOnce(() -> coralPhase0());
