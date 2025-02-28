@@ -34,29 +34,27 @@ public class IntakeArm extends SubsystemBase {
         return insideLimitSwitch.get();
     }
 
-    public void armPeriodic(){ // to be called peroidically inside robot.java
-        if(armMotor.get() < 0 && isInsideSwitchPressed()){
-            armMotor.set(0);
-            if(isResetting){
-                armEncoder.setPosition(0);
-                Constants.PIDs.intakeArmPID.reset();
-            }
-        }
-        
-        if(isResetting) return;
 
-        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition()));
-    }
+        
+        public void intakeArmPeriodic() {
+            
+            armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition()));
+        }
+
+        
+    
 
     public void setArmPosIn(){ 
-        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -3));
+        Constants.PIDs.intakeArmPID.setSetpoint(-3);
     }
     public void setArmPosOut(){ 
-        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -32));
+        Constants.PIDs.intakeArmPID.setSetpoint(-35);
     }
+
     public static IntakeArm getInstance() {
         if (m_Instance == null)
             m_Instance = new IntakeArm(Constants.IntakeArm.intakeArmMotorID);
-        return m_Instance;
+            return m_Instance;
     }
+
 }

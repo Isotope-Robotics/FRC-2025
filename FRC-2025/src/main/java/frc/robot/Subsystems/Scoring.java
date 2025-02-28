@@ -16,46 +16,72 @@ import frc.robot.Constants;
 
 public class Scoring extends SubsystemBase {
 
-    public static SparkMax angle;
+    public static SparkMax wrist;
     public static SparkMax elevator;
     public static SparkMax roller1;
     public static SparkMax roller2;
     public static DigitalInput sensor;
-    public static RelativeEncoder angleEncoder;
+    public static RelativeEncoder wristEncoder;
     public static RelativeEncoder elevatorEncoder;
-   // public static angleConfig;
+    public static boolean manualControl;
+    
 
     private static Scoring m_Instance = null;
 
-    private int elevatorLevel = 0;
 
     public Scoring(int angleID, int elevatorID, int roller1ID, int roller2ID, int sensorID) {
-        // Moter Declarations
-        angle = new SparkMax(angleID, MotorType.kBrushless);
+        // Motor Declarations
+        wrist = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
         roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
         roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
         //sensor = new DigitalInput(sensorID);
         // Encoder Declarations
-        angleEncoder = angle.getEncoder();
+        wristEncoder = wrist.getEncoder();
         elevatorEncoder = elevator.getEncoder();
-        // Moter Configurations
-        //SparkMaxConfig angleConfig = new SparkMaxConfig();
+        // Motor Configurations
         SparkMaxConfig elevatorConfig = new SparkMaxConfig();
-       // angleConfig.idleMode(IdleMode.kBrake);
+        SparkMaxConfig wristConfig = new SparkMaxConfig();
+
+       wristConfig.idleMode(IdleMode.kBrake);
         elevatorConfig.idleMode(IdleMode.kBrake);
-       // angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void scoringPeriodic(){
-        angle.set(Constants.PIDs.wristPID.calculate(angleEncoder.getPosition()));
-        elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
+        if (isManualControl()) {
+            // maaan i didnt do this the proper way, whoopsie! :P
+        } else {
+            elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
+        }
+        wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
+
     }
 
     // Checks if limit switch is clear
     public boolean isScoringMecClear() {
         return sensor.get();
+    }
+
+    // Manual control lets the elevator be controlled from the driver2 (operator) left/right stick
+    public void toggleManualControl() {
+        manualControl = !manualControl;
+    }
+
+    public boolean isManualControl() {
+        return manualControl;
+    }
+
+    public void manualControl(double speed) {
+        elevator.set(speed);
+    }
+
+    public double getElevatorEncoder() {
+        return elevatorEncoder.getPosition();
+    }
+    public double getAngleEncoder() {
+        return wristEncoder.getPosition();
     }
 
     // Turns on Roller on scoring mecanism
@@ -74,44 +100,76 @@ public class Scoring extends SubsystemBase {
         roller2.set(0);
     }
 
-
-    public void elevatorReset() {
-        goToLevel(0);
+    public void elevatorRun(int level) {
+        if (level == 0) {
+            Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator0);
+        } else if (level == 1) {
+            Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator1);
+        } else if (level == 2) {
+            Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator2);
+        } else if (level == 3) {
+            Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator3);
+        } else if (level == 4) {
+            Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator4);
+        } else {
+            System.out.println("elevatorRun level incorrect, level value = " + level);
+        }
     }
+
+    public void wristRun(int level) {
+        if (level == 0) {
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist0);
+        } else if (level == 1) {
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist1);
+        } else if (level == 2) {
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist2);
+        } else if (level == 3) {
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist3);
+        } else if (level == 4) {
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist4);
+        } else {
+            System.out.println("wristRun level incorrect, level value = " + level);
+        }
+    }
+
+
+    // public void elevatorReset() {
+    //     goToLevel(0);
+    // }
 
     // Set elevator and anlge to levels with encoder ticks
 
-    private void goToLevel(int l) {
-       // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
-        Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.elevatorLevels[l]);
-    }
+    // private void goToLevel(int l) {
+    //    // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
+    //     Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.elevatorLevels[l]);
+    // }
 
-    public void elevatorUp() {
-        if (elevatorLevel > 3) {
-            elevatorLevel = 3;
-        }
-        goToLevel(elevatorLevel+1);
+    // public void elevatorUp() {
+    //     if (elevatorLevel > 3) {
+    //         elevatorLevel = 3;
+    //     }
+    //     goToLevel(elevatorLevel+1);
         
-    }
+    // }
 
-    public void elevatorDown() {
-        if (elevatorLevel < 1) {
-            elevatorLevel = 1;
-        }
-        goToLevel(elevatorLevel-1);
+    // public void elevatorDown() {
+    //     if (elevatorLevel < 1) {
+    //         elevatorLevel = 1;
+    //     }
+    //     goToLevel(elevatorLevel-1);
         
-    }
+    // }
 
-    public void setLevel(int l) {
-        elevatorLevel = Math.max(Math.min(l,4),0);
-        if (elevatorLevel < 0) {
-            elevatorLevel = 0;
-        }
-        if (elevatorLevel > 4) {
-            elevatorLevel = 4;
-        }
-        goToLevel(l);
-    }
+    // public void setLevel(int l) {
+    //     elevatorLevel = Math.max(Math.min(l,4),0);
+    //     if (elevatorLevel < 0) {
+    //         elevatorLevel = 0;
+    //     }
+    //     if (elevatorLevel > 4) {
+    //         elevatorLevel = 4;
+    //     }
+    //     goToLevel(l);
+    // }
 
     public static Scoring getInstance() {
         if (m_Instance == null)
@@ -119,11 +177,6 @@ public class Scoring extends SubsystemBase {
                     Constants.Scoring.roller1ID, Constants.Scoring.roller2ID, Constants.Scoring.sensorID);
         return m_Instance;
     }
-    public double getElevatorEncoder() {
-        return elevatorEncoder.getPosition();
-    }
-    public double getAngleEncoder() {
-        return angleEncoder.getPosition();
-    }
+    
 
 }

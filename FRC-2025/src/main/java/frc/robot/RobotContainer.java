@@ -25,7 +25,9 @@ public class RobotContainer {
         scoring = Scoring.getInstance();
         intake = Intake.getInstance();
         intakeArm = IntakeArm.getInstance();
-        //NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
+        //TODO: VERY IMPORTANT, LOOK AT LAST YEARS CODE TO SEE HOW TO CREATE AUTO COMMANDS, youll have to create new subsytems just for commands
+        // i would create them but im so tired
+        //NamedCommands.registerCommand("Intake Out", intake.whatever());
         //NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
     }
 

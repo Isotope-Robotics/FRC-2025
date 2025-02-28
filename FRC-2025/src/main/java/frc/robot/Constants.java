@@ -18,17 +18,16 @@ import frc.robot.Lib.Util.FalconSwerveConstants;
 import frc.robot.Lib.Util.SwerveModuleConstants;
 
 public class Constants {
-        // Conveyer Constants
 
         // Controllers Constants
         public static final class Controllers {
-                public static final Joystick driver1 = new Joystick(2);
-                public static final XboxController driver1Xbox = new XboxController(0);
+                public static final Joystick driver1 = new Joystick(0);
+                //public static final XboxController driver1Xbox = new XboxController(0);
                 public static final XboxController driver2 = new XboxController(1);
-                public static final double stickDeadband = 0.15;
+                public static final double stickDeadband = 0.15; // Our deadband last year was 0.3
         }
 
-        // Scoring Mecanism Constants
+        // Scoring Mechanism Constants
         public static final class Scoring {
                 public static final Integer angleID = 45;
                 public static final Integer elevatorID = 6;
@@ -36,21 +35,19 @@ public class Constants {
                 public static final Integer roller2ID = 3;
                 public static final Integer sensorID = 103;
 
-                public static final double[] elevatorLevels = new double[] {
-                        0.0,
-                        20.0,
-                        50.0,
-                        60.0,
-                        80.0,
-                };
-                
-                public static final double[] elevatorAngles = new double[] {
-                        0.0,
-                        10.0,
-                        20.0,
-                        30.0,
-                        40.0
-                };
+                //TODO: get the correct encoder values for these positions
+                public static final int levelElevator0 = 0;
+                public static final int levelElevator1 = 10;
+                public static final int levelElevator2 = 20;
+                public static final int levelElevator3 = 30;
+                public static final int levelElevator4 = 40;
+                // these too!
+                public static final int levelWrist0 = 0;
+                public static final int levelWrist1 = 10;
+                public static final int levelWrist2 = 20;
+                public static final int levelWrist3 = 30;
+                public static final int levelWrist4 = 40;
+
         }
 
         // Vision Constants
@@ -92,7 +89,7 @@ public class Constants {
                 0, 
                 0
             );public static  PIDController intakeArmPID = new PIDController(
-                0.01, 
+                0.015, 
                 0.0, 
                 0.0000
             );public static  PIDController AimingPID = new PIDController(

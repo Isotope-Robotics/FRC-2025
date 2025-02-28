@@ -37,66 +37,30 @@ public class Intake extends SubsystemBase {
         coralDetector = new DigitalInput(2); // this port number is probably wrong!!!
     }
 
-    public void intakePeriodic(){
-        if(coralDetector.get() && pickingUp){
-            //intakeMotor.set(0);
-            //coralPhase2();
-        }
-    }
+    // public void intakePeriodic(){
+    //     if(coralDetector.get() && pickingUp){
+    //         //intakeMotor.set(0);
+    //         //coralPhase2();
+    //     }
+    // }
 
-    public boolean coralDetector() {
+    public boolean getCoralDetector() {
         return coralDetector.get();
     }
-    public void runIn() {
-        // power intake motor
-        intakeMotor.set(1.0); // this speed might be wrong!!!
+
+    public void runIn(double speed) {
+        intakeMotor.set(speed);
     }
 
-    public void runOut() {
-        intakeMotor.set(-0.25);
+    public void runOut(double speed) {
+        intakeMotor.set(-speed);
     }
 
     public void intakeStop() {
-        // cut power to intake motor
         intakeMotor.set(0.0);
     }
 
-    // public void coralPhase0() {
-    //     pickingUp = true;
-    //    // scoring.elevatorReset();
-    //     intakeArm.setArmPos(60);
-    //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-    //         coralPhase1();
-    //     } 
-    // }
-
-    // public void coralPhase1() {
-    //     // vision trys to pick up coral
-    //     runIn();
-    //     if (coralDetector.get()) {
-    //         intakeStop();
-    //         // wheel control goes back to driver
-    //         coralPhase2();
-    //     }
-    // }
-
-    // public void coralPhase2() {
-    //     intakeArm.setArmPos(10);
-    //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-    //         coralPhase3();
-    //     }
-    // }
-
-    // public void coralPhase3() {
-    //     // move the coral into the scoring mech
-    //     runIn();
-    //     scoring.runRollerIn();
-    //     if (!scoring.isScoringMecClear()) {
-    //         intakeStop();
-    //         scoring.stopRoller();
-    //     }
-    //     pickingUp = false;
-    // }
+    
 
     // public Command groundCoralCommand() {
     //     return this.runOnce(() -> coralPhase0());
