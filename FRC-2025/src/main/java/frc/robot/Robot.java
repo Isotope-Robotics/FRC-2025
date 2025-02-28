@@ -265,11 +265,6 @@ public class Robot extends TimedRobot {
   }
 
   private void Driver1Controls() {
-    // Back to robot centric while button seven is pushed
-    if (Constants.Controllers.driver1.getRawButton(2)) {
-      swerve.zeroHeading();
-      System.out.println("Gyro reset");
-    }
 
     // Swerve Control
     // If button 3 is pressed the swerve will be robot centric - not recommended for
@@ -292,6 +287,21 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
 
+    if (Constants.Controllers.driver1.getRawButton(1)) { // X Lock for Defense
+      swerve.lock();
+    }
+
+    if (Constants.Controllers.driver1.getRawButton(2)) { // Reset gyro rotation to 0
+      swerve.zeroHeading();
+      System.out.println("Gyro reset");
+    }
+
+    //Designate button to cancel everything
+    if (Constants.Controllers.driver1.getRawButton(4)) {
+      isAligning = false;
+      isPickingUp = false;
+    }
+
     // Controls for auto-aligning robot
     if (Constants.Controllers.driver1.getRawButton(5)) {
       isAligning = true;
@@ -303,15 +313,9 @@ public class Robot extends TimedRobot {
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
     
-    //Designate button to cancel everything
-    if (Constants.Controllers.driver1.getRawButton(4)) {
-      isAligning = false;
-      isPickingUp = false;
-    }
+    
 
-    if (Constants.Controllers.driver1.getRawButton(1)) {
-      swerve.lock();
-    }
+    
 
   }
 
