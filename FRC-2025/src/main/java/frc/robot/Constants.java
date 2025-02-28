@@ -79,31 +79,35 @@ public class Constants {
 
         public static final class PIDs {
 
-            public static final PIDController wristPID = new PIDController(
-                0.1, 
+            public static  PIDController wristPID = new PIDController(
+                0.01, 
                 0, 
-                0.000001
-            );public static final PIDController elevatorPID = new PIDController(
+                0
+            );public static  PIDController elevatorPID = new PIDController(
                 0.015, 
                 0, 
                 0
-            );public static final PIDController climberPID = new PIDController(
+            );public static  PIDController climberPID = new PIDController(
                 0.015, 
                 0, 
                 0
-            );public static final PIDController intakeArmPID = new PIDController(
+            );public static  PIDController intakeArmPID = new PIDController(
+                0.05, 
                 0.1, 
-                0, 
-                0.000001
-            );public static final PIDController AimingPID = new PIDController(
+                0.00000
+            );public static  PIDController intakeArmPID2 = new PIDController(
+                0.02, 
+                0.01, 
+                0.00000
+            );public static  PIDController AimingPID = new PIDController(
                 2, 
                 0, 
                 0
-            );public static final PIDController AlignLinearPID = new PIDController(
+            );public static  PIDController AlignLinearPID = new PIDController(
                 1, 
                 0, 
                 0
-            );public static final PIDController AlignRotPID = new PIDController(
+            );public static  PIDController AlignRotPID = new PIDController(
                 2, 
                 0, 
                 0

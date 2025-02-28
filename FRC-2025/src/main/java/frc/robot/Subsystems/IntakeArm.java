@@ -3,6 +3,8 @@ package frc.robot.Subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkRelativeEncoder;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,6 +26,10 @@ public class IntakeArm extends SubsystemBase {
         armMotor.set(0.1);
     }
 
+    public double getArmEncoder() {
+        return armEncoder.getPosition();
+    }
+
     public boolean isInsideSwitchPressed() {
         return insideLimitSwitch.get();
     }
@@ -39,13 +45,15 @@ public class IntakeArm extends SubsystemBase {
         
         if(isResetting) return;
 
-        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition()*15/16));
+        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition()));
     }
 
-    public void setArmPos(double angle){ // in degrees
-        Constants.PIDs.intakeArmPID.setSetpoint(angle);
+    public void setArmPosIn(){ 
+        armMotor.set(Constants.PIDs.intakeArmPID2.calculate(armEncoder.getPosition(), -3));
     }
-
+    public void setArmPosOut(){ 
+        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -37));
+    }
     public static IntakeArm getInstance() {
         if (m_Instance == null)
             m_Instance = new IntakeArm(Constants.IntakeArm.intakeArmMotorID);

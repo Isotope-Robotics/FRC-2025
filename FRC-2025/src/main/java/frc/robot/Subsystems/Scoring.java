@@ -87,15 +87,29 @@ public class Scoring extends SubsystemBase {
     }
 
     public void elevatorUp() {
+        if (elevatorLevel > 3) {
+            elevatorLevel = 3;
+        }
         goToLevel(elevatorLevel+1);
+        
     }
 
     public void elevatorDown() {
+        if (elevatorLevel < 1) {
+            elevatorLevel = 1;
+        }
         goToLevel(elevatorLevel-1);
+        
     }
 
     public void setLevel(int l) {
         elevatorLevel = Math.max(Math.min(l,4),0);
+        if (elevatorLevel < 0) {
+            elevatorLevel = 0;
+        }
+        if (elevatorLevel > 4) {
+            elevatorLevel = 4;
+        }
         goToLevel(l);
     }
 

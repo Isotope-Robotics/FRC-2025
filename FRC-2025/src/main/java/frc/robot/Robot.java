@@ -217,6 +217,10 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Drive Current", mod.getDriveCurrent());
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Current", mod.getDriveCurrent());
     }
+    SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
+    SmartDashboard.putNumber("Scoring Angle Encoder", scoring.getAngleEncoder());
+    SmartDashboard.putNumber("IntakeArm ENcoder", intakeArm.getArmEncoder());
+
   }
 
   // Move Robot to position and rotation compared to April Tag
@@ -403,9 +407,9 @@ public class Robot extends TimedRobot {
     
 
     if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
-      intakeArm.setArmPos(Constants.IntakeArm.angleIn);
+      intakeArm.setArmPosIn();
     } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
-      intakeArm.setArmPos(Constants.IntakeArm.angleOut);
+      intakeArm.setArmPosOut();
       intake.pickingUp = true;
     }
 
@@ -427,4 +431,41 @@ public class Robot extends TimedRobot {
     }
 
   }
+    public void coralPhase0() {
+      intake.pickingUp = true;
+    // scoring.elevatorReset();
+      intakeArm.setArmPosOut();
+      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+          coralPhase1();
+      } 
+  }
+
+  public void coralPhase1() {
+      // vision trys to pick up coral
+      intake.runIn();
+      if (intake.coralDetector()) {
+          intake.intakeStop();
+          // wheel control goes back to driver
+          coralPhase2();
+      }
+  }
+
+  public void coralPhase2() {
+      intakeArm.setArmPosIn();
+      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+          coralPhase3();
+      }
+  }
+
+  public void coralPhase3() {
+      // move the coral into the scoring mech
+      intake.runIn();
+      scoring.runRollerIn();
+      if (!scoring.isScoringMecClear()) {
+          intake.intakeStop();
+          scoring.stopRoller();
+      }
+      intake.pickingUp = false;
+  }
 }
+
