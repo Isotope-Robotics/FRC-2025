@@ -51,8 +51,8 @@ public class Robot extends TimedRobot {
   public NetworkTableEntry coralx = table.getEntry("tx");
   public NetworkTableEntry coraly = table.getEntry("ty");
 
-  public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-scoring");
-  public NetworkTableEntry targetPosCameraspace = april.getEntry("targetpose_cameraspace");
+  public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
+  public NetworkTableEntry robotPosTargetspace = april.getEntry("robotpose_targetspace");
 
   public Pose2d AlignPose = null;
 
@@ -226,10 +226,9 @@ public class Robot extends TimedRobot {
   // Move Robot to position and rotation compared to April Tag
   private void AlignRobot(Pose2d pose){
 
-    double[] targetPoseData = targetPosCameraspace.getDoubleArray(new double[3]);
-
-    Pose2d targetRelRobot = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
-    Pose2d robotRelTarget = Pose2d.kZero.relativeTo(targetRelRobot);
+    double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[3]);
+  
+    Pose2d robotRelTarget = new Pose2d(targetPoseData[0], targetPoseData[1], new Rotation2d(targetPoseData[2]));
     Pose2d offset = pose.relativeTo(robotRelTarget);
 
     double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero));
@@ -255,9 +254,10 @@ public class Robot extends TimedRobot {
 
   public void coralAutoAim() {
     double tx = coralx.getDouble(0);
-    double ty = coralx.getDouble(0);
+    double ty = coraly.getDouble(0);
     double ty_max = 21; // detemined empirically as the limelights vertical field of view
     double offset = -0.3; // inverse slope of focal line
+    if(coralx.getDouble(40) == 40) return;
     trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(Constants.PIDs.AimingPID.calculate(tx - offset * (ty-ty_max), 0)));
   }
 
@@ -301,8 +301,9 @@ public class Robot extends TimedRobot {
     }
     
     //Designate button to cancel everything
-    if (Constants.Controllers.driver1.getRawButton(4)) {
+    if (Constants.Controllers.driver1.getRawButton(2)) {
       isAligning = false;
+      isPickingUp = false;
     }
 
   }
@@ -385,55 +386,66 @@ public class Robot extends TimedRobot {
     }*/
     
 
-    if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
+    if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
       intakeArm.setArmPosIn();
-    } else if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
+    } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
       intakeArm.setArmPosOut();
-     // intake.pickingUp = true;
+      intake.pickingUp = true;
     }
 
+    /*if (Constants.Controllers.driver2.getYButton()) {
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+    }
+
+    if (Constants.Controllers.driver2.getXButton()) {
+      //isLooking = true;
+      coralAutoAim();
+    }
+    */
     //Designate button to cancel everything
     if (Constants.Controllers.driver2.getBButton()) {
       isAligning = false;
+      //isLooking = false;
       intake.pickingUp = false;
     }
 
   }
-  //   public void coralPhase0() {
-  //     intake.pickingUp = true;
-  //   // scoring.elevatorReset();
-  //     intakeArm.setArmPosOut();
-  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-  //         //coralPhase1();
-  //     } 
-  // }
+    public void coralPhase0() {
+      intake.pickingUp = true;
+    // scoring.elevatorReset();
+      intakeArm.setArmPosOut();
+      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+          coralPhase1();
+      } 
+  }
 
-  // public void coralPhase1() {
-  //     // vision trys to pick up coral
-  //     intake.runIn();
-  //     if (intake.coralDetector()) {
-  //         //intake.intakeStop();
-  //         // wheel control goes back to driver
-  //         coralPhase2();
-  //     }
-  // }
+  public void coralPhase1() {
+      // vision trys to pick up coral
+      intake.runIn();
+      if (intake.coralDetector()) {
+          intake.intakeStop();
+          // wheel control goes back to driver
+          coralPhase2();
+      }
+  }
 
-  // public void coralPhase2() {
-  //     intakeArm.setArmPosIn();
-  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-  //         coralPhase3();
-  //     }
-  // }
+  public void coralPhase2() {
+      intakeArm.setArmPosIn();
+      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+          coralPhase3();
+      }
+  }
 
-  // public void coralPhase3() {
-  //     // move the coral into the scoring mech
-  //     intake.runIn();
-  //     scoring.runRollerIn();
-  //     if (!scoring.isScoringMecClear()) {
-  //         //intake.intakeStop();
-  //         scoring.stopRoller();
-  //     }
-  //     intake.pickingUp = false;
-  // }
+  public void coralPhase3() {
+      // move the coral into the scoring mech
+      intake.runIn();
+      scoring.runRollerIn();
+      if (!scoring.isScoringMecClear()) {
+          intake.intakeStop();
+          scoring.stopRoller();
+      }
+      intake.pickingUp = false;
+  }
 }
 
