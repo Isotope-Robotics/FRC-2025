@@ -49,10 +49,10 @@ public class IntakeArm extends SubsystemBase {
     }
 
     public void setArmPosIn(){ 
-        armMotor.set(Constants.PIDs.intakeArmPID2.calculate(armEncoder.getPosition(), -3));
+        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -3));
     }
     public void setArmPosOut(){ 
-        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -37));
+        armMotor.set(Constants.PIDs.intakeArmPID.calculate(armEncoder.getPosition(), -32));
     }
     public static IntakeArm getInstance() {
         if (m_Instance == null)

@@ -92,13 +92,9 @@ public class Constants {
                 0, 
                 0
             );public static  PIDController intakeArmPID = new PIDController(
-                0.05, 
-                0.1, 
-                0.00000
-            );public static  PIDController intakeArmPID2 = new PIDController(
-                0.02, 
                 0.01, 
-                0.00000
+                0.0, 
+                0.0000
             );public static  PIDController AimingPID = new PIDController(
                 2, 
                 0, 

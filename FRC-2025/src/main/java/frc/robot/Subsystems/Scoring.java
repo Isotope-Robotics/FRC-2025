@@ -50,7 +50,7 @@ public class Scoring extends SubsystemBase {
 
     public void scoringPeriodic(){
         angle.set(Constants.PIDs.wristPID.calculate(angleEncoder.getPosition()));
-        elevator.set(Constants.PIDs.elevatorPID.calculate(angleEncoder.getPosition()));
+        elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
     }
 
     // Checks if limit switch is clear
@@ -82,7 +82,7 @@ public class Scoring extends SubsystemBase {
     // Set elevator and anlge to levels with encoder ticks
 
     private void goToLevel(int l) {
-        Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
+       // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
         Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.elevatorLevels[l]);
     }
 

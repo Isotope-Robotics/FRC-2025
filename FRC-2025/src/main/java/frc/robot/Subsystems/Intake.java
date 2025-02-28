@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
 
     public void intakePeriodic(){
         if(coralDetector.get() && pickingUp){
-            intakeMotor.set(0);
+            //intakeMotor.set(0);
             //coralPhase2();
         }
     }

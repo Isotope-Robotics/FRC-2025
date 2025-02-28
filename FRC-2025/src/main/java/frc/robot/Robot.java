@@ -406,66 +406,55 @@ public class Robot extends TimedRobot {
     }*/
     
 
-    if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
+    if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
       intakeArm.setArmPosIn();
-    } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
+    } else if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
       intakeArm.setArmPosOut();
-      intake.pickingUp = true;
+     // intake.pickingUp = true;
     }
 
-    /*if (Constants.Controllers.driver2.getYButton()) {
-      isAligning = true;
-      AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
-    }
-
-    if (Constants.Controllers.driver2.getXButton()) {
-      //isLooking = true;
-      coralAutoAim();
-    }
-    */
     //Designate button to cancel everything
     if (Constants.Controllers.driver2.getBButton()) {
       isAligning = false;
-      //isLooking = false;
       intake.pickingUp = false;
     }
 
   }
-    public void coralPhase0() {
-      intake.pickingUp = true;
-    // scoring.elevatorReset();
-      intakeArm.setArmPosOut();
-      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-          coralPhase1();
-      } 
-  }
+  //   public void coralPhase0() {
+  //     intake.pickingUp = true;
+  //   // scoring.elevatorReset();
+  //     intakeArm.setArmPosOut();
+  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+  //         //coralPhase1();
+  //     } 
+  // }
 
-  public void coralPhase1() {
-      // vision trys to pick up coral
-      intake.runIn();
-      if (intake.coralDetector()) {
-          intake.intakeStop();
-          // wheel control goes back to driver
-          coralPhase2();
-      }
-  }
+  // public void coralPhase1() {
+  //     // vision trys to pick up coral
+  //     intake.runIn();
+  //     if (intake.coralDetector()) {
+  //         //intake.intakeStop();
+  //         // wheel control goes back to driver
+  //         coralPhase2();
+  //     }
+  // }
 
-  public void coralPhase2() {
-      intakeArm.setArmPosIn();
-      if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-          coralPhase3();
-      }
-  }
+  // public void coralPhase2() {
+  //     intakeArm.setArmPosIn();
+  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
+  //         coralPhase3();
+  //     }
+  // }
 
-  public void coralPhase3() {
-      // move the coral into the scoring mech
-      intake.runIn();
-      scoring.runRollerIn();
-      if (!scoring.isScoringMecClear()) {
-          intake.intakeStop();
-          scoring.stopRoller();
-      }
-      intake.pickingUp = false;
-  }
+  // public void coralPhase3() {
+  //     // move the coral into the scoring mech
+  //     intake.runIn();
+  //     scoring.runRollerIn();
+  //     if (!scoring.isScoringMecClear()) {
+  //         //intake.intakeStop();
+  //         scoring.stopRoller();
+  //     }
+  //     intake.pickingUp = false;
+  // }
 }
 
