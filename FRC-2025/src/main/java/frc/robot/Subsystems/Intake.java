@@ -37,6 +37,13 @@ public class Intake extends SubsystemBase {
         coralDetector = new DigitalInput(2); // this port number is probably wrong!!!
     }
 
+    public void intakePeriodic(){
+        if(coralDetector.get() && pickingUp){
+            intakeMotor.set(0);
+            coralPhase2();
+        }
+    }
+
     public void runIn() {
         // power intake motor
         intakeMotor.set(1.0); // this speed might be wrong!!!
@@ -51,16 +58,11 @@ public class Intake extends SubsystemBase {
         intakeMotor.set(0.0);
     }
 
-    public boolean getCoralStatus() {
-        return coralDetector.get();
-    }
-
     public void coralPhase0() {
         pickingUp = true;
        // scoring.elevatorReset();
-        intakeArm.moveArmOut();
-        if (intakeArm.isOutsideSwitchPressed()) {
-            intakeArm.stopArm();
+        intakeArm.setArmPos(60);
+        if (Constants.PIDs.intakeArmPID.atSetpoint()) {
             coralPhase1();
         } 
     }
@@ -68,7 +70,7 @@ public class Intake extends SubsystemBase {
     public void coralPhase1() {
         // vision trys to pick up coral
         runIn();
-        if (getCoralStatus()) {
+        if (coralDetector.get()) {
             intakeStop();
             // wheel control goes back to driver
             coralPhase2();
@@ -76,9 +78,8 @@ public class Intake extends SubsystemBase {
     }
 
     public void coralPhase2() {
-        intakeArm.moveArmIn();
-        if (intakeArm.isInsideSwitchPressed()) {
-            intakeArm.stopArm();
+        intakeArm.setArmPos(10);
+        if (Constants.PIDs.intakeArmPID.atSetpoint()) {
             coralPhase3();
         }
     }
@@ -99,7 +100,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command dropCoralCommand() {
-        scoring.elevatorLevel4();
+        scoring.setLevel(3);
         return this.runOnce(() -> coralPhase3());
     }
 

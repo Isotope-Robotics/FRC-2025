@@ -7,29 +7,29 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.math.controller.PIDController;
 import frc.robot.Constants;
 
 public class Climber {
         private static SparkMax climbMotor;
         public static RelativeEncoder climbEncoder;
-        public static final PIDController wristPID = new PIDController(Constants.Climber.kP, Constants.Climber.kI,
-        Constants.Climber.kD);
 
-        public Climber(int climbMoterID) {
-            climbMotor = new SparkMax(climbMoterID, MotorType.kBrushless);
+        public Climber(int climbMotorID) {
+            climbMotor = new SparkMax(climbMotorID, MotorType.kBrushless);
             climbEncoder = climbMotor.getEncoder();
             SparkMaxConfig climbConfig = new SparkMaxConfig();
             climbConfig.idleMode(IdleMode.kBrake);
             climbMotor.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
 
+        public void climberPeriodic(){
+            climbMotor.set(Constants.PIDs.climberPID.calculate(climbEncoder.getPosition()));
+        }
+
         public void setClimbPosition(){
-            climbMotor.set(wristPID.calculate(climbEncoder.getPosition(),210));
+            Constants.PIDs.climberPID.setSetpoint(210);
         }
         public void setNonClimbPosition(){
-            climbMotor.set(wristPID.calculate(climbEncoder.getPosition(),0));
+            Constants.PIDs.climberPID.setSetpoint(0);
         }
 
 }

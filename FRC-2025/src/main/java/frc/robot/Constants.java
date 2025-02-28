@@ -6,6 +6,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -29,14 +30,27 @@ public class Constants {
 
         // Scoring Mecanism Constants
         public static final class Scoring {
-                public static final Integer angleID = 99;
+                public static final Integer angleID = 45;
                 public static final Integer elevatorID = 6;
                 public static final Integer roller1ID = 4;
                 public static final Integer roller2ID = 3;
                 public static final Integer sensorID = 103;
-                public static final double kP = 0.1;
-                public static final double kI = 0.001;
-                public static final double kD = 0.0001;
+
+                public static final double[] elevatorLevels = new double[] {
+                        0.0,
+                        20.0,
+                        50.0,
+                        60.0,
+                        80.0,
+                };
+                
+                public static final double[] elevatorAngles = new double[] {
+                        0.0,
+                        10.0,
+                        20.0,
+                        30.0,
+                        40.0
+                };
         }
 
         // Vision Constants
@@ -49,20 +63,53 @@ public class Constants {
         // Intake Constants
         public static final class Intake {
                 public static final Integer intakeMotorID = 20;
-                public static final double kP = 0.1;
-                public static final double kI = 0;
-                public static final double kD = 0;
         }
 
         public static final class IntakeArm {
                 public static final Integer intakeArmMotorID = 5;
+                public static final double angleIn = 10;
+                public static final double angleOut = 60;
         }
 
         public static final class Climber {
                 public static final Integer climbMotorID = 6;
-                public static final double kP = 0.1;
-                public static final double kI = 0.001;
-                public static final double kD = 0.0001;
+        }
+
+        // Constants for all PIDs
+
+        public static final class PIDs {
+
+            public static final PIDController wristPID = new PIDController(
+                0.1, 
+                0, 
+                0.000001
+            );public static final PIDController elevatorPID = new PIDController(
+                0.015, 
+                0, 
+                0
+            );public static final PIDController climberPID = new PIDController(
+                0.015, 
+                0, 
+                0
+            );public static final PIDController intakeArmPID = new PIDController(
+                0.1, 
+                0, 
+                0.000001
+            );public static final PIDController AimingPID = new PIDController(
+                2, 
+                0, 
+                0
+            );public static final PIDController AlignLinearPID = new PIDController(
+                1, 
+                0, 
+                0
+            );public static final PIDController AlignRotPID = new PIDController(
+                2, 
+                0, 
+                0
+            );
+
+
         }
         // Swerve Module Constants Class
         public static final class Swerve {

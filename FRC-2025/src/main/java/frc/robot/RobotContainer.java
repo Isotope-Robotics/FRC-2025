@@ -22,11 +22,11 @@ public class RobotContainer {
         swerve = Swerve.getInstance();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Autochooser", autoChooser);
-        // scoring = Scoring.getInstance();
-        // intake = Intake.getInstance();
-        // instakeArm = IntakeArm.getInstance();
-        // NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
-        // NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
+        scoring = Scoring.getInstance();
+        intake = Intake.getInstance();
+        intakeArm = IntakeArm.getInstance();
+        NamedCommands.registerCommand("Drop Coral", intake.dropCoralCommand());
+        NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
     }
 
     public Command getAutonomousCommand() {

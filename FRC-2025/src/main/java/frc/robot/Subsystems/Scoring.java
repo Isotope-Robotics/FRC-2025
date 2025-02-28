@@ -9,7 +9,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,8 +23,7 @@ public class Scoring extends SubsystemBase {
     public static DigitalInput sensor;
     public static RelativeEncoder angleEncoder;
     public static RelativeEncoder elevatorEncoder;
-    public static final PIDController wristPID = new PIDController(Constants.Scoring.kP, Constants.Scoring.kI,
-            Constants.Scoring.kD);
+   // public static angleConfig;
 
     private static Scoring m_Instance = null;
 
@@ -33,21 +31,26 @@ public class Scoring extends SubsystemBase {
 
     public Scoring(int angleID, int elevatorID, int roller1ID, int roller2ID, int sensorID) {
         // Moter Declarations
-        //angle = new SparkMax(angleID, MotorType.kBrushless);
+        angle = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
-        //roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
-        //roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
+        roller1 = new SparkMax(roller1ID, MotorType.kBrushless);
+        roller2 = new SparkMax(roller2ID, MotorType.kBrushless);
         //sensor = new DigitalInput(sensorID);
         // Encoder Declarations
-        //angleEncoder = angle.getEncoder();
+        angleEncoder = angle.getEncoder();
         elevatorEncoder = elevator.getEncoder();
         // Moter Configurations
         //SparkMaxConfig angleConfig = new SparkMaxConfig();
         SparkMaxConfig elevatorConfig = new SparkMaxConfig();
-        //angleConfig.idleMode(IdleMode.kBrake);
+       // angleConfig.idleMode(IdleMode.kBrake);
         elevatorConfig.idleMode(IdleMode.kBrake);
-        //angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       // angle.configure(angleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void scoringPeriodic(){
+        angle.set(Constants.PIDs.wristPID.calculate(angleEncoder.getPosition()));
+        elevator.set(Constants.PIDs.elevatorPID.calculate(angleEncoder.getPosition()));
     }
 
     // Checks if limit switch is clear
@@ -77,64 +80,23 @@ public class Scoring extends SubsystemBase {
     }
 
     // Set elevator and anlge to levels with encoder ticks
-    public void elevatorLevel0() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 0.0));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 0.0));
-    }
 
-    public void elevatorLevel1() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 10));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 20));
-    }
-
-    public void elevatorLevel2() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 20));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 50));
-    }
-
-    public void elevatorLevel3() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 30));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 60));
-    }
-
-    public void elevatorLevel4() {
-        angle.set(wristPID.calculate(angleEncoder.getPosition(), 40));
-        elevator.set(wristPID.calculate(elevatorEncoder.getPosition(), 80));
-    }
-
-    public void goToLevel(int l) {
-        setLevel(l);
-        switch (elevatorLevel) {
-            case 0: {
-                elevatorLevel0();
-            }
-            case 1: {
-                elevatorLevel1();
-            }
-            case 2: {
-                elevatorLevel2();
-            }
-            case 3: {
-                elevatorLevel3();
-            }
-            case 4: {
-                elevatorLevel4();
-            }
-        }
+    private void goToLevel(int l) {
+        Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
+        Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.elevatorLevels[l]);
     }
 
     public void elevatorUp() {
-        setLevel(elevatorLevel + 1);
-        goToLevel(elevatorLevel);
+        goToLevel(elevatorLevel+1);
     }
 
     public void elevatorDown() {
-        setLevel(elevatorLevel - 1);
-        goToLevel(elevatorLevel);
+        goToLevel(elevatorLevel-1);
     }
 
     public void setLevel(int l) {
-        elevatorLevel = l % 5;
+        elevatorLevel = Math.max(Math.min(l,4),0);
+        goToLevel(l);
     }
 
     public static Scoring getInstance() {

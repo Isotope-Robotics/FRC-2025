@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import static edu.wpi.first.units.Units.derive;
 
+
 import edu.wpi.first.math.MathUtil;
 
 /**
@@ -32,12 +33,14 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  //public Conveyor conveyor;
-  //public Scoring scoring;
+  //public Climber climber;
+  public Scoring scoring;
   public Intake intake;
   public IntakeArm intakeArm;
 
   public boolean isAligning;
+
+  public int POVPressTime;
 
   public Pose2d trajectory;
   public boolean isFieldRel;
@@ -66,12 +69,12 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
       swerve = Swerve.getInstance();
-      //conveyor = Conveyor.getInstance();
-      //scoring = Scoring.getInstance();
+      //climber = Climber.getInstance();
+      scoring = Scoring.getInstance();
       intake = Intake.getInstance();
       intakeArm = IntakeArm.getInstance();
   
-      robotContainer = new RobotContainer();
+      //robotContainer = new RobotContainer();
   
     }
   
@@ -90,6 +93,9 @@ public class Robot extends TimedRobot {
       swerve.swerveCurrents();
       RobotTelemetry();
       CommandScheduler.getInstance().run();
+      intake.intakePeriodic();
+      scoring.scoringPeriodic();
+      intakeArm.armPeriodic();
     }
   
     /**
@@ -311,7 +317,7 @@ public class Robot extends TimedRobot {
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
     
-    //Designate button to cancel aligning
+    //Designate button to cancel everything
     if (Constants.Controllers.driver1.getRawButton(4)) {
       isAligning = false;
     }
@@ -375,20 +381,35 @@ public class Robot extends TimedRobot {
       intake.intakeStop();
     }
     if (Constants.Controllers.driver2.getRightBumperButtonPressed()) {
-      //scoring.elevatorUp();
+      scoring.setLevel(4);
     } else if (Constants.Controllers.driver2.getLeftBumperButtonPressed()) {
-      //scoring.elevatorDown();
+      scoring.setLevel(0);
     }
- 
+    if(Constants.Controllers.driver2.getPOV() != -1){
+      POVPressTime++;
+      if(POVPressTime == 1){
+        if (Math.abs(Constants.Controllers.driver2.getPOV() - 180) > 150) {
+          scoring.elevatorUp();
+        } else if (Math.abs(Constants.Controllers.driver2.getPOV() - 180) < 30) {
+          scoring.elevatorDown();
+        }
+      }
+    }else{
+      POVPressTime = 0;
+    }
+    /*if(Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1){
+      ;
+    }*/
+    
+
     if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) {
-      intakeArm.moveArmIn();
+      intakeArm.setArmPos(Constants.IntakeArm.angleIn);
     } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) {
-      intakeArm.moveArmOut();
-    } else {
-      intakeArm.stopArm();
+      intakeArm.setArmPos(Constants.IntakeArm.angleOut);
+      intake.pickingUp = true;
     }
 
-    if (Constants.Controllers.driver2.getYButton()) {
+    /*if (Constants.Controllers.driver2.getYButton()) {
       isAligning = true;
       AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
     }
@@ -397,11 +418,12 @@ public class Robot extends TimedRobot {
       //isLooking = true;
       coralAutoAim();
     }
-    
-    //Designate button to cancel aligning
+    */
+    //Designate button to cancel everything
     if (Constants.Controllers.driver2.getBButton()) {
       isAligning = false;
       //isLooking = false;
+      intake.pickingUp = false;
     }
 
   }
