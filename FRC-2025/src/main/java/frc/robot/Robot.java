@@ -319,13 +319,6 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
 
-<<<<<<< Updated upstream
-    if (Constants.Controllers.driver1.getRawButton(2)) { // reset gyro
-      swerve.zeroHeading();
-    }
-=======
-    
->>>>>>> Stashed changes
 
     
 
@@ -333,22 +326,16 @@ public class Robot extends TimedRobot {
 
     // Controls for auto-aligning robot
     // TODO: Set coral reef offsets
-    if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
-      AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
-<<<<<<< Updated upstream
-      AlignRobotPeriodic();
-    }
+    
 
-    if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
-      AlignRobotPeriodic();
-    }
 
     if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
-=======
     } else if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      isAligning = true;
       AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
+      AlignRobotPeriodic();
+    } else if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
+      AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
+      AlignRobotPeriodic();
     } else if (Constants.Controllers.driver1.getRawButton(7)) { // Align with coral
       coralAutoAim();
     } else if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
@@ -365,7 +352,6 @@ public class Robot extends TimedRobot {
     
 
     if (Constants.Controllers.driver1.getRawButton(7) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
->>>>>>> Stashed changes
       PickUpCoral();
     }
     
@@ -425,18 +411,6 @@ public class Robot extends TimedRobot {
   private void Driver2Controls() {
 
     // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
-<<<<<<< Updated upstream
-    if (Constants.Controllers.driver2.getAButton() ) { // Enable Intake
-      intakeArm.setArmPosOut();
-    }if (Constants.Controllers.driver2.getAButtonReleased() ) { // Enable Intake
-      intakeArm.setArmPosIn();
-      if(intake.getCoralDetector())intake.runIn(1);
-    }
-
-    if(Constants.Controllers.driver2.getBackButton()) { // Recalibrate elevator position
-      scoring.recalibratePosition();
-    }
-=======
     if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
       if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
         intakeArm.setArmPosOut();
@@ -453,12 +427,11 @@ public class Robot extends TimedRobot {
      } else {
        intakeArm.setArmPosIn();
      }
->>>>>>> Stashed changes
+
  
      // Backup control for intake suck/spit
      if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
        intake.runOut(Constants.Controllers.driver2.getRightTriggerAxis());
-       scoring.
      } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
        intake.runIn(Constants.Controllers.driver2.getLeftTriggerAxis());
      }
@@ -487,22 +460,7 @@ public class Robot extends TimedRobot {
     }
 
     // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
-<<<<<<< Updated upstream
-    if (Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1) {
-      scoring.manualControl(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
-    }
 
-    if (Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1) {
-      scoring.manualWristControl(-Constants.Controllers.driver2.getRightY()); // Left Stick Y Axis
-    }
-
-
-    if (Constants.Controllers.driver2.getBButton()) { // B Button Spits From Rollers
-      scoring.runRollerOut(0.8);
-      intake.runOut(1.0);
-      intakeArm.setArmPosOut();
-    }if(Constants.Controllers.driver2.getBButtonReleased()) {
-=======
     if (scoring.isManualControl()) {
       scoring.manualControlElevator(-Constants.Controllers.driver2.getRawAxis(1)); // Left Stick Y Axis
       scoring.manualControlWrist(-Constants.Controllers.driver2.getRawAxis(3)); // Right Stick Y Axis
@@ -513,7 +471,6 @@ public class Robot extends TimedRobot {
     } else if (Constants.Controllers.driver2.getXButton()) {
       scoring.runRollerIn();
     } else {
->>>>>>> Stashed changes
       scoring.stopRoller();
     }
   }
