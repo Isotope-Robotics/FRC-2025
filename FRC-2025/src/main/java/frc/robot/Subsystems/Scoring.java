@@ -24,7 +24,7 @@ public class Scoring extends SubsystemBase {
     public static RelativeEncoder wristEncoder;
     public static RelativeEncoder elevatorEncoder;
     public static boolean manualControl;
-    
+    public static boolean isResetting = true;
 
     private static Scoring m_Instance = null;
 
@@ -47,16 +47,31 @@ public class Scoring extends SubsystemBase {
         elevatorConfig.idleMode(IdleMode.kBrake);
        wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        //limit switch
+        sensor = new DigitalInput(3);
+        recalibratePosition();
     }
 
     public void scoringPeriodic(){
-        if (isManualControl()) {
-            // maaan i didnt do this the proper way, whoopsie! :P
-        } else {
-            elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
-        }
-        wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
-        System.out.println(elevatorEncoder.getPosition() + ", " + wristEncoder.getPosition());
+        if(isResetting){
+            if(isScoringMecClear()){
+                elevatorConfig.setPosition(0.0);
+                elevator.set(0);
+                isResetting = false;
+            }
+        }else{
+            if (isManualControl()) {
+                // maaan i didnt do this the proper way, whoopsie! :P
+            } else {
+                elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
+            }
+        }wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
+    }
+
+    public void recalibratePosition(){
+        isResetting = true;
+        elevator.set(-0.1)
     }
 
     // Checks if limit switch is clear
@@ -77,6 +92,10 @@ public class Scoring extends SubsystemBase {
         elevator.set(speed);
     }
 
+    public void manualWristControl(double speed) {
+        wrist.set(speed);
+    }
+
     public double getElevatorEncoder() {
         return elevatorEncoder.getPosition();
     }
@@ -85,14 +104,14 @@ public class Scoring extends SubsystemBase {
     }
 
     // Turns on Roller on scoring mecanism
-    public void runRollerIn() {
-        roller1.set(0.8);
-        roller2.set(0.8);
+    public void runRollerIn(double speed) {
+        roller1.set(speed);
+        roller2.set(speed);
     }
 
-    public void runRollerOut() {
-        roller1.set(-0.8);
-        roller2.set(-0.8);
+    public void runRollerOut(double speed) {
+        roller1.set(-speed);
+        roller2.set(-speed);
     }
 
     public void stopRoller() {

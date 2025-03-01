@@ -115,6 +115,7 @@ public class Robot extends TimedRobot {
       } catch (NullPointerException e) {
         System.err.println("No align pose was set!");
       }
+      swerve.drive(trajectory, isFieldRel, false);
     }
   
     /**
@@ -185,7 +186,7 @@ public class Robot extends TimedRobot {
     //SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
     //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
 
-    swerve.drive(trajectory, isFieldRel, false);
+    
   }
 
   /** This function is called once when the robot is disabled. */
@@ -245,17 +246,17 @@ public class Robot extends TimedRobot {
       offset = alignPose.relativeTo(robotRelTarget);
     }
 
-    double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero));
-    double angularSpeed = Constants.PIDs.AlignRotPID.calculate(offset.getRotation().getDegrees());
+    double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero), 0);
 
     Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
-    Rotation2d angularVelocity = offset.getRotation().div(Math.abs(offset.getRotation().getDegrees())).times(angularSpeed);
+    Rotation2d angularVelocity = new Rotation2d(Constants.PIDs.AlignRotPID.calculate(offset.getRotation().getDegrees(), 0));
 
     if (offset.getTranslation().getDistance(Translation2d.kZero) > Constants.Vision.aligningTolerance) {
-      trajectory = new Pose2d(velocity,angularVelocity);
+      trajectory = new Pose2d(velocity, angularVelocity);
       isFieldRel = false;
     } else {
       isAligning = false;
+      isFieldRel = false;
     }
   }
 
@@ -318,10 +319,8 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
 
-    if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
-      isAligning = false;
-      isPickingUp = false;
-      //climber.release();
+    if (Constants.Controllers.driver1.getRawButton(2)) { // reset gyro
+      swerve.zeroHeading();
     }
 
     if (Constants.Controllers.driver1.getRawButton(5)) { // Align with coral
@@ -335,16 +334,16 @@ public class Robot extends TimedRobot {
     // Controls for auto-aligning robot
     // TODO: Set coral reef offsets
     if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
-      isAligning = true;
       AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
+      AlignRobotPeriodic();
     }
 
     if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      isAligning = true;
       AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
+      AlignRobotPeriodic();
     }
 
-    if (Constants.Controllers.driver1.getRawButton(7) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+    if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
       PickUpCoral();
     }
     
@@ -405,24 +404,20 @@ public class Robot extends TimedRobot {
 
     // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
     if (Constants.Controllers.driver2.getAButton() ) { // Enable Intake
-      intake.runIn(1.0);
       intakeArm.setArmPosOut();
-    }
-
-    if (Constants.Controllers.driver2.getXButton() ) { // Disable Intake
-      intake.intakeStop();
+    }if (Constants.Controllers.driver2.getAButtonReleased() ) { // Enable Intake
       intakeArm.setArmPosIn();
+      if(intake.getCoralDetector())intake.runIn(1);
     }
 
-    if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton() ) { // reset gyros
-      swerve.zeroHeading();
-      System.out.println("Gyro reset");
+    if(Constants.Controllers.driver2.getBackButton()) { // Recalibrate elevator position
+      scoring.recalibratePosition();
     }
-
  
      // Backup control for intake suck/spit
      if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
        intake.runOut(Constants.Controllers.driver2.getRightTriggerAxis());
+       scoring.
      } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
        intake.runIn(Constants.Controllers.driver2.getLeftTriggerAxis());
      }
@@ -454,12 +449,17 @@ public class Robot extends TimedRobot {
     }
 
     // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
-    if (scoring.isManualControl()) {
+    if (Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1) {
       scoring.manualControl(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
     }
 
+    if (Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1) {
+      scoring.manualWristControl(-Constants.Controllers.driver2.getRightY()); // Left Stick Y Axis
+    }
+
+
     if (Constants.Controllers.driver2.getBButton()) { // B Button Spits From Rollers
-      scoring.runRollerOut();
+      scoring.runRollerOut(0.8);
       intake.runOut(1.0);
       intakeArm.setArmPosOut();
     }if(Constants.Controllers.driver2.getBButtonReleased()) {

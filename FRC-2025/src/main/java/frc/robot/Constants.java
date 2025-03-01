@@ -36,11 +36,11 @@ public class Constants {
                 public static final Integer sensorID = 103;
 
                 //TODO: get the correct encoder values for these positions
-                public static final int levelElevator0 = 40;
-                public static final int levelElevator1 = 30;
+                public static final int levelElevator0 = 0;
+                public static final int levelElevator1 = 10;
                 public static final int levelElevator2 = 20;
-                public static final int levelElevator3 = 10;
-                public static final int levelElevator4 = 0;
+                public static final int levelElevator3 = 30;
+                public static final int levelElevator4 = 40;
 
                 // these too!
                 public static final int levelWrist0 = 0;
@@ -94,16 +94,16 @@ public class Constants {
                 0.0, 
                 0.0000
             );public static  PIDController AimingPID = new PIDController(
-                0.6, 
-                0.1, 
+                0.01, 
+                0.001, 
                 0
             );public static  PIDController AlignLinearPID = new PIDController(
-                1, 
-                0.15, 
+                0.01,
+                0.001,
                 0
             );public static  PIDController AlignRotPID = new PIDController(
-                0.6, 
-                0.1, 
+                0.01,
+                0.001,
                 0
             );
 
@@ -188,10 +188,10 @@ public class Constants {
 
                 // Swerve Profiling Values
                 // Meters per Second
-                public static final double maxSpeed = 1.0;
+                public static final double maxSpeed = 5.0;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
-                public static final double maxAngularVelocity = maxSpeed / driveRadius / 200;
+                public static final double maxAngularVelocity = maxSpeed / driveRadius / 100;
 
                 // Neutral Modes
                 public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;
