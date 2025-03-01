@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  //public Climber climber;
+  public Climber climber;
   public Scoring scoring;
   public Intake intake;
   public IntakeArm intakeArm;
@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
 
   public Pose2d alignPose;
 
-  public Pose2d trajectory;
+  public Pose2d trajectory = Pose2d.kZero;
   public boolean isFieldRel;
 
   public NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-coral");
@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
       swerve = Swerve.getInstance();
-      //climber = Climber.getInstance();
+      climber = Climber.getInstance();
       scoring = Scoring.getInstance();
       intake = Intake.getInstance();
       intakeArm = IntakeArm.getInstance();
@@ -84,7 +84,12 @@ public class Robot extends TimedRobot {
       scoring.clearStickyFaults();
       intake.clearStickyFaults();
       intakeArm.clearStickyFaults();
+
+      Constants.PIDs.AimingPID.setTolerance(5);
+      Constants.PIDs.AlignRotPID.setTolerance(5);
+      Constants.PIDs.AlignLinearPID.setTolerance(0.05);
     }
+    
   
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items
@@ -143,12 +148,14 @@ public class Robot extends TimedRobot {
       if (m_AutonomousCommand != null) {
         m_AutonomousCommand.schedule();
       }
+      intakeArm.setArmPosIn();
     }
   
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
       swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
+      intakeArm.setArmPosIn();
       RobotTelemetry();
     }
   
@@ -160,6 +167,8 @@ public class Robot extends TimedRobot {
       }
       swerve.zeroHeading();
       RobotTelemetry();
+      scoring.elevatorRun(0);
+      scoring.wristRun(0);
     }
   
     /** This function is called periodically during operator control. */
@@ -282,7 +291,7 @@ public class Robot extends TimedRobot {
     coralAutoAim();
     if(intake.getCoralDetector()){
       isPickingUp = false;
-      intake.intakeStop();
+      //intake.intakeStop();
       intakeArm.setArmPosIn();
     }
   }
@@ -317,7 +326,7 @@ public class Robot extends TimedRobot {
     
     trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
     
-    isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
+    isFieldRel = !Constants.Controllers.driver1.getRawButton(5);
 
 
     
@@ -325,33 +334,32 @@ public class Robot extends TimedRobot {
     
 
     // Controls for auto-aligning robot
-    // TODO: Set coral reef offsets
     
 
 
     if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
     } else if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
+      AlignPose = new Pose2d(-0.013,-0.6,new Rotation2d(0));
       AlignRobotPeriodic();
     } else if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
-      AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
+      AlignPose = new Pose2d(0.3175,-0.6,new Rotation2d(0));
       AlignRobotPeriodic();
-    } else if (Constants.Controllers.driver1.getRawButton(7)) { // Align with coral
+    } else if (Constants.Controllers.driver1.getRawButton(1)) { // Align with coral
       coralAutoAim();
     } else if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
-      //climber.hang();
+      climber.hang();
     } else if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
       swerve.zeroHeading();
        System.out.println("Gyro reset");
     } else {
       isAligning = false;
       isPickingUp = false;
-      //climber.release();
+      climber.release();
     }
 
     
 
-    if (Constants.Controllers.driver1.getRawButton(7) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+    if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
       PickUpCoral();
     }
     
@@ -411,15 +419,15 @@ public class Robot extends TimedRobot {
   private void Driver2Controls() {
 
     // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
-    if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
-      if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
-        intakeArm.setArmPosOut();
-        intake.runIn(1.0);
-      } else {
-        intakeArm.setArmPosIn();
-        intake.intakeStop();
-      }
-     } else // little confusing but this is an else if 
+    // if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
+    //   if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
+    //     intakeArm.setArmPosOut();
+    //     intake.runIn(1.0);
+    //   } else {
+    //     intakeArm.setArmPosIn();
+    //     intake.intakeStop();
+    //   }
+    //  } else // little confusing but this is an else if 
 
       // Backup control for intakeArm in/out
      if (Constants.Controllers.driver2.getRightBumperButton()) { // Right Bumper Extend IntakeArm Out
@@ -434,6 +442,8 @@ public class Robot extends TimedRobot {
        intake.runOut(Constants.Controllers.driver2.getRightTriggerAxis());
      } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
        intake.runIn(Constants.Controllers.driver2.getLeftTriggerAxis());
+     } else {
+      intake.intakeStop();
      }
 
      // Elevator control starts from d-pad down and goes clockwise, press leftbumper to reset back to 0 to recieve coral
@@ -455,21 +465,34 @@ public class Robot extends TimedRobot {
       scoring.wristRun(0);
     }
      // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-     if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton()) {
-      scoring.toggleManualControl();
+    if (Constants.Controllers.driver2.getBackButton()) {
+      scoring.recalibratePosition();
+    }
+
+    if (Constants.Controllers.driver2.getYButtonPressed()) {
+     scoring.toggleManualControl();
     }
 
     // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
 
     if (scoring.isManualControl()) {
-      scoring.manualControlElevator(-Constants.Controllers.driver2.getRawAxis(1)); // Left Stick Y Axis
-      scoring.manualControlWrist(-Constants.Controllers.driver2.getRawAxis(3)); // Right Stick Y Axis
+      if(Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1)
+      scoring.manualControlElevator(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
+      else {
+      scoring.manualControlElevator(0);
+      }
+      if(Math.abs(Constants.Controllers.driver2.getRightY()) > 0.1)
+      scoring.manualControlWrist(Constants.Controllers.driver2.getRightY()/2.0);
+      else {
+      scoring.manualControlWrist(0);
+      }
+       // Right Stick Y Axis
     }
 
     if (Constants.Controllers.driver2.getBButton()) {
-      scoring.runRollerOut();
+      scoring.runRollerOut(0.2);
     } else if (Constants.Controllers.driver2.getXButton()) {
-      scoring.runRollerIn();
+      scoring.runRollerIn(0.2);
     } else {
       scoring.stopRoller();
     }

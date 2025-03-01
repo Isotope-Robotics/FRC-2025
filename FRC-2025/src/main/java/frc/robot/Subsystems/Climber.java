@@ -13,6 +13,9 @@ public class Climber {
         private static SparkMax climbMotor;
         public static RelativeEncoder climbEncoder;
 
+        private static Climber m_Instance = null;
+
+
         public Climber(int climbMotorID) {
             climbMotor = new SparkMax(climbMotorID, MotorType.kBrushless);
             climbEncoder = climbMotor.getEncoder();
@@ -34,6 +37,12 @@ public class Climber {
 
         public void clearStickyFaults() {
             climbMotor.clearFaults();
+        }
+
+        public static Climber getInstance() {
+            if (m_Instance == null)
+                m_Instance = new Climber(Constants.Climber.climbMotorID);
+            return m_Instance;
         }
 
 }

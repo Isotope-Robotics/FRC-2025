@@ -49,35 +49,35 @@ public class Scoring extends SubsystemBase {
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //limit switch
-        sensor = new DigitalInput(3);
+       // sensor = new DigitalInput(3);
         recalibratePosition();
     }
 
     public void scoringPeriodic(){
-        if(isResetting){
-            if(isScoringMecClear()){
-                elevatorConfig.setPosition(0.0);
-                elevator.set(0);
-                isResetting = false;
-            }
-        }else{
+        // if(isResetting){
+        //     if(isScoringMecClear()){
+        //         elevatorEncoder.setPosition(0.0);
+        //         elevator.set(0);
+        //         isResetting = false;
+        //     }
+        // }else{
             if (isManualControl()) {
                 // maaan i didnt do this the proper way, whoopsie! :P
             } else {
                 elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
+                wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
             }
-        }wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
+       // }
     }
 
     public void recalibratePosition(){
-        isResetting = true;
-        elevator.set(-0.1)
+        elevatorEncoder.setPosition(0);
     }
 
     // Checks if limit switch is clear
-    public boolean isScoringMecClear() {
-        return sensor.get();
-    }
+    // public boolean isScoringMecClear() {
+    //     return sensor.get();
+    // }
 
     // Manual control lets the elevator be controlled from the driver2 (operator) left/right stick
     public void toggleManualControl() {
@@ -88,11 +88,11 @@ public class Scoring extends SubsystemBase {
         return manualControl;
     }
 
-    public void manualControl(double speed) {
+    public void manualControlElevator(double speed) {
         elevator.set(speed);
     }
 
-    public void manualWristControl(double speed) {
+    public void manualControlWrist(double speed) {
         wrist.set(speed);
     }
 
@@ -105,12 +105,12 @@ public class Scoring extends SubsystemBase {
 
     // Turns on Roller on scoring mecanism
     public void runRollerIn(double speed) {
-        roller1.set(speed);
+        roller1.set(-speed);
         roller2.set(speed);
     }
 
     public void runRollerOut(double speed) {
-        roller1.set(-speed);
+        roller1.set(speed);
         roller2.set(-speed);
     }
 

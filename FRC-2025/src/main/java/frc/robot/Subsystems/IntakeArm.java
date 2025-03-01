@@ -20,6 +20,7 @@ public class IntakeArm extends SubsystemBase {
         armMotor = new SparkMax(intakeArmMotorID, MotorType.kBrushless);
         insideLimitSwitch = new DigitalInput(1);
         armEncoder = armMotor.getEncoder();
+        Constants.PIDs.intakeArmPID.setTolerance(2);
     }
 
     public void reset(){
@@ -45,10 +46,10 @@ public class IntakeArm extends SubsystemBase {
     
 
     public void setArmPosIn(){ 
-        Constants.PIDs.intakeArmPID.setSetpoint(-3);
+        Constants.PIDs.intakeArmPID.setSetpoint(4);
     }
     public void setArmPosOut(){ 
-        Constants.PIDs.intakeArmPID.setSetpoint(-35);
+        Constants.PIDs.intakeArmPID.setSetpoint(-28);
     }
 
     public void clearStickyFaults() {
