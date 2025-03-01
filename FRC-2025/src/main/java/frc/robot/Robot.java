@@ -319,22 +319,23 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(3);
 
+<<<<<<< Updated upstream
     if (Constants.Controllers.driver1.getRawButton(2)) { // reset gyro
       swerve.zeroHeading();
     }
+=======
+    
+>>>>>>> Stashed changes
 
-    if (Constants.Controllers.driver1.getRawButton(5)) { // Align with coral
-      coralAutoAim();
-    }
+    
 
-    if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
-      //climber.hang();
-    }
+    
 
     // Controls for auto-aligning robot
     // TODO: Set coral reef offsets
     if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
       AlignPose = new Pose2d(0.5,-0.5,new Rotation2d(0));
+<<<<<<< Updated upstream
       AlignRobotPeriodic();
     }
 
@@ -344,6 +345,27 @@ public class Robot extends TimedRobot {
     }
 
     if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+=======
+    } else if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
+      isAligning = true;
+      AlignPose = new Pose2d(-0.5,-0.5,new Rotation2d(0));
+    } else if (Constants.Controllers.driver1.getRawButton(7)) { // Align with coral
+      coralAutoAim();
+    } else if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
+      //climber.hang();
+    } else if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
+      swerve.zeroHeading();
+       System.out.println("Gyro reset");
+    } else {
+      isAligning = false;
+      isPickingUp = false;
+      //climber.release();
+    }
+
+    
+
+    if (Constants.Controllers.driver1.getRawButton(7) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+>>>>>>> Stashed changes
       PickUpCoral();
     }
     
@@ -403,6 +425,7 @@ public class Robot extends TimedRobot {
   private void Driver2Controls() {
 
     // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
+<<<<<<< Updated upstream
     if (Constants.Controllers.driver2.getAButton() ) { // Enable Intake
       intakeArm.setArmPosOut();
     }if (Constants.Controllers.driver2.getAButtonReleased() ) { // Enable Intake
@@ -413,6 +436,24 @@ public class Robot extends TimedRobot {
     if(Constants.Controllers.driver2.getBackButton()) { // Recalibrate elevator position
       scoring.recalibratePosition();
     }
+=======
+    if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
+      if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
+        intakeArm.setArmPosOut();
+        intake.runIn(1.0);
+      } else {
+        intakeArm.setArmPosIn();
+        intake.intakeStop();
+      }
+     } else // little confusing but this is an else if 
+
+      // Backup control for intakeArm in/out
+     if (Constants.Controllers.driver2.getRightBumperButton()) { // Right Bumper Extend IntakeArm Out
+       intakeArm.setArmPosOut();
+     } else {
+       intakeArm.setArmPosIn();
+     }
+>>>>>>> Stashed changes
  
      // Backup control for intake suck/spit
      if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
@@ -424,31 +465,29 @@ public class Robot extends TimedRobot {
 
      // Elevator control starts from d-pad down and goes clockwise, press leftbumper to reset back to 0 to recieve coral
      // this makes sense to me but tweak it if u want 
-    int angle = Constants.Controllers.driver2.getPOV();
-    
-    if (angle > 150 && angle < 210) { // D-pad Down
+    if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
       scoring.elevatorRun(1);
       scoring.wristRun(1);
-    } else if (angle > 240 && angle < 300) { // D-pad Left
+    } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
       scoring.elevatorRun(2);
       scoring.wristRun(2);
-    } else if (angle > 330 || angle < 30) { // D-pad Up
+    } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
       scoring.elevatorRun(3);
       scoring.wristRun(3);
-    } else if (angle > 60 && angle < 120) { // D-pad Right
+    } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
       scoring.elevatorRun(4);
       scoring.wristRun(4);
     } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
       scoring.elevatorRun(0);
       scoring.wristRun(0);
     }
-
-    // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-    if (Constants.Controllers.driver2.getYButton()){
+     // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
+     if (Constants.Controllers.driver2.getStartButton() || Constants.Controllers.driver2.getBackButton()) {
       scoring.toggleManualControl();
     }
 
     // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
+<<<<<<< Updated upstream
     if (Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1) {
       scoring.manualControl(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
     }
@@ -463,9 +502,19 @@ public class Robot extends TimedRobot {
       intake.runOut(1.0);
       intakeArm.setArmPosOut();
     }if(Constants.Controllers.driver2.getBButtonReleased()) {
+=======
+    if (scoring.isManualControl()) {
+      scoring.manualControlElevator(-Constants.Controllers.driver2.getRawAxis(1)); // Left Stick Y Axis
+      scoring.manualControlWrist(-Constants.Controllers.driver2.getRawAxis(3)); // Right Stick Y Axis
+    }
+
+    if (Constants.Controllers.driver2.getBButton()) {
+      scoring.runRollerOut();
+    } else if (Constants.Controllers.driver2.getXButton()) {
+      scoring.runRollerIn();
+    } else {
+>>>>>>> Stashed changes
       scoring.stopRoller();
-      intake.intakeStop();
-      intakeArm.setArmPosIn();
     }
   }
 
