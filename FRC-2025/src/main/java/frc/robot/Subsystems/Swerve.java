@@ -30,6 +30,9 @@ public class Swerve extends SubsystemBase {
     public Pigeon2 gyro;
     public Field2d field = new Field2d();
 
+    public boolean isAligning;
+    public Pose2d AlignPose;
+
     NetworkTable limelightAprilTable = NetworkTableInstance.getDefault().getTable("limelight-note");
     NetworkTable limelightNoteTable = NetworkTableInstance.getDefault().getTable("limelight-april");
 
@@ -86,6 +89,11 @@ public class Swerve extends SubsystemBase {
 
         SmartDashboard.putData("Field", field);
     }
+
+    public void AlignRobot(Pose2d pose){
+        isAligning = true;
+        AlignPose = pose;
+      }
 
     public void drive(Pose2d pose, boolean isFieldRel, boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(

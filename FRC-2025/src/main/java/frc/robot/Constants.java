@@ -38,15 +38,15 @@ public class Constants {
                 //TODO: get the correct encoder values for these positions
                 public static final int levelElevator0 = 0;
                 public static final int levelElevator1 = 30;
-                public static final int levelElevator2 = 60;
-                public static final int levelElevator3 = 100;
+                public static final int levelElevator2 = 6;
+                public static final int levelElevator3 = 95;
                 public static final int levelElevator4 = 134;
 
                 // these too!
                 public static final double levelWrist0 = -6;
                 public static final int levelWrist1 = -112;
-                public static final int levelWrist2 = -112;
-                public static final int levelWrist3 = -112;
+                public static final int levelWrist2 = -117;
+                public static final int levelWrist3 = -118;
                 public static final int levelWrist4 = -112;
 
         }
@@ -90,7 +90,7 @@ public class Constants {
                 0, 
                 0
             );public static  PIDController intakeArmPID = new PIDController(
-                0.06, 
+                0.08, 
                 0.001, 
                 0.0001
             );public static  PIDController AimingPID = new PIDController(

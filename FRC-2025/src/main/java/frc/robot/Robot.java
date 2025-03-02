@@ -41,13 +41,11 @@ public class Robot extends TimedRobot {
   public long ns = 0;
   public long lastnano = System.nanoTime();
 
-  public boolean isAligning;
-
   public boolean isPickingUp;
 
-  public int POVPressTime;
+  public int POVPressTime;;
 
-  public Pose2d alignPose;
+  public Pose2d lastPose;
 
   public Pose2d trajectory = Pose2d.kZero;
   public boolean isFieldRel;
@@ -58,8 +56,6 @@ public class Robot extends TimedRobot {
 
   public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
   public NetworkTableEntry robotPosTargetspace = april.getEntry("botpose_targetspace");
-
-  public Pose2d AlignPose = null;
 
   public boolean isCoralReady = false;
 
@@ -79,7 +75,7 @@ public class Robot extends TimedRobot {
       intake = Intake.getInstance();
       intakeArm = IntakeArm.getInstance();
       
-      //robotContainer = new RobotContainer(); TODO: uncomment this
+      robotContainer = new RobotContainer();
       
       scoring.clearStickyFaults();
       intake.clearStickyFaults();
@@ -114,7 +110,7 @@ public class Robot extends TimedRobot {
         PickUpCoralPeriodic();
       }
       try {
-        if (isAligning){
+        if (swerve.isAligning){
           AlignRobotPeriodic();
         }
       } catch (NullPointerException e) {
@@ -157,6 +153,8 @@ public class Robot extends TimedRobot {
       swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
       intakeArm.setArmPosIn();
       RobotTelemetry();
+      trajectory = new Pose2d(new Translation2d(-.5,0), new Rotation2d(0));
+      swerve.drive(trajectory, isFieldRel, false);
     }
   
     /** This function is called once when teleop is enabled. */
@@ -178,7 +176,7 @@ public class Robot extends TimedRobot {
   
       swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
   
-      AlignPose = null;
+      swerve.AlignPose = null;
   
       Driver1Controls();
   
@@ -252,7 +250,7 @@ public class Robot extends TimedRobot {
 
     if(targetPoseData.length == 6){
       Pose2d robotRelTarget = new Pose2d(targetPoseData[0], targetPoseData[2], new Rotation2d(targetPoseData[4]));
-      offset = alignPose.relativeTo(robotRelTarget);
+      offset = swerve.AlignPose.relativeTo(robotRelTarget);
     }
 
     double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero), 0);
@@ -264,7 +262,7 @@ public class Robot extends TimedRobot {
       trajectory = new Pose2d(velocity, angularVelocity);
       isFieldRel = false;
     } else {
-      isAligning = false;
+      swerve.isAligning = false;
       isFieldRel = false;
     }
   }
@@ -277,13 +275,10 @@ public class Robot extends TimedRobot {
     isPickingUp = false;
   }
 
-  public void AlignRobot(Pose2d pose){
-    isAligning = true;
-    alignPose = pose;
-  }
+  
 
   public void stopAligning(){
-    isAligning = false;
+    swerve.isAligning = false;
   }
 
   private void PickUpCoralPeriodic(){
@@ -312,15 +307,12 @@ public class Robot extends TimedRobot {
     // daily driving
     // Else swerve will be field centric - recommended for daily driving
 
-    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1)
-        * (Constants.Controllers.driver1.getRawAxis(2)),
-        Constants.Controllers.stickDeadband);
-    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0)
-        * (Constants.Controllers.driver1.getRawAxis(2)),
-        Constants.Controllers.stickDeadband);
-    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3)
-        * (Constants.Controllers.driver1.getRawAxis(2)),
-        Constants.Controllers.stickDeadband);
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1) * 1.5,
+        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 )) ;
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0) * 1.5,
+        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 ));
+    double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3),
+        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 ));
     
     // Queue robot's trajectory
     
@@ -328,40 +320,39 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(5);
 
-
-    
-
-    
-
     // Controls for auto-aligning robot
-    
 
-
-    if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
-    } else if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      AlignPose = new Pose2d(-0.013,-0.6,new Rotation2d(0));
+    // if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+    // } 
+    if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
+      swerve.AlignPose = new Pose2d(-0.013,-0.6,new Rotation2d(0));
       AlignRobotPeriodic();
-    } else if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
-      AlignPose = new Pose2d(0.3175,-0.6,new Rotation2d(0));
+    } 
+    if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
+      swerve.AlignPose = new Pose2d(0.3175,-0.6,new Rotation2d(0));
       AlignRobotPeriodic();
-    } else if (Constants.Controllers.driver1.getRawButton(1)) { // Align with coral
-      coralAutoAim();
-    } else if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
+    } 
+    // if (Constants.Controllers.driver1.getRawButton(1)) { // Align with coral
+    //   coralAutoAim();
+    // } 
+    if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
       climber.hang();
-    } else if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
+    } 
+    if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
       swerve.zeroHeading();
        System.out.println("Gyro reset");
-    } else {
-      isAligning = false;
+    } 
+    else {
+      swerve.isAligning = false;
       isPickingUp = false;
       climber.release();
     }
 
     
 
-    if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
-      PickUpCoral();
-    }
+    // if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
+    //   PickUpCoral();
+    // }
     
   }
 
@@ -394,13 +385,13 @@ public class Robot extends TimedRobot {
 
   //   // Controls for auto-aligning robot
   //   if (Constants.Controllers.driver1Xbox.getAButton()) {
-  //     isAligning = true;
-  //     AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
+  //     swerve.isAligning = true;
+  //     swerve.AlignPose = new Pose2d(0.5,0.5,new Rotation2d(0));
   //   }
 
   //   if (Constants.Controllers.driver1Xbox.getYButton()) {
-  //     isAligning = true;
-  //     AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
+  //     swerve.isAligning = true;
+  //     swerve.AlignPose = new Pose2d(-0.5,0.5,new Rotation2d(0));
   //   }
 
   //   if (Constants.Controllers.driver1Xbox.getXButton()) {
@@ -410,7 +401,7 @@ public class Robot extends TimedRobot {
     
   //   //Designate button to cancel aligning
   //   if (Constants.Controllers.driver1Xbox.getBButton()) {
-  //     isAligning = false;
+  //     swerve.isAligning = false;
   //     //isLooking = false;
   //   }
 
@@ -431,7 +422,7 @@ public class Robot extends TimedRobot {
 
       // Backup control for intakeArm in/out
      if (Constants.Controllers.driver2.getRightBumperButton()) { // Right Bumper Extend IntakeArm Out
-       intakeArm.setArmPosOut();
+       //intakeArm.setArmPosOut();
      } else {
        intakeArm.setArmPosIn();
      }

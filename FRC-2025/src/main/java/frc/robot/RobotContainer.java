@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import frc.robot.AutoCommands.AutoCommands;
+
 
 //Class for Auto Commands Only
 public class RobotContainer {
@@ -29,6 +31,9 @@ public class RobotContainer {
         // i would create them but im so tired
         //NamedCommands.registerCommand("Intake Out", intake.whatever());
         //NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
+
+        //NamedCommands.registerCommand("Drop Coral", AutoCommands.DropAndIntake());
+        NamedCommands.registerCommand("Align Robot", AutoCommands.alignRobot());
     }
 
     public Command getAutonomousCommand() {

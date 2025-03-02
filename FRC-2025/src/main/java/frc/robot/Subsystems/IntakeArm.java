@@ -49,7 +49,7 @@ public class IntakeArm extends SubsystemBase {
         Constants.PIDs.intakeArmPID.setSetpoint(4);
     }
     public void setArmPosOut(){ 
-        Constants.PIDs.intakeArmPID.setSetpoint(-28);
+        Constants.PIDs.intakeArmPID.setSetpoint(-45);
     }
 
     public void clearStickyFaults() {
