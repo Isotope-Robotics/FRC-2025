@@ -50,6 +50,8 @@ public class Swerve extends SubsystemBase {
     double limelightAprilTagLastError;
     double limelightNoteLastError;
 
+    RobotConfig config;
+
     private static Swerve m_Instance = null;
 
     public Swerve() {
@@ -81,39 +83,46 @@ public class Swerve extends SubsystemBase {
         estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), globalpose);
 
         // Robot Config pulled from PathPlanner GUI Setting Page
-        try{
-            RobotConfig config = RobotConfig.fromGUISettings();
-      
-            // Configure AutoBuilder
-            AutoBuilder.configure(
-              this::getPose, 
-              this::setPose, 
-              this::getSpeeds, 
-              this::driveRobotRelative, 
-              Constants.Swerve.pathFollowerConfig,
-              config,
-              () -> {
-                  // Boolean supplier that controls when the path will be mirrored for the red alliance
-                  // This will flip the path being followed to the red side of the field.
-                  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-      
-                  var alliance = DriverStation.getAlliance();
-                  if (alliance.isPresent()) {
-                      return alliance.get() == DriverStation.Alliance.Red;
-                  }
-                  return false;
-              },
-              this
-            );
-          }catch(Exception e){
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", e.getStackTrace());
+        
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
+    // Configure AutoBuilder last
+    AutoBuilder.configure(
+            this::getPose, // Robot pose supplier
+            this::setPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    new PIDConstants(1.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(1.0, 0.0, 0.0) // Rotation PID constants
+            ),
+            config, // The robot configuration
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
+    PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
+
+        SmartDashboard.putData("Field", field);
           }
 
         // Set up custom logging to add the current path to a field 2d widget
-        PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
-
-        SmartDashboard.putData("Field", field);
-    }
+        
+    
 
     public void AlignRobot(Pose2d pose){
         double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
