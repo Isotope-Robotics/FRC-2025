@@ -21,10 +21,10 @@ public class Constants {
 
         // Controllers Constants
         public static final class Controllers {
-                public static final Joystick driver1 = new Joystick(0);
-                //public static final XboxController driver1Xbox = new XboxController(0);
+                 public static final Joystick driver1 = new Joystick(0);
+               // public static final XboxController driver1Xbox = new XboxController(0);
                 public static final XboxController driver2 = new XboxController(1);
-                public static final double stickDeadband = 0.15; // Our deadband last year was 0.3
+                public static final double stickDeadband = 0.1; // Our deadband last year was 0.3
         }
 
         // Scoring Mechanism Constants
@@ -93,17 +93,17 @@ public class Constants {
                 0.08, 
                 0.001, 
                 0.0001
-            );public static  PIDController AimingPID = new PIDController(
-                0.01, 
-                0.001, 
-                0
-            );public static  PIDController AlignLinearPID = new PIDController(
-                0.01,
+            );public static  PIDController AlignXPID = new PIDController(
                 0.001,
+                0,
+                0
+            );public static  PIDController AlignYPID = new PIDController(
+                0.001,
+                0,
                 0
             );public static  PIDController AlignRotPID = new PIDController(
-                0.01,
-                0.001,
+                0.00001,
+                0,
                 0
             );
 

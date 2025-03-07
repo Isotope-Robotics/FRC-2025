@@ -14,9 +14,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 
-import static edu.wpi.first.units.Units.derive;
-
-
 import edu.wpi.first.math.MathUtil;
 
 /**
@@ -33,17 +30,15 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  public Climber climber;
-  public Scoring scoring;
-  public Intake intake;
-  public IntakeArm intakeArm;
+  public LimelightHelpers limelightHelpers;
+  // public Climber climber;
+  // public Scoring scoring;
+
 
   public long ns = 0;
   public long lastnano = System.nanoTime();
 
-  public boolean isPickingUp;
-
-  public int POVPressTime;;
+  public int POVPressTime;
 
   public Pose2d lastPose;
 
@@ -54,8 +49,9 @@ public class Robot extends TimedRobot {
   public NetworkTableEntry coralx = table.getEntry("tx");
   public NetworkTableEntry coraly = table.getEntry("ty");
 
-  public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
-  public NetworkTableEntry robotPosTargetspace = april.getEntry("botpose_targetspace");
+  public double limelightAprilTagLastError;
+
+  public Pose2d targetpose;
 
   public boolean isCoralReady = false;
 
@@ -70,20 +66,20 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
       swerve = Swerve.getInstance();
-      climber = Climber.getInstance();
-      scoring = Scoring.getInstance();
-      intake = Intake.getInstance();
-      intakeArm = IntakeArm.getInstance();
+      // climber = Climber.getInstance();
+      // scoring = Scoring.getInstance();
+      // intake = Intake.getInstance();
+      // intakeArm = IntakeArm.getInstance();
       
       robotContainer = new RobotContainer();
       
-      scoring.clearStickyFaults();
-      intake.clearStickyFaults();
-      intakeArm.clearStickyFaults();
+      // scoring.clearStickyFaults();
+      // intake.clearStickyFaults();
+      // intakeArm.clearStickyFaults();
 
-      Constants.PIDs.AimingPID.setTolerance(5);
+      Constants.PIDs.AlignXPID.setTolerance(0.05);
+      Constants.PIDs.AlignYPID.setTolerance(0.05);
       Constants.PIDs.AlignRotPID.setTolerance(5);
-      Constants.PIDs.AlignLinearPID.setTolerance(0.05);
     }
     
   
@@ -99,19 +95,43 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-      ns = -lastnano + (lastnano = System.nanoTime());
       swerve.swerveCurrents();
-      RobotTelemetry();
-      CommandScheduler.getInstance().run();
-      //intake.intakePeriodic();
-      scoring.scoringPeriodic();
-      intakeArm.intakeArmPeriodic();
-      if(isPickingUp){
-        PickUpCoralPeriodic();
+      double[] globalBotPosedata = swerve.globalBotPose.getDoubleArray(new double[0]);
+
+      if(globalBotPosedata.length != 0){
+        Pose2d globalpose = new Pose3d(
+          globalBotPosedata[0],
+          globalBotPosedata[1],
+          globalBotPosedata[2],
+          new Rotation3d(
+            globalBotPosedata[3],
+            globalBotPosedata[4],
+            globalBotPosedata[5]
+          )
+        ).toPose2d();
+        if(globalpose.getTranslation().getDistance(swerve.getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0)
+        swerve.estimator.addVisionMeasurement(globalpose, kDefaultPeriod);
+        swerve.swerveOdometry.resetPose(swerve.estimator.getEstimatedPosition());
+        System.out.println(globalpose.getTranslation());
       }
+      CommandScheduler.getInstance().run();
+      // scoring.scoringPeriodic();
+
+      RobotTelemetry();
+
+      
+      
       try {
-        if (swerve.isAligning){
-          AlignRobotPeriodic();
+        // AlignRobotPeriodic();
+        if(swerve.isAligning){
+          trajectory = new Pose2d(
+            Constants.PIDs.AlignXPID.calculate(swerve.getPose().getX(), swerve.AlignPose.getX()),
+            Constants.PIDs.AlignYPID.calculate(swerve.getPose().getY(), swerve.AlignPose.getY()),
+            new Rotation2d(
+              Constants.PIDs.AlignRotPID.calculate(swerve.getPose().getRotation().getDegrees(), swerve.AlignPose.getRotation().getDegrees())
+            )
+          );
+          isFieldRel = true;
         }
       } catch (NullPointerException e) {
         System.err.println("No align pose was set!");
@@ -144,57 +164,51 @@ public class Robot extends TimedRobot {
       if (m_AutonomousCommand != null) {
         m_AutonomousCommand.schedule();
       }
-      intakeArm.setArmPosIn();
+   
     }
   
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
       swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
-      intakeArm.setArmPosIn();
+
       RobotTelemetry();
-      trajectory = new Pose2d(new Translation2d(-.5,0), new Rotation2d(0));
-      swerve.drive(trajectory, isFieldRel, false);
     }
   
     /** This function is called once when teleop is enabled. */
     @Override
-    public void teleopInit() {// Destroy Auto Commands When Switching To TeleOP
+    public void teleopInit() {
+      // Destroy Auto Commands When Switching To TeleOP
       if (m_AutonomousCommand != null) {
         m_AutonomousCommand.cancel();
       }
       swerve.zeroHeading();
       RobotTelemetry();
-      scoring.elevatorRun(0);
-      scoring.wristRun(0);
+      // scoring.elevatorRun(0);
+      // scoring.wristRun(0);
     }
   
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+
       trajectory = Pose2d.kZero;
   
       swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
   
-      swerve.AlignPose = null;
+       Driver1Controls();
   
-      Driver1Controls();
+      // Driver1ControlsXbox();
   
-      //Driver1ControlsXbox();
-  
-      Driver2Controls();
-    
-    //if (isLooking){
-    //  lookAtCoral();
-    //}
+      //Driver2Controls();
 
-    RobotTelemetry();
+      RobotTelemetry();
 
-    //SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
-    //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
+      //SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
+      //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
 
     
-  }
+    }
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -234,71 +248,54 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Drive Current", mod.getDriveCurrent());
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Current", mod.getDriveCurrent());
+      
+      
+       
     }
-    SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
-    SmartDashboard.putNumber("Scoring Angle Encoder", scoring.getAngleEncoder());
-    SmartDashboard.putNumber("IntakeArm ENcoder", intakeArm.getArmEncoder());
+   // SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
+   // SmartDashboard.putNumber("Scoring Angle Encoder", scoring.getAngleEncoder());
 
   }
 
-  // Move Robot to position and rotation compared to April Tag
-  private void AlignRobotPeriodic(){
+  //Move Robot to position and rotation compared to April Tag
+  /*private void limelightAprilTagAim(boolean isFieldRel) {
+    
+    double tx = april.getEntry("tx").getFloat(700);
+    // System.out.println("tx april: " + tx);
+    double tx_max = 30.0f; // detemined empirically as the limelights field of view
+    double error = 0.0f;
+    double kP = .5f; // should be between 0 and 1, but can be greater than 1 to go even faster
+    double kD = 0.0f; // should be between 0 and 1
+    double steering_adjust = 0.0f;
+    double acceptable_error_threshold = 10.0f / 360.0f; // 15 degrees allowable
+    if (tx != 0.0f) { // use the limelight if it recognizes anything, and use the gyro otherwise
+      error = 1.0f * (tx / tx_max) * (31.65 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1
+                                                     // being 180 degrees away
+    }
+    if (limelightAprilTagLastError == 0.0f) {
+      limelightAprilTagLastError = tx;
+    }
+    double error_derivative = error - limelightAprilTagLastError;
+    limelightAprilTagLastError = tx; // setting limelightlasterror for next loop
 
-    double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
-
-    Pose2d offset = Pose2d.kZero;
-
-    if(targetPoseData.length == 6){
-      Pose2d robotRelTarget = new Pose2d(targetPoseData[0], targetPoseData[2], new Rotation2d(targetPoseData[4]));
-      offset = swerve.AlignPose.relativeTo(robotRelTarget);
+    if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
+      steering_adjust = (kP * error + kD * error_derivative);
     }
 
-    double speed = Constants.PIDs.AlignLinearPID.calculate(offset.getTranslation().getDistance(Translation2d.kZero), 0);
+    final double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1),
+        Constants.Controllers.stickDeadband);
+    final double ySpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0),
+        Constants.Controllers.stickDeadband);
+    swerve.drive(new Pose2d(new Translation2d(0,0), new Rotation2d(limelightAprilTagLastError)).times(Constants.Swerve.maxSpeed), isFieldRel, false);
 
-    Translation2d velocity = offset.getTranslation().div(offset.getTranslation().getDistance(Translation2d.kZero)).times(speed);
-    Rotation2d angularVelocity = new Rotation2d(Constants.PIDs.AlignRotPID.calculate(offset.getRotation().getDegrees(), 0));
-
-    if (offset.getTranslation().getDistance(Translation2d.kZero) > Constants.Vision.aligningTolerance) {
-      trajectory = new Pose2d(velocity, angularVelocity);
-      isFieldRel = false;
-    } else {
-      swerve.isAligning = false;
-      isFieldRel = false;
-    }
-  }
-
-  public void PickUpCoral(){
-    isPickingUp = true;
-  }
-
-  public void stopPickingUp(){
-    isPickingUp = false;
-  }
-
-  
+    // System.out.println("raw angle: " + currentGyro + ", mapped angle: " +
+    // mappedAngle + ", april tag error: " + error);
+  }*/
 
   public void stopAligning(){
     swerve.isAligning = false;
   }
 
-  private void PickUpCoralPeriodic(){
-    trajectory = new Pose2d(new Translation2d(0,0.5), new Rotation2d(0));
-    coralAutoAim();
-    if(intake.getCoralDetector()){
-      isPickingUp = false;
-      //intake.intakeStop();
-      intakeArm.setArmPosIn();
-    }
-  }
-
-  private void coralAutoAim() {
-    double tx = coralx.getDouble(0);
-    double ty = coraly.getDouble(0);
-    double ty_max = 21; // detemined empirically as the limelights vertical field of view
-    double offset = -0.3; // inverse slope of focal line
-    if(coralx.getDouble(40) == 40) return;
-    trajectory = new Pose2d(trajectory.getTranslation(), new Rotation2d(Constants.PIDs.AimingPID.calculate(tx - offset * (ty-ty_max), 0)));
-  }
 
   private void Driver1Controls() {
 
@@ -307,12 +304,14 @@ public class Robot extends TimedRobot {
     // daily driving
     // Else swerve will be field centric - recommended for daily driving
 
-    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1) * 1.5,
-        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 )) ;
-    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0) * 1.5,
-        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 ));
+    double speedfactor = (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 );
+
+    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1),
+        Constants.Controllers.stickDeadband * speedfactor);
+    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0),
+        Constants.Controllers.stickDeadband * speedfactor);
     double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3),
-        Constants.Controllers.stickDeadband * (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 ));
+        Constants.Controllers.stickDeadband * speedfactor);
     
     // Queue robot's trajectory
     
@@ -320,41 +319,26 @@ public class Robot extends TimedRobot {
     
     isFieldRel = !Constants.Controllers.driver1.getRawButton(5);
 
-    // Controls for auto-aligning robot
+    //Controls for auto-aligning robot
 
-    // if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
-    // } 
-    if (Constants.Controllers.driver1.getRawButton(4)) { // Align right reef
-      swerve.AlignPose = new Pose2d(-0.013,-0.6,new Rotation2d(0));
-      AlignRobotPeriodic();
+    if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
+      swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
     } 
-    if (Constants.Controllers.driver1.getRawButton(3)) { // Align left reef
-      swerve.AlignPose = new Pose2d(0.3175,-0.6,new Rotation2d(0));
-      AlignRobotPeriodic();
+    if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
+      swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(180)));
     } 
-    // if (Constants.Controllers.driver1.getRawButton(1)) { // Align with coral
-    //   coralAutoAim();
-    // } 
-    if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
-      climber.hang();
-    } 
+    if (Constants.Controllers.driver1.getRawButtonReleased(3) || Constants.Controllers.driver1.getRawButtonReleased(4)){
+      stopAligning();
+    }
+    /*if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
+      limelightAprilTagAim(false);
+    }*/
     if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
       swerve.zeroHeading();
        System.out.println("Gyro reset");
     } 
-    else {
-      swerve.isAligning = false;
-      isPickingUp = false;
-      climber.release();
-    }
-
-    
-
-    // if (Constants.Controllers.driver1.getRawButton(1) && Constants.Controllers.driver1.getRawButton(5)) { // Pick up Coral
-    //   PickUpCoral();
-    // }
-    
   }
+
 
   // Remember, ctrl + k + c to comment, ctrl + k + u to uncomment
 
@@ -407,125 +391,63 @@ public class Robot extends TimedRobot {
 
   // }
 
-  private void Driver2Controls() {
+  //private void Driver2Controls() {
 
-    // Automatic intake control, intake runs and extends out to pick up coral, once it detects it in the intake it stops and goes back
-    // if (Constants.Controllers.driver2.getAButton() ) { // A Button Auto Intake
-    //   if (!intake.getCoralDetector()) { // MAY HAVE TO REMOVE THE ! IF THE SENSOR IS WACK
-    //     intakeArm.setArmPosOut();
-    //     intake.runIn(1.0);
-    //   } else {
-    //     intakeArm.setArmPosIn();
-    //     intake.intakeStop();
-    //   }
-    //  } else // little confusing but this is an else if 
-
-      // Backup control for intakeArm in/out
-     if (Constants.Controllers.driver2.getRightBumperButton()) { // Right Bumper Extend IntakeArm Out
-       //intakeArm.setArmPosOut();
-     } else {
-       intakeArm.setArmPosIn();
-     }
 
  
-     // Backup control for intake suck/spit
-     if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
-       intake.runOut(Constants.Controllers.driver2.getRightTriggerAxis());
-     } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
-       intake.runIn(Constants.Controllers.driver2.getLeftTriggerAxis());
-     } else {
-      intake.intakeStop();
-     }
+     //Backup control for intake suck/spit
+    //  if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
+    //    scoring.runRollerOut(Constants.Controllers.driver2.getRightTriggerAxis() * 0.7);
+    //  } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
+    //    scoring.runRollerIn(Constants.Controllers.driver2.getLeftTriggerAxis() * 0.7);
+    //  } else if (Constants.Controllers.driver2.getBButton()) {
+    //   scoring.runRollerOut(0.2);
+    // } else if (Constants.Controllers.driver2.getXButton()) {
+    //   scoring.runRollerIn(0.6);
+    // } else {
+    //   scoring.stopRoller();
+    // }
 
      // Elevator control starts from d-pad down and goes clockwise, press leftbumper to reset back to 0 to recieve coral
      // this makes sense to me but tweak it if u want 
-    if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
-      scoring.elevatorRun(1);
-      scoring.wristRun(1);
-    } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
-      scoring.elevatorRun(2);
-      scoring.wristRun(2);
-    } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
-      scoring.elevatorRun(3);
-      scoring.wristRun(3);
-    } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
-      scoring.elevatorRun(4);
-      scoring.wristRun(4);
-    } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
-      scoring.elevatorRun(0);
-      scoring.wristRun(0);
-    }
+    // if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
+    //   scoring.elevatorRun(1);
+    //   scoring.wristRun(1);
+    // } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
+    //   scoring.elevatorRun(2);
+    //   scoring.wristRun(2);
+    // } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
+    //   scoring.elevatorRun(3);
+    //   scoring.wristRun(3);
+    // } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
+    //   scoring.elevatorRun(4);
+    //   scoring.wristRun(4);
+    // } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
+    //   scoring.elevatorRun(0);
+    //   scoring.wristRun(0);
+    // }
      // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-    if (Constants.Controllers.driver2.getBackButton()) {
-      scoring.recalibratePosition();
-    }
+    // if (Constants.Controllers.driver2.getBackButton()) {
+    //   scoring.recalibratePosition();
+    // }
 
-    if (Constants.Controllers.driver2.getYButtonPressed()) {
-     scoring.toggleManualControl();
-    }
+    // if (Constants.Controllers.driver2.getYButtonPressed()) {
+    //  scoring.toggleManualControl();
+    // }
 
-    // I had some thoughts about adding right stick control for manual wrist control but I won't add it unless necessary
 
-    if (scoring.isManualControl()) {
-      if(Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1)
-      scoring.manualControlElevator(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
-      else {
-      scoring.manualControlElevator(0);
-      }
-      if(Math.abs(Constants.Controllers.driver2.getRightY()) > 0.1)
-      scoring.manualControlWrist(Constants.Controllers.driver2.getRightY()/2.0);
-      else {
-      scoring.manualControlWrist(0);
-      }
-       // Right Stick Y Axis
-    }
-
-    if (Constants.Controllers.driver2.getBButton()) {
-      scoring.runRollerOut(0.2);
-    } else if (Constants.Controllers.driver2.getXButton()) {
-      scoring.runRollerIn(0.2);
-    } else {
-      scoring.stopRoller();
-    }
+    // if (scoring.isManualControl()) {
+    //   if(Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1)
+    //   scoring.manualControlElevator(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
+    //   else {
+    //   scoring.manualControlElevator(0);
+    //   }
+    //   if(Math.abs(Constants.Controllers.driver2.getRightY()) > 0.1)
+    //   scoring.manualControlWrist(Constants.Controllers.driver2.getRightY()/2.0); // Right Stick Y Axis
+    //   else {
+    //   scoring.manualControlWrist(0);
+    //   }
+    // }
   }
 
-  // I'm not deleting these to keep the order for the movements, but they cannot be used
-
-  //   public void coralPhase0() {
-  //     intake.pickingUp = true;
-  //   // scoring.elevatorReset();
-  //     intakeArm.setArmPosOut();
-  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-  //         coralPhase1();
-  //     } 
-  // }
-
-  // public void coralPhase1() {
-  //     // vision trys to pick up coral
-  //     intake.runIn();
-  //     if (intake.coralDetector()) {
-  //         intake.intakeStop();
-  //         // wheel control goes back to driver
-  //         coralPhase2();
-  //     }
-  // }
-
-  // public void coralPhase2() {
-  //     intakeArm.setArmPosIn();
-  //     if (Constants.PIDs.intakeArmPID.atSetpoint()) {
-  //         coralPhase3();
-  //     }
-  // }
-
-  // public void coralPhase3() {
-  //     // move the coral into the scoring mech
-  //     intake.runIn();
-  //     scoring.runRollerIn();
-  //     if (!scoring.isScoringMecClear()) {
-  //         intake.intakeStop();
-  //         scoring.stopRoller();
-  //     }
-  //     intake.pickingUp = false;
-  // }
-}
 

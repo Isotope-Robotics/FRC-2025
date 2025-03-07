@@ -8,9 +8,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Subsystems.*;
 
 public class AutoCommands {
-    public static Intake m_Intake = Intake.getInstance();
-    public static IntakeArm m_IntakeArm = IntakeArm.getInstance();
-    public static Scoring m_Scoring = Scoring.getInstance();
+
+    // public static Scoring m_Scoring = Scoring.getInstance();
     public static Swerve m_Swerve = Swerve.getInstance();
 
 
@@ -24,17 +23,4 @@ public class AutoCommands {
         });
     }
 
-    // public static Command DropAndIntake() {
-    //     return Commands.runOnce(() -> {
-    //         m_IntakeArm.setArmPosOut();
-    //     }, m_Intake).andThen(
-    //             Commands.waitSeconds(0.30)
-    //                     .andThen(() -> {
-    //                         m_Intake.runOut(1.0);
-    //                     }).andThen(Commands.waitSeconds(0.5))
-    //                     .andThen(Commands.runOnce(() -> {
-    //                         m_Intake.intakeStop();
-    //                         m_IntakeArm.setArmPosIn();
-    //                     })));
-    // }
 }

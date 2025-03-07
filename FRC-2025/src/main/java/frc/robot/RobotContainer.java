@@ -16,17 +16,15 @@ public class RobotContainer {
     SendableChooser<Command> autoChooser;
 
     public Swerve swerve;
-    public Scoring scoring;
-    public Intake intake;
-    public IntakeArm intakeArm;
+    // public Scoring scoring;
+
 
     public RobotContainer() {
         swerve = Swerve.getInstance();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Autochooser", autoChooser);
-        scoring = Scoring.getInstance();
-        intake = Intake.getInstance();
-        intakeArm = IntakeArm.getInstance();
+        // scoring = Scoring.getInstance();
+       
         //TODO: VERY IMPORTANT, LOOK AT LAST YEARS CODE TO SEE HOW TO CREATE AUTO COMMANDS, youll have to create new subsytems just for commands
         // i would create them but im so tired
         //NamedCommands.registerCommand("Intake Out", intake.whatever());

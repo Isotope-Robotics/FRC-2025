@@ -9,6 +9,12 @@
           "data": {
             "pathName": "Leave (All)"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Forward Down"
+          }
         }
       ]
     }

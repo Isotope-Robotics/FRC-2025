@@ -4,17 +4,23 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -26,9 +32,14 @@ import frc.robot.SwerveModule;
 
 public class Swerve extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
+    public SwerveDrivePoseEstimator estimator;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
     public Field2d field = new Field2d();
+
+    public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
+    public NetworkTableEntry robotPosTargetspace = april.getEntry("botpose_targetspace");
+    public NetworkTableEntry globalBotPose = april.getEntry("botpose");
 
     public boolean isAligning;
     public Pose2d AlignPose;
@@ -53,7 +64,21 @@ public class Swerve extends SubsystemBase {
                 new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
 
+        double[] botposedata = globalBotPose.getDoubleArray(new double[0]);
+        Pose2d globalpose = new Pose3d(
+            botposedata [0],
+            botposedata [1],
+            botposedata [2],
+            new Rotation3d(
+                botposedata [3],
+                botposedata [4],
+                botposedata [5]
+            )
+        ).toPose2d();
+
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
+
+        estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), globalpose);
 
         // Robot Config pulled from PathPlanner GUI Setting Page
         try{
@@ -91,9 +116,25 @@ public class Swerve extends SubsystemBase {
     }
 
     public void AlignRobot(Pose2d pose){
-        isAligning = true;
-        AlignPose = pose;
-      }
+        double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
+
+    if(targetPoseData.length == 6){
+      Pose2d robotRelTarget = new Pose3d(
+        targetPoseData[0],
+        targetPoseData[1],
+        targetPoseData[2],
+        new Rotation3d(
+          targetPoseData[3],
+          targetPoseData[4],
+          targetPoseData[5]
+        )
+      ).toPose2d();
+      
+      AlignPose = pose.relativeTo(robotRelTarget).relativeTo(Pose2d.kZero.relativeTo(getPose()));
+    }
+
+    isAligning = true;
+    }
 
     public void drive(Pose2d pose, boolean isFieldRel, boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
