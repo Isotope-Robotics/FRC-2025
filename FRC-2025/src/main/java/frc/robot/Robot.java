@@ -9,9 +9,6 @@ import frc.robot.Subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.math.MathUtil;
@@ -30,28 +27,10 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  public LimelightHelpers limelightHelpers;
   // public Climber climber;
   // public Scoring scoring;
 
-
-  public long ns = 0;
-  public long lastnano = System.nanoTime();
-
   public int POVPressTime;
-
-  public Pose2d lastPose;
-
-  public Pose2d trajectory = Pose2d.kZero;
-  public boolean isFieldRel;
-
-  public NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-coral");
-  public NetworkTableEntry coralx = table.getEntry("tx");
-  public NetworkTableEntry coraly = table.getEntry("ty");
-
-  public double limelightAprilTagLastError;
-
-  public Pose2d targetpose;
 
   public boolean isCoralReady = false;
 
@@ -76,10 +55,6 @@ public class Robot extends TimedRobot {
       // scoring.clearStickyFaults();
       // intake.clearStickyFaults();
       // intakeArm.clearStickyFaults();
-
-      Constants.PIDs.AlignXPID.setTolerance(0.05);
-      Constants.PIDs.AlignYPID.setTolerance(0.05);
-      Constants.PIDs.AlignRotPID.setTolerance(5);
     }
     
   
@@ -96,47 +71,31 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
       swerve.swerveCurrents();
-      double[] globalBotPosedata = swerve.globalBotPose.getDoubleArray(new double[0]);
+      // double[] globalBotPosedata = swerve.globalBotPose.getDoubleArray(new double[0]);
 
-      if(globalBotPosedata.length != 0){
-        Pose2d globalpose = new Pose3d(
-          globalBotPosedata[0],
-          globalBotPosedata[1],
-          globalBotPosedata[2],
-          new Rotation3d(
-            globalBotPosedata[3],
-            globalBotPosedata[4],
-            globalBotPosedata[5]
-          )
-        ).toPose2d();
-        if(globalpose.getTranslation().getDistance(swerve.getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0)
-        swerve.estimator.addVisionMeasurement(globalpose, kDefaultPeriod);
-        swerve.swerveOdometry.resetPose(swerve.estimator.getEstimatedPosition());
-        System.out.println(globalpose.getTranslation());
-      }
+      // if(globalBotPosedata.length != 0){
+      //   Pose2d globalpose = new Pose3d(
+      //     globalBotPosedata[0],
+      //     globalBotPosedata[1],
+      //     globalBotPosedata[2],
+      //     new Rotation3d(
+      //       globalBotPosedata[3],
+      //       globalBotPosedata[4],
+      //       globalBotPosedata[5]
+      //     )
+      //   ).toPose2d();
+      //   if(globalpose.getTranslation().getDistance(swerve.getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0){
+      //     swerve.estimator.addVisionMeasurement(globalpose, kDefaultPeriod);
+      //     swerve.swerveOdometry.resetPose(swerve.estimator.getEstimatedPosition());
+      //     swerve.setPose(swerve.estimator.getEstimatedPosition());
+      //     swerve.field.setRobotPose(swerve.estimator.getEstimatedPosition());
+      //   }
+      //   System.out.println(globalpose.getTranslation());
+      // }
       CommandScheduler.getInstance().run();
       // scoring.scoringPeriodic();
 
       RobotTelemetry();
-
-      
-      
-      try {
-        // AlignRobotPeriodic();
-        if(swerve.isAligning){
-          trajectory = new Pose2d(
-            Constants.PIDs.AlignXPID.calculate(swerve.getPose().getX(), swerve.AlignPose.getX()),
-            Constants.PIDs.AlignYPID.calculate(swerve.getPose().getY(), swerve.AlignPose.getY()),
-            new Rotation2d(
-              Constants.PIDs.AlignRotPID.calculate(swerve.getPose().getRotation().getDegrees(), swerve.AlignPose.getRotation().getDegrees())
-            )
-          );
-          isFieldRel = true;
-        }
-      } catch (NullPointerException e) {
-        System.err.println("No align pose was set!");
-      }
-      swerve.drive(trajectory, isFieldRel, false);
     }
   
     /**
@@ -191,8 +150,6 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-
-      trajectory = Pose2d.kZero;
   
       swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
   
@@ -315,21 +272,23 @@ public class Robot extends TimedRobot {
     
     // Queue robot's trajectory
     
-    trajectory = new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity));
-    
-    isFieldRel = !Constants.Controllers.driver1.getRawButton(5);
+    swerve.drive(
+      new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,
+        new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)),
+      !Constants.Controllers.driver1.getRawButton(5)
+    );
 
     //Controls for auto-aligning robot
 
-    if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
-      swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
-    } 
-    if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
-      swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(180)));
-    } 
-    if (Constants.Controllers.driver1.getRawButtonReleased(3) || Constants.Controllers.driver1.getRawButtonReleased(4)){
-      stopAligning();
-    }
+    // if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
+    //   swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
+    // } 
+    // if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
+    //   swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(180)));
+    // } 
+    // if (Constants.Controllers.driver1.getRawButtonReleased(3) || Constants.Controllers.driver1.getRawButtonReleased(4)){
+    //   stopAligning();
+    // }
     /*if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
       limelightAprilTagAim(false);
     }*/

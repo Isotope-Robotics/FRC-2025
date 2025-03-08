@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
@@ -36,21 +37,14 @@ public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
     public Field2d field = new Field2d();
-
-    public NetworkTable april = NetworkTableInstance.getDefault().getTable("limelight-april");
-    public NetworkTableEntry robotPosTargetspace = april.getEntry("botpose_targetspace");
-    public NetworkTableEntry globalBotPose = april.getEntry("botpose");
-
+    
     public boolean isAligning;
     public Pose2d AlignPose;
 
-    NetworkTable limelightAprilTable = NetworkTableInstance.getDefault().getTable("limelight-note");
-    NetworkTable limelightNoteTable = NetworkTableInstance.getDefault().getTable("limelight-april");
+    public RobotConfig config;
 
-    double limelightAprilTagLastError;
-    double limelightNoteLastError;
-
-    RobotConfig config;
+    public Pose2d trajectory = Pose2d.kZero;;
+    public boolean isFieldRel;
 
     private static Swerve m_Instance = null;
 
@@ -66,21 +60,25 @@ public class Swerve extends SubsystemBase {
                 new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
 
-        double[] botposedata = globalBotPose.getDoubleArray(new double[0]);
-        Pose2d globalpose = new Pose3d(
-            botposedata [0],
-            botposedata [1],
-            botposedata [2],
-            new Rotation3d(
-                botposedata [3],
-                botposedata [4],
-                botposedata [5]
-            )
-        ).toPose2d();
+        Constants.PIDs.AlignXPID.setTolerance(0.05);
+        Constants.PIDs.AlignYPID.setTolerance(0.05);
+        Constants.PIDs.AlignRotPID.setTolerance(5);
+
+        // double[] botposedata = globalBotPose.getDoubleArray(new double[0]);
+        // Pose2d globalpose = new Pose3d(
+        //     botposedata [0],
+        //     botposedata [1],
+        //     botposedata [2],
+        //     new Rotation3d(
+        //         botposedata [3],
+        //         botposedata [4],
+        //         botposedata [5]
+        //     )
+        // ).toPose2d();
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
 
-        estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), globalpose);
+        // estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), globalpose);
 
         // Robot Config pulled from PathPlanner GUI Setting Page
         
@@ -98,8 +96,8 @@ public class Swerve extends SubsystemBase {
             this::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(1.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(1.0, 0.0, 0.0) // Rotation PID constants
+                    new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(3.0, 0.0, 0.0) // Rotation PID constants
             ),
             config, // The robot configuration
             () -> {
@@ -118,44 +116,59 @@ public class Swerve extends SubsystemBase {
     PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
 
         SmartDashboard.putData("Field", field);
-          }
+        }
 
         // Set up custom logging to add the current path to a field 2d widget
         
     
 
-    public void AlignRobot(Pose2d pose){
-        double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
+    // public void AlignRobot(Pose2d pose){
+    //     double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
 
-    if(targetPoseData.length == 6){
-      Pose2d robotRelTarget = new Pose3d(
-        targetPoseData[0],
-        targetPoseData[1],
-        targetPoseData[2],
-        new Rotation3d(
-          targetPoseData[3],
-          targetPoseData[4],
-          targetPoseData[5]
-        )
-      ).toPose2d();
-      
-      AlignPose = pose.relativeTo(robotRelTarget).relativeTo(Pose2d.kZero.relativeTo(getPose()));
+    //     if(targetPoseData.length == 6){
+    //     Pose2d robotRelTarget = new Pose3d(
+    //         targetPoseData[0],
+    //         targetPoseData[1],
+    //         targetPoseData[2],
+    //         new Rotation3d(
+    //         targetPoseData[3],
+    //         targetPoseData[4],
+    //         targetPoseData[5]
+    //         )
+    //     ).toPose2d();
+        
+    //     driveTo(pose.relativeTo(robotRelTarget).relativeTo(Pose2d.kZero.relativeTo(getPose())));
+    //     }
+    // }
+
+    public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+        driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
     }
 
-    isAligning = true;
+    public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
+        ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+
+        SwerveModuleState[] targetStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(targetSpeeds);
+        setModuleStates(targetStates);
     }
 
-    public void drive(Pose2d pose, boolean isFieldRel, boolean isOpenLoop) {
+
+    public void driveTo(Pose2d pose){
+        isAligning = true; 
+        AlignPose = pose;
+    }
+
+    private void drivePeriodic(boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 isFieldRel ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                        pose.getX(),
-                        pose.getY(),
-                        pose.getRotation().getDegrees(),
+                        trajectory.getX(),
+                        trajectory.getY(),
+                        trajectory.getRotation().getDegrees(),
                         getHeading())
                         : new ChassisSpeeds(
-                                pose.getX(),
-                                pose.getY(),
-                                pose.getRotation().getDegrees()));
+                                trajectory.getX(),
+                                trajectory.getY(),
+                                trajectory.getRotation().getDegrees()));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
@@ -170,7 +183,15 @@ public class Swerve extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Current", mod.getDriveCurrent());
 
         }
+
+        trajectory = Pose2d.kZero;
     }
+
+    public void drive(Pose2d trajectory, boolean isFieldRel){
+        this.trajectory = trajectory;
+        this.isFieldRel = isFieldRel;
+    };
+
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.maxSpeed);
@@ -198,6 +219,11 @@ public class Swerve extends SubsystemBase {
 
     public Pose2d getPose() {
         return swerveOdometry.getPoseMeters();
+    }
+
+    public Pose2d getFreakyPose() {
+        return new Pose2d(getPose().getTranslation(), new Rotation2d(-getHeading().getDegrees()));
+
     }
 
     public void setPose(Pose2d pose) {
@@ -236,17 +262,6 @@ public class Swerve extends SubsystemBase {
         return Constants.Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());
     }
 
-    public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-        driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-    }
-
-    public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-        ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-
-        SwerveModuleState[] targetStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(targetSpeeds);
-        setModuleStates(targetStates);
-    }
-
     public void resetModulesToAbsolute() {
         for (SwerveModule mod : mSwerveMods) {
             mod.resetToAbsolute();
@@ -268,6 +283,8 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(getPose());
 
+        drivePeriodic(false);
+
         for (SwerveModule mod : mSwerveMods) {
 
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder",
@@ -286,115 +303,88 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    public boolean limelightNoteAim(boolean isFieldRel) {
-        boolean closeenough = false;
-        double tx = limelightNoteTable.getEntry("tx").getFloat(0);
-        double tx_max = 30.0f; // detemined empirically as the limelights field of view
-        double error = 0.0f;
-        double kP = 0.6f; // should be between 0 and 1, but can be greater than 1 to go even faster
-        double kD = 0.0f; // should be between 0 and 1
-        double steering_adjust = 0.0f;
-        double acceptable_error_threshold = 7.0f / 360.0f; // 15 degrees allowable
-        error = (tx / tx_max) * (31.65 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180
-                                               // degrees away
-        if (limelightNoteLastError == 0.0f) {
-            limelightNoteLastError = tx;
-        }
-        double error_derivative = error - limelightNoteLastError;
-        limelightNoteLastError = tx; // setting limelightlasterror for next loop
+    // public boolean limelightNoteAim(boolean isFieldRel) {
+    //     boolean closeenough = false;
+    //     double tx = limelightNoteTable.getEntry("tx").getFloat(0);
+    //     double tx_max = 30.0f; // detemined empirically as the limelights field of view
+    //     double error = 0.0f;
+    //     double kP = 0.6f; // should be between 0 and 1, but can be greater than 1 to go even faster
+    //     double kD = 0.0f; // should be between 0 and 1
+    //     double steering_adjust = 0.0f;
+    //     double acceptable_error_threshold = 7.0f / 360.0f; // 15 degrees allowable
+    //     error = (tx / tx_max) * (31.65 / 180); // scaling error between -1 and 1, with 0 being dead on, and 1 being 180
+    //                                            // degrees away
+    //     if (limelightNoteLastError == 0.0f) {
+    //         limelightNoteLastError = tx;
+    //     }
+    //     double error_derivative = error - limelightNoteLastError;
+    //     limelightNoteLastError = tx; // setting limelightlasterror for next loop
 
-        if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
-            steering_adjust = -1 * (kP * error + kD * error_derivative);
-            closeenough = false;
-        } else {
-            closeenough = true;
-        }
+    //     if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
+    //         steering_adjust = -1 * (kP * error + kD * error_derivative);
+    //         closeenough = false;
+    //     } else {
+    //         closeenough = true;
+    //     }
 
-        final double xSpeed = 0;
-        final double ySpeed = 0;
-        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
+    //     final double xSpeed = 0;
+    //     final double ySpeed = 0;
+    //     drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
 
-        // System.out.println("Note error: " + error);
-        return closeenough;
-    }
+    //     // System.out.println("Note error: " + error);
+    //     return closeenough;
+    // }
 
-    public void forward(boolean isFieldRel) {
+    // public void limelightAprilTagAim(boolean isFieldRel) {
+    //     double currentGyro = gyro.getYaw().getValueAsDouble();
+    //     double mappedAngle = 0.0f;
+    //     double angy = ((currentGyro % 360.0f));
+    //     if (currentGyro >= 0.0f) {
+    //         if (angy > 180) {
+    //             mappedAngle = angy - 360.0f;
+    //         } else {
+    //             mappedAngle = angy;
+    //         }
+    //     } else {
+    //         if (Math.abs(angy) > 180.0f) {
+    //             mappedAngle = angy + 360.0f;
+    //         } else {
+    //             mappedAngle = angy;
+    //         }
+    //     }
+    //     double tx = limelightAprilTable.getEntry("tx").getFloat(700);
+    //     // System.out.println("tx april: " + tx);
+    //     double tx_max = 30.0f; // detemined empirically as the limelights field of view
+    //     double error = 0.0f;
+    //     double kP = 2.0f; // should be between 0 and 1, but can be greater than 1 to go even faster
+    //     double kD = 0.0f; // should be between 0 and 1
+    //     double steering_adjust = 0.0f;
+    //     double acceptable_error_threshold = 10.0f / 360.0f; // 15 degrees allowable
+    //     if (tx != 0.0f) { // use the limelight if it recognizes anything, and use the gyro otherwise
+    //         error = -1.0f * (tx / tx_max) * (31.65 / 180); // scaling error between -1 and 1, with 0 being dead on, and
+    //                                                        // 1
+    //                                                        // being 180 degrees away
+    //     } else {
+    //         error = mappedAngle / 180.0f; // scaling error between -1 and 1, with 0 being dead on, and 1 being 180
+    //                                       // degrees
+    //                                       // away
+    //     }
+    //     if (limelightAprilTagLastError == 0.0f) {
+    //         limelightAprilTagLastError = tx;
+    //     }
+    //     double error_derivative = error - limelightAprilTagLastError;
+    //     limelightAprilTagLastError = tx; // setting limelightlasterror for next loop
 
-        final double xSpeed = -0.7;
-        final double ySpeed = 0;
-        final double rot = 0;
-        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
+    //     if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
+    //         steering_adjust = (kP * error + kD * error_derivative);
+    //     }
 
-    }
-
-    public void backward(boolean isFieldRel) {
-
-        final double xSpeed = 1;
-        final double ySpeed = 0;
-        final double rot = 0;
-        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
-
-    }
-
-    public void forward2(boolean isFieldRel) {
-
-        final double xSpeed = -1;
-        final double ySpeed = 0;
-        final double rot = 0;
-        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
-
-    }
-
-    public void limelightAprilTagAim(boolean isFieldRel) {
-        double currentGyro = gyro.getYaw().getValueAsDouble();
-        double mappedAngle = 0.0f;
-        double angy = ((currentGyro % 360.0f));
-        if (currentGyro >= 0.0f) {
-            if (angy > 180) {
-                mappedAngle = angy - 360.0f;
-            } else {
-                mappedAngle = angy;
-            }
-        } else {
-            if (Math.abs(angy) > 180.0f) {
-                mappedAngle = angy + 360.0f;
-            } else {
-                mappedAngle = angy;
-            }
-        }
-        double tx = limelightAprilTable.getEntry("tx").getFloat(700);
-        // System.out.println("tx april: " + tx);
-        double tx_max = 30.0f; // detemined empirically as the limelights field of view
-        double error = 0.0f;
-        double kP = 2.0f; // should be between 0 and 1, but can be greater than 1 to go even faster
-        double kD = 0.0f; // should be between 0 and 1
-        double steering_adjust = 0.0f;
-        double acceptable_error_threshold = 10.0f / 360.0f; // 15 degrees allowable
-        if (tx != 0.0f) { // use the limelight if it recognizes anything, and use the gyro otherwise
-            error = -1.0f * (tx / tx_max) * (31.65 / 180); // scaling error between -1 and 1, with 0 being dead on, and
-                                                           // 1
-                                                           // being 180 degrees away
-        } else {
-            error = mappedAngle / 180.0f; // scaling error between -1 and 1, with 0 being dead on, and 1 being 180
-                                          // degrees
-                                          // away
-        }
-        if (limelightAprilTagLastError == 0.0f) {
-            limelightAprilTagLastError = tx;
-        }
-        double error_derivative = error - limelightAprilTagLastError;
-        limelightAprilTagLastError = tx; // setting limelightlasterror for next loop
-
-        if (Math.abs(error) > acceptable_error_threshold) { // PID with a setpoint threshold
-            steering_adjust = (kP * error + kD * error_derivative);
-        }
-
-        final double xSpeed = 0;
-        final double ySpeed = 0;
-        drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
-        // System.out.println("raw angle: " + currentGyro + ", mapped angle: " +
-        // mappedAngle + ", april tag error: " + error);
-    }
+    //     final double xSpeed = 0;
+    //     final double ySpeed = 0;
+    //     drive(new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,new Rotation2d(steering_adjust * Constants.Swerve.maxAngularVelocity)), isFieldRel, false);
+    //     // System.out.println("raw angle: " + currentGyro + ", mapped angle: " +
+    //     // mappedAngle + ", april tag error: " + error);
+    // }
 
     Rotation2d swr = new Rotation2d(45);
     Rotation2d swr2 = new Rotation2d(-45);
