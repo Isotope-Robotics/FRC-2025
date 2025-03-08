@@ -25,20 +25,20 @@ public class Constants {
                // public static final XboxController driver1Xbox = new XboxController(0);
                 public static final XboxController driver2 = new XboxController(1);
                 public static final double stickDeadband = 0.1; // Our deadband last year was 0.3
+                public static final double driver2stickDeadband = 0.15;
         }
 
         // Scoring Mechanism Constants
         public static final class Scoring {
-                public static final Integer angleID = 45;
-                public static final Integer elevatorID = 6;
-                public static final Integer roller1ID = 4;
-                public static final Integer roller2ID = 3;
+                public static final Integer wristID = 6;
+                public static final Integer elevatorID = 5;
                 public static final Integer sensorID = 103;
+                public static final int rollerID = 44;
 
                 //TODO: get the correct encoder values for these positions
                 public static final int levelElevator0 = 0;
                 public static final int levelElevator1 = 30;
-                public static final int levelElevator2 = 6;
+                public static final int levelElevator2 = 60;
                 public static final int levelElevator3 = 95;
                 public static final int levelElevator4 = 134;
 
@@ -48,6 +48,7 @@ public class Constants {
                 public static final int levelWrist2 = -117;
                 public static final int levelWrist3 = -118;
                 public static final int levelWrist4 = -112;
+                
 
         }
 
@@ -80,7 +81,7 @@ public class Constants {
             public static  PIDController wristPID = new PIDController(
                 0.015, 
                 0.0001, 
-                0.0
+                0.0001
             );public static  PIDController elevatorPID = new PIDController(
                 0.015, 
                 0, 

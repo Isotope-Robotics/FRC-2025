@@ -114,15 +114,15 @@ public class Swerve extends SubsystemBase {
         try {
             driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose())));
         } catch (NullPointerException e) {
-            
+            System.err.println("no Coral to align to");
         }
     }
 
     public void AlignRobot(Pose2d pose, int id){
         try {
             driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose(id))));
-        } catch (NullPointerException e) {
-            
+        } catch (Exception e) {
+            System.err.println("Apriltag Id not valid.");
         }
     }
 
@@ -261,8 +261,7 @@ public class Swerve extends SubsystemBase {
         return m_Instance;
     }
 
-    @Override
-    public void periodic() {
+    public void swervePeriodic() {
 
         // swerveOdometry.update(getPosGyroYaw(), getModulePositions());
 
@@ -272,7 +271,7 @@ public class Swerve extends SubsystemBase {
                 estimator.addVisionMeasurement(globalpose, Timer.getFPGATimestamp());
                 setPose(estimator.getEstimatedPosition());
             }
-            System.out.println(globalpose.getTranslation());
+            // System.out.println(globalpose.getTranslation());
         } catch (NullPointerException e) {
 
         }

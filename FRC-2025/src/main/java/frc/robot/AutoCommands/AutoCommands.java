@@ -3,6 +3,7 @@ package frc.robot.AutoCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Subsystems.*;
@@ -11,10 +12,16 @@ public class AutoCommands {
 
     // public static Scoring m_Scoring = Scoring.getInstance();
     public static Swerve m_Swerve = Swerve.getInstance();
-
+    public static Scoring m_Scoring = Scoring.getInstance();
 
     public AutoCommands() {
         
+    }
+
+    public static Command elevatorRun () {
+        return Commands.runOnce(() -> {
+            m_Scoring.elevatorRun(2);
+        });
     }
 
     public static Command alignRobot() {

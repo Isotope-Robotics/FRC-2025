@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.AutoCommands.AutoCommands;
 import frc.robot.Subsystems.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.*;
@@ -28,7 +29,7 @@ public class Robot extends TimedRobot {
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
   // public Climber climber;
-  // public Scoring scoring;
+  public Scoring scoring;
 
   public int POVPressTime;
 
@@ -46,13 +47,13 @@ public class Robot extends TimedRobot {
     public Robot() {
       swerve = Swerve.getInstance();
       // climber = Climber.getInstance();
-      // scoring = Scoring.getInstance();
+      scoring = Scoring.getInstance();
       // intake = Intake.getInstance();
       // intakeArm = IntakeArm.getInstance();
       
       robotContainer = new RobotContainer();
       
-      // scoring.clearStickyFaults();
+      scoring.clearStickyFaults();
       // intake.clearStickyFaults();
       // intakeArm.clearStickyFaults();
     }
@@ -72,7 +73,9 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
       swerve.swerveCurrents();
       
-      // scoring.scoringPeriodic();
+      scoring.scoringPeriodic();
+
+      swerve.swervePeriodic();
 
       RobotTelemetry();
     }
@@ -102,13 +105,14 @@ public class Robot extends TimedRobot {
       if (m_AutonomousCommand != null) {
         m_AutonomousCommand.schedule();
       }
+
    
     }
   
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-      swerve.swerveOdometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
+      swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
       RobotTelemetry();
     }
@@ -121,9 +125,10 @@ public class Robot extends TimedRobot {
         m_AutonomousCommand.cancel();
       }
       swerve.zeroHeading();
+
       RobotTelemetry();
-      // scoring.elevatorRun(0);
-      // scoring.wristRun(0);
+        scoring.elevatorRun(0);
+        // scoring.wristRun(0);
     }
   
     /** This function is called periodically during operator control. */
@@ -136,11 +141,11 @@ public class Robot extends TimedRobot {
   
       // Driver1ControlsXbox();
   
-      //Driver2Controls();
+      Driver2Controls();
 
       RobotTelemetry();
 
-      //SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
+      SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
       //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
 
     
@@ -159,6 +164,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
+
   }
 
   /** This function is called periodically during test mode. */
@@ -185,10 +191,10 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Drive Current", mod.getDriveCurrent());
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Current", mod.getDriveCurrent());
       
-      
        
     }
-   // SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
+
+   SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
    // SmartDashboard.putNumber("Scoring Angle Encoder", scoring.getAngleEncoder());
 
   }
@@ -251,9 +257,12 @@ public class Robot extends TimedRobot {
     
     // Queue robot's trajectory
     
+    // TODO: Remap this button (button 8 doesn't exist)
+    Rotation2d driveRotation = !Constants.Controllers.driver1.getRawButton(8) ? (new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)) : new Rotation2d(0);
+
     swerve.drive(
-      new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed,
-        new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)),
+      new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed, 
+        driveRotation),
       !Constants.Controllers.driver1.getRawButton(5)
     );
 
@@ -329,63 +338,55 @@ public class Robot extends TimedRobot {
 
   // }
 
-  //private void Driver2Controls() {
+  private void Driver2Controls() {
 
 
  
-     //Backup control for intake suck/spit
-    //  if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
-    //    scoring.runRollerOut(Constants.Controllers.driver2.getRightTriggerAxis() * 0.7);
-    //  } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
-    //    scoring.runRollerIn(Constants.Controllers.driver2.getLeftTriggerAxis() * 0.7);
-    //  } else if (Constants.Controllers.driver2.getBButton()) {
-    //   scoring.runRollerOut(0.2);
-    // } else if (Constants.Controllers.driver2.getXButton()) {
-    //   scoring.runRollerIn(0.6);
-    // } else {
-    //   scoring.stopRoller();
-    // }
+     if (Constants.Controllers.driver2.getRightTriggerAxis() > 0.1) { // Right Trigger Variable Spit
+       scoring.runRollerOut(Constants.Controllers.driver2.getRightTriggerAxis() * 0.7);
+     } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
+       scoring.runRollerIn(Constants.Controllers.driver2.getLeftTriggerAxis() * 0.7);
+     } else if (Constants.Controllers.driver2.getBButton()) {
+      scoring.runRollerOut(0.2);
+    } else if (Constants.Controllers.driver2.getXButton()) {
+      scoring.runRollerIn(0.6);
+    } else {
+      scoring.stopRoller();
+    }
 
-     // Elevator control starts from d-pad down and goes clockwise, press leftbumper to reset back to 0 to recieve coral
-     // this makes sense to me but tweak it if u want 
-    // if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
-    //   scoring.elevatorRun(1);
-    //   scoring.wristRun(1);
-    // } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
-    //   scoring.elevatorRun(2);
-    //   scoring.wristRun(2);
-    // } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
-    //   scoring.elevatorRun(3);
-    //   scoring.wristRun(3);
-    // } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
-    //   scoring.elevatorRun(4);
-    //   scoring.wristRun(4);
-    // } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
-    //   scoring.elevatorRun(0);
-    //   scoring.wristRun(0);
-    // }
-     // Enables manual control of the elevator using the left stick y axis, you could also make it activate when the stick value is > 0.1 or < -0.1
-    // if (Constants.Controllers.driver2.getBackButton()) {
-    //   scoring.recalibratePosition();
-    // }
+    if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
+      scoring.elevatorRun(1);
+      //scoring.wristRun(1);
+    } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
+      scoring.elevatorRun(2);
+      //scoring.wristRun(2);
+    } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
+      scoring.elevatorRun(3);
+      //scoring.wristRun(3);
+    } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
+      scoring.elevatorRun(4);
+      scoring.wristRun(4);
+    } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
+      scoring.elevatorRun(0);
+      //scoring.wristRun(0);
+    }
+    if (Constants.Controllers.driver2.getBackButton()) {
+      scoring.recalibratePosition();
+    }
 
-    // if (Constants.Controllers.driver2.getYButtonPressed()) {
-    //  scoring.toggleManualControl();
-    // }
-
-
-    // if (scoring.isManualControl()) {
-    //   if(Math.abs(Constants.Controllers.driver2.getLeftY()) > 0.1)
-    //   scoring.manualControlElevator(-Constants.Controllers.driver2.getLeftY()); // Left Stick Y Axis
-    //   else {
-    //   scoring.manualControlElevator(0);
-    //   }
-    //   if(Math.abs(Constants.Controllers.driver2.getRightY()) > 0.1)
-    //   scoring.manualControlWrist(Constants.Controllers.driver2.getRightY()/2.0); // Right Stick Y Axis
-    //   else {
-    //   scoring.manualControlWrist(0);
-    //   }
-    // }
+    if (Constants.Controllers.driver2.getYButtonPressed()) {
+     scoring.toggleManualControl();
+    }
+    
+    if(scoring.isManualControl()) {
+      scoring.manualControlElevator(-MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
+      scoring.manualControlWrist(-MathUtil.applyDeadband(Constants.Controllers.driver2.getRightY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
+      System.out.println("manual control");
+    }
+    else {
+      scoring.manualControlElevator(0);
+      scoring.manualControlWrist(0);
+    }
   }
-
+}
 
