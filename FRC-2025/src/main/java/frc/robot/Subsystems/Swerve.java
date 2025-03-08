@@ -10,23 +10,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.*;
+
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
@@ -46,6 +37,8 @@ public class Swerve extends SubsystemBase {
     public Pose2d trajectory = Pose2d.kZero;;
     public boolean isFieldRel;
 
+    public Vision aprilTagVision;
+
     private static Swerve m_Instance = null;
 
     public Swerve() {
@@ -64,21 +57,16 @@ public class Swerve extends SubsystemBase {
         Constants.PIDs.AlignYPID.setTolerance(0.05);
         Constants.PIDs.AlignRotPID.setTolerance(5);
 
-        // double[] botposedata = globalBotPose.getDoubleArray(new double[0]);
-        // Pose2d globalpose = new Pose3d(
-        //     botposedata [0],
-        //     botposedata [1],
-        //     botposedata [2],
-        //     new Rotation3d(
-        //         botposedata [3],
-        //         botposedata [4],
-        //         botposedata [5]
-        //     )
-        // ).toPose2d();
+        aprilTagVision = new Vision("limelight-april");
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
 
-        // estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), globalpose);
+        try {
+            estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), aprilTagVision.getGlobalRobotPose());
+        } catch (NullPointerException e) {
+            estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), Pose2d.kZero);
+        }
+        
 
         // Robot Config pulled from PathPlanner GUI Setting Page
         
@@ -122,24 +110,21 @@ public class Swerve extends SubsystemBase {
         
     
 
-    // public void AlignRobot(Pose2d pose){
-    //     double[] targetPoseData = robotPosTargetspace.getDoubleArray(new double[0]);
+    public void AlignRobot(Pose2d pose){
+        try {
+            driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose())));
+        } catch (NullPointerException e) {
+            
+        }
+    }
 
-    //     if(targetPoseData.length == 6){
-    //     Pose2d robotRelTarget = new Pose3d(
-    //         targetPoseData[0],
-    //         targetPoseData[1],
-    //         targetPoseData[2],
-    //         new Rotation3d(
-    //         targetPoseData[3],
-    //         targetPoseData[4],
-    //         targetPoseData[5]
-    //         )
-    //     ).toPose2d();
-        
-    //     driveTo(pose.relativeTo(robotRelTarget).relativeTo(Pose2d.kZero.relativeTo(getPose())));
-    //     }
-    // }
+    public void AlignRobot(Pose2d pose, int id){
+        try {
+            driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose(id))));
+        } catch (NullPointerException e) {
+            
+        }
+    }
 
     public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
         driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
@@ -280,6 +265,17 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
 
         // swerveOdometry.update(getPosGyroYaw(), getModulePositions());
+
+        try {
+            Pose2d globalpose = aprilTagVision.getGlobalRobotPose();
+            if(globalpose.getTranslation().getDistance(getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0){
+                estimator.addVisionMeasurement(globalpose, Timer.getFPGATimestamp());
+                setPose(estimator.getEstimatedPosition());
+            }
+            System.out.println(globalpose.getTranslation());
+        } catch (NullPointerException e) {
+
+        }
 
         field.setRobotPose(getPose());
 

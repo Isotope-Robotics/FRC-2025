@@ -71,28 +71,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
       swerve.swerveCurrents();
-      // double[] globalBotPosedata = swerve.globalBotPose.getDoubleArray(new double[0]);
-
-      // if(globalBotPosedata.length != 0){
-      //   Pose2d globalpose = new Pose3d(
-      //     globalBotPosedata[0],
-      //     globalBotPosedata[1],
-      //     globalBotPosedata[2],
-      //     new Rotation3d(
-      //       globalBotPosedata[3],
-      //       globalBotPosedata[4],
-      //       globalBotPosedata[5]
-      //     )
-      //   ).toPose2d();
-      //   if(globalpose.getTranslation().getDistance(swerve.getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0){
-      //     swerve.estimator.addVisionMeasurement(globalpose, kDefaultPeriod);
-      //     swerve.swerveOdometry.resetPose(swerve.estimator.getEstimatedPosition());
-      //     swerve.setPose(swerve.estimator.getEstimatedPosition());
-      //     swerve.field.setRobotPose(swerve.estimator.getEstimatedPosition());
-      //   }
-      //   System.out.println(globalpose.getTranslation());
-      // }
-      CommandScheduler.getInstance().run();
+      
       // scoring.scoringPeriodic();
 
       RobotTelemetry();
@@ -280,15 +259,15 @@ public class Robot extends TimedRobot {
 
     //Controls for auto-aligning robot
 
-    // if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
-    //   swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
-    // } 
-    // if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
-    //   swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(180)));
-    // } 
-    // if (Constants.Controllers.driver1.getRawButtonReleased(3) || Constants.Controllers.driver1.getRawButtonReleased(4)){
-    //   stopAligning();
-    // }
+    if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
+      swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
+    } 
+    if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
+      swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(180)));
+    } 
+    if (Constants.Controllers.driver1.getRawButtonReleased(3) || Constants.Controllers.driver1.getRawButtonReleased(4)){
+      stopAligning();
+    }
     /*if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
       limelightAprilTagAim(false);
     }*/

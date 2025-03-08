@@ -17,10 +17,16 @@ public class AutoCommands {
         
     }
 
-    // public static Command alignRobot() {
-    //     return Commands.runOnce(() -> {
-    //         m_Swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(0)));
-    //     });
-    // }
+    public static Command alignRobot() {
+        return Commands.runOnce(() -> {
+            m_Swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(0)));
+        });
+    }
+
+    public static Command alignRobotId(int id) {
+        return Commands.runOnce(() -> {
+            m_Swerve.AlignRobot(new Pose2d(0.3175,-0.6,new Rotation2d(0)), id);
+        });
+    }
 
 }

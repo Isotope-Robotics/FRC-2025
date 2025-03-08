@@ -31,7 +31,7 @@ public class RobotContainer {
         //NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
 
         //NamedCommands.registerCommand("Drop Coral", AutoCommands.DropAndIntake());
-        //NamedCommands.registerCommand("Align Robot", AutoCommands.alignRobot());
+        NamedCommands.registerCommand("Align Robot", AutoCommands.alignRobot());
     }
 
     public Command getAutonomousCommand() {
