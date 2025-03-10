@@ -33,7 +33,7 @@ public class Constants {
                 public static final Integer wristID = 6;
                 public static final Integer elevatorID = 5;
                 public static final Integer sensorID = 103;
-                public static final int rollerID = 44;
+                public static final int rollerID = 43;
 
                 //TODO: get the correct encoder values for these positions
                 public static final int levelElevator0 = 0;

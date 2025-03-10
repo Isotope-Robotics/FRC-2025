@@ -23,14 +23,9 @@ public class RobotContainer {
         swerve = Swerve.getInstance();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Autochooser", autoChooser);
-        // scoring = Scoring.getInstance();
        
-        //TODO: VERY IMPORTANT, LOOK AT LAST YEARS CODE TO SEE HOW TO CREATE AUTO COMMANDS, youll have to create new subsytems just for commands
-        // i would create them but im so tired
-        //NamedCommands.registerCommand("Intake Out", intake.whatever());
-        //NamedCommands.registerCommand("Intake Coral from Ground", intake.groundCoralCommand());
-
-        //NamedCommands.registerCommand("Drop Coral", AutoCommands.DropAndIntake());
+        NamedCommands.registerCommand("Intake Coral from Station", AutoCommands.intakeFromStation());
+        NamedCommands.registerCommand("Drop Coral", AutoCommands.scoreL1());
         NamedCommands.registerCommand("Align Robot", AutoCommands.alignRobot());
     }
 

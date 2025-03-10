@@ -18,9 +18,61 @@ public class AutoCommands {
         
     }
 
-    public static Command elevatorRun () {
+    public static Command scoreL1 () {
+        return Commands.runOnce(() -> {
+            m_Scoring.elevatorRun(1);
+        }).andThen(() -> {
+            m_Scoring.runRollerOut(0.5);
+        }).andThen(Commands.waitSeconds(2)).andThen(() -> {
+            m_Scoring.stopRoller();
+        }).andThen(() -> {
+            m_Scoring.elevatorRun(0);
+        });
+    }
+
+    public static Command scoreL2 () {
         return Commands.runOnce(() -> {
             m_Scoring.elevatorRun(2);
+        }).andThen(() -> {
+            m_Scoring.runRollerOut(0.5);
+        }).andThen(Commands.waitSeconds(2)).andThen(() -> {
+            m_Scoring.stopRoller();
+        }).andThen(() -> {
+            m_Scoring.elevatorRun(0);
+        });
+    }
+
+    public static Command scoreL3 () {
+        return Commands.runOnce(() -> {
+            m_Scoring.elevatorRun(3);
+        }).andThen(() -> {
+            m_Scoring.runRollerOut(0.5);
+        }).andThen(Commands.waitSeconds(2)).andThen(() -> {
+            m_Scoring.stopRoller();
+        }).andThen(() -> {
+            m_Scoring.elevatorRun(0);
+        });
+    }
+
+    public static Command scoreL4 () {
+        return Commands.runOnce(() -> {
+            m_Scoring.elevatorRun(4);
+        }).andThen(() -> {
+            m_Scoring.runRollerOut(0.5);
+        }).andThen(Commands.waitSeconds(2)).andThen(() -> {
+            m_Scoring.stopRoller();
+        }).andThen(() -> {
+            m_Scoring.elevatorRun(0);
+        });
+    }
+
+    public static Command intakeFromStation () {
+        return Commands.runOnce(() -> {
+            m_Scoring.elevatorRun(1);
+        }).andThen(() -> {
+            m_Scoring.runRollerIn(0.5);
+        }).andThen(Commands.waitSeconds(5)).andThen(() -> {
+            m_Scoring.elevatorRun(0);
         });
     }
 

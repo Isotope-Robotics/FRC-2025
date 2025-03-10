@@ -99,6 +99,7 @@ public class Scoring extends SubsystemBase {
     }
 
     public void runRollerOut(double speed) {
+        System.out.println("Running roller out...");
         roller.set(speed);
     }
 

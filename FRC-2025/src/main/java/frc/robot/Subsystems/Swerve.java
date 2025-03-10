@@ -264,6 +264,7 @@ public class Swerve extends SubsystemBase {
     public void swervePeriodic() {
 
         // swerveOdometry.update(getPosGyroYaw(), getModulePositions());
+        estimator.update(getPosGyroYaw(), getModulePositions());
 
         try {
             Pose2d globalpose = aprilTagVision.getGlobalRobotPose();
