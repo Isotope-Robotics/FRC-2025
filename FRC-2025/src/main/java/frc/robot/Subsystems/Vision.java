@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import java.util.NoSuchElementException;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,9 +27,9 @@ public class Vision {
         aprilTagIDEntry = april.getEntry("tid");
     }
 
-    public static Pose2d toPose2d(NetworkTableEntry networkTable) throws NullPointerException{
+    public static Pose2d toPose2d(NetworkTableEntry networkTable) throws NoSuchElementException{
         double[] posedata = networkTable.getDoubleArray(new double[0]);
-        if(posedata.length == 0) throw new NullPointerException("No target was found");
+        if(posedata.length == 0) throw new NoSuchElementException("No target was found");
         return new Pose3d(
             posedata[0],
             posedata[1],
@@ -40,23 +42,23 @@ public class Vision {
         ).toPose2d();
     }
 
-    public Pose2d getRobotPosTargetSpace() throws NullPointerException{
+    public Pose2d getRobotPosTargetSpace() throws NoSuchElementException{
         return toPose2d(robotPosTargetSpace);
     }
 
-    public Pose2d getTargetPosRobotSpace() throws NullPointerException{
+    public Pose2d getTargetPosRobotSpace() throws NoSuchElementException{
         return toPose2d(targetPosRobotSpace);
     }
 
-    public Pose2d getGlobalRobotPose() throws NullPointerException{
+    public Pose2d getGlobalRobotPose() throws NoSuchElementException{
         return toPose2d(globalRobotPose);
     }
 
-    public Pose2d getGlobalTargetPose(int id) throws NullPointerException{
+    public Pose2d getGlobalTargetPose(int id) throws NoSuchElementException{
         return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(id).get().toPose2d();
     }
 
-    public Pose2d getGlobalTargetPose() throws NullPointerException{
+    public Pose2d getGlobalTargetPose() throws NoSuchElementException{
         return getGlobalTargetPose((int)aprilTagIDEntry.getInteger(-1));
     }
 

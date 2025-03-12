@@ -95,11 +95,11 @@ public class Constants {
                 0.001, 
                 0.0001
             );public static  PIDController AlignXPID = new PIDController(
-                0.001,
+                0.01,
                 0,
                 0
             );public static  PIDController AlignYPID = new PIDController(
-                0.001,
+                0.01,
                 0,
                 0
             );public static  PIDController AlignRotPID = new PIDController(

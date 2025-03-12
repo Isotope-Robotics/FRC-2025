@@ -10,6 +10,7 @@ import frc.robot.Subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.math.MathUtil;
@@ -71,9 +72,10 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-      swerve.swerveCurrents();
-      
+
       scoring.scoringPeriodic();
+
+      System.out.println(swerve.trajectory);
 
       swerve.swervePeriodic();
 
@@ -112,7 +114,6 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-      swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
 
       RobotTelemetry();
     }
@@ -134,9 +135,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-  
-      swerve.swerveOdometry.update(swerve.getPosGyroYaw(), swerve.getModulePositions());
-  
+
        Driver1Controls();
   
       // Driver1ControlsXbox();
@@ -253,16 +252,14 @@ public class Robot extends TimedRobot {
     double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0),
         Constants.Controllers.stickDeadband * speedfactor);
     double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3),
-        Constants.Controllers.stickDeadband * speedfactor);
+        Constants.Controllers.stickDeadband * speedfactor * (Constants.Controllers.driver1.getRawButton(7) ? 0 : 1));
     
     // Queue robot's trajectory
     
-    // TODO: Remap this button (button 8 doesn't exist)
-    Rotation2d driveRotation = !Constants.Controllers.driver1.getRawButton(8) ? (new Rotation2d(rot * Constants.Swerve.maxAngularVelocity)) : new Rotation2d(0);
-
+    // Stop rotaton
+    
     swerve.drive(
-      new Pose2d(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed, 
-        driveRotation),
+      new ChassisSpeeds(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed, rot * Constants.Swerve.maxAngularVelocity),
       !Constants.Controllers.driver1.getRawButton(5)
     );
 

@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import java.util.NoSuchElementException;
+
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -23,7 +25,6 @@ import frc.robot.Constants;
 import frc.robot.SwerveModule;
 
 public class Swerve extends SubsystemBase {
-    public SwerveDriveOdometry swerveOdometry;
     public SwerveDrivePoseEstimator estimator;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
@@ -34,8 +35,7 @@ public class Swerve extends SubsystemBase {
 
     public RobotConfig config;
 
-    public Pose2d trajectory = Pose2d.kZero;;
-    public boolean isFieldRel;
+    public ChassisSpeeds trajectory = new ChassisSpeeds();
 
     public Vision aprilTagVision;
 
@@ -59,11 +59,9 @@ public class Swerve extends SubsystemBase {
 
         aprilTagVision = new Vision("limelight-april");
 
-        swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
-
         try {
             estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), aprilTagVision.getGlobalRobotPose());
-        } catch (NullPointerException e) {
+        } catch (NoSuchElementException e) {
             estimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), Pose2d.kZero);
         }
         
@@ -82,7 +80,7 @@ public class Swerve extends SubsystemBase {
             this::getPose, // Robot pose supplier
             this::setPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            (speeds, feedforwards) -> drive(speeds, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                     new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(3.0, 0.0, 0.0) // Rotation PID constants
@@ -95,7 +93,7 @@ public class Swerve extends SubsystemBase {
 
               var alliance = DriverStation.getAlliance();
               if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
+                return alliance.get().equals(DriverStation.Alliance.Red);
               }
               return false;
             },
@@ -113,7 +111,7 @@ public class Swerve extends SubsystemBase {
     public void AlignRobot(Pose2d pose){
         try {
             driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose())));
-        } catch (NullPointerException e) {
+        } catch (NoSuchElementException e) {
             System.err.println("no Coral to align to");
         }
     }
@@ -121,43 +119,38 @@ public class Swerve extends SubsystemBase {
     public void AlignRobot(Pose2d pose, int id){
         try {
             driveTo(pose.relativeTo(Pose2d.kZero.relativeTo(aprilTagVision.getGlobalTargetPose(id))));
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             System.err.println("Apriltag Id not valid.");
         }
     }
 
-    public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-        driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-    }
+    // public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+    //     driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
+    // }
 
-    public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-        ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    // public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
+    //     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
 
-        SwerveModuleState[] targetStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(targetSpeeds);
-        setModuleStates(targetStates);
-    }
+    //     drive(new Pose2d(
+    //         targetSpeeds.vxMetersPerSecond,
+    //         targetSpeeds.vyMetersPerSecond,
+    //         new Rotation2d(
+    //             targetSpeeds.omegaRadiansPerSecond
+    //         )
+    //     ), false);
+    // }
 
 
     public void driveTo(Pose2d pose){
         isAligning = true; 
         AlignPose = pose;
+        System.out.println("Aligning...");
     }
 
     private void drivePeriodic(boolean isOpenLoop) {
-        SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
-                isFieldRel ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                        trajectory.getX(),
-                        trajectory.getY(),
-                        trajectory.getRotation().getDegrees(),
-                        getHeading())
-                        : new ChassisSpeeds(
-                                trajectory.getX(),
-                                trajectory.getY(),
-                                trajectory.getRotation().getDegrees()));
+        SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(trajectory);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
-
-        swerveOdometry.update(getGyroYaw(), getModulePositions());
 
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
@@ -169,14 +162,13 @@ public class Swerve extends SubsystemBase {
 
         }
 
-        trajectory = Pose2d.kZero;
+        trajectory = new ChassisSpeeds();
     }
 
-    public void drive(Pose2d trajectory, boolean isFieldRel){
-        this.trajectory = trajectory;
-        this.isFieldRel = isFieldRel;
+    public void drive(ChassisSpeeds trajectory, boolean isFieldRel){
+        this.trajectory = isFieldRel ? 
+        ChassisSpeeds.discretize(trajectory, 0.02) : ChassisSpeeds.fromFieldRelativeSpeeds(ChassisSpeeds.discretize(trajectory, 0.02), getHeading());
     };
-
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.maxSpeed);
@@ -203,16 +195,11 @@ public class Swerve extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return swerveOdometry.getPoseMeters();
-    }
-
-    public Pose2d getFreakyPose() {
-        return new Pose2d(getPose().getTranslation(), new Rotation2d(-getHeading().getDegrees()));
-
+        return estimator.getEstimatedPosition();
     }
 
     public void setPose(Pose2d pose) {
-        swerveOdometry.resetPosition(getPosGyroYaw(), getModulePositions(), pose);
+        estimator.resetPosition(getPosGyroYaw(), getModulePositions(), pose);
     }
 
     public Rotation2d getHeading() {
@@ -220,20 +207,21 @@ public class Swerve extends SubsystemBase {
     }
 
     public void setHeading(Rotation2d heading) {
-        swerveOdometry.resetPosition(getPosGyroYaw(), getModulePositions(),
+        estimator.resetPosition(getGyroYaw(), getModulePositions(),
                 new Pose2d(getPose().getTranslation(), heading));
     }
 
     public void zeroHeading() {
-        swerveOdometry.resetPosition(getPosGyroYaw(), getModulePositions(),
-                new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        estimator.resetPosition(getGyroYaw(), getModulePositions(),
+                new Pose2d(getPose().getTranslation(), Rotation2d.kZero));
     }
 
-    // Returns Gyro as a Rotation2d
+    // Returns Gyro angle pointer
     public Rotation2d getGyroYaw() {
-        return Rotation2d.fromDegrees(-gyro.getYaw().getValueAsDouble());
+        return gyro.getRotation2d();
     }
 
+    // Return new instance of Gyro's Rotation
     public Rotation2d getPosGyroYaw() {
         return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
     }
@@ -263,21 +251,26 @@ public class Swerve extends SubsystemBase {
 
     public void swervePeriodic() {
 
-        // swerveOdometry.update(getPosGyroYaw(), getModulePositions());
         estimator.update(getPosGyroYaw(), getModulePositions());
 
         try {
             Pose2d globalpose = aprilTagVision.getGlobalRobotPose();
             if(globalpose.getTranslation().getDistance(getPose().getTranslation()) < Constants.Swerve.maxSpeed/4.0){
                 estimator.addVisionMeasurement(globalpose, Timer.getFPGATimestamp());
-                setPose(estimator.getEstimatedPosition());
             }
-            // System.out.println(globalpose.getTranslation());
-        } catch (NullPointerException e) {
+        } catch (NoSuchElementException e) {
 
-        }
-
+        } 
+        
         field.setRobotPose(getPose());
+
+        if(isAligning){
+            drive(new ChassisSpeeds(
+                Constants.PIDs.AlignXPID.calculate(getPose().getX(), AlignPose.getX()),
+                Constants.PIDs.AlignYPID.calculate(getPose().getY(), AlignPose.getY()),
+                Constants.PIDs.AlignRotPID.calculate(getPose().getRotation().getRadians(), AlignPose.getRotation().getRadians())
+            ), true);
+        }
 
         drivePeriodic(false);
 
@@ -288,6 +281,8 @@ public class Swerve extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle",
                     mod.getPosition().angle.getDegrees());
         }
+
+        swerveCurrents();
     }
 
     public void swerveCurrents() {
