@@ -90,22 +90,18 @@ public class Constants {
                 0.015, 
                 0, 
                 0
-            );public static  PIDController intakeArmPID = new PIDController(
-                0.08, 
-                0.001, 
-                0.0001
             );public static  PIDController AlignXPID = new PIDController(
+                0.1,
                 0.01,
-                0,
-                0
+                0.01
             );public static  PIDController AlignYPID = new PIDController(
+                0.1,
                 0.01,
-                0,
-                0
+                0.01
             );public static  PIDController AlignRotPID = new PIDController(
-                0.00001,
-                0,
-                0
+                0.5,
+                0.01,
+                0.01
             );
 
 
@@ -192,7 +188,7 @@ public class Constants {
                 public static final double maxSpeed = 5.0;
                 // Radians per Second
                 public static final double driveRadius = Math.hypot(wheelBase, trackWidth) / 2.0;
-                public static final double maxAngularVelocity = maxSpeed / driveRadius / 100;
+                public static final double maxAngularVelocity = maxSpeed / driveRadius;
 
                 // Neutral Modes
                 public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;
