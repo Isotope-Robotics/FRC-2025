@@ -75,8 +75,6 @@ public class Robot extends TimedRobot {
 
       scoring.scoringPeriodic();
 
-      System.out.println(swerve.trajectory);
-
       swerve.swervePeriodic();
 
       RobotTelemetry();
@@ -114,8 +112,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-
-      RobotTelemetry();
+      swerve.driveTo(new Pose2d(new Translation2d(0.5, 0), new Rotation2d(0)));
     }
   
     /** This function is called once when teleop is enabled. */
@@ -194,7 +191,7 @@ public class Robot extends TimedRobot {
     }
 
    SmartDashboard.putNumber("Elevator Encoder", scoring.getElevatorEncoder());
-   // SmartDashboard.putNumber("Scoring Angle Encoder", scoring.getAngleEncoder());
+   SmartDashboard.putNumber("Wrist Encoder", scoring.getWristEncoder());
 
   }
 
@@ -247,9 +244,9 @@ public class Robot extends TimedRobot {
 
     double speedfactor = (Constants.Controllers.driver1.getRawButton(1) ? 0.25 : 1 );
 
-    double xSpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1),
+    double xSpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(1),
         Constants.Controllers.stickDeadband * speedfactor);
-    double ySpeed = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0),
+    double ySpeed = MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(0),
         Constants.Controllers.stickDeadband * speedfactor);
     double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3),
         Constants.Controllers.stickDeadband * speedfactor * (Constants.Controllers.driver1.getRawButton(7) ? 0 : 1));
@@ -260,7 +257,8 @@ public class Robot extends TimedRobot {
     
     swerve.drive(
       new ChassisSpeeds(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed, rot * Constants.Swerve.maxAngularVelocity),
-      !Constants.Controllers.driver1.getRawButton(5)
+      
+      Constants.Controllers.driver1.getRawButton(5)
     );
 
     //Controls for auto-aligning robot
@@ -350,22 +348,23 @@ public class Robot extends TimedRobot {
     } else {
       scoring.stopRoller();
     }
-
     if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
-      scoring.elevatorRun(1);
-      //scoring.wristRun(1);
+      
+      scoring.elevatorRun(0);
+      scoring.wristRun(0);
     } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
+      
       scoring.elevatorRun(2);
-      //scoring.wristRun(2);
+      scoring.wristRun(2);
     } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
-      scoring.elevatorRun(3);
-      //scoring.wristRun(3);
+      // scoring.elevatorRun(4);
+      // scoring.wristRun(4);
     } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
-      scoring.elevatorRun(4);
-     // scoring.wristRun(4);
+      scoring.elevatorRun(3);
+      scoring.wristRun(3);
     } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
       scoring.elevatorRun(0);
-      //scoring.wristRun(0);
+      scoring.wristRun(0);
     }
     if (Constants.Controllers.driver2.getBackButton()) {
       scoring.recalibratePosition();
@@ -375,14 +374,9 @@ public class Robot extends TimedRobot {
      scoring.toggleManualControl();
     }
     
-    if(scoring.isManualControl()) {
-      scoring.manualControlElevator(-MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
+    if (scoring.isManualControl()) {
+      scoring.manualControlElevator(MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
       scoring.manualControlWrist(MathUtil.applyDeadband(Constants.Controllers.driver2.getRightY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
-      System.out.println("manual control");
-    }
-    else {
-      scoring.manualControlElevator(0);
-      scoring.manualControlWrist(0);
     }
   }
 }

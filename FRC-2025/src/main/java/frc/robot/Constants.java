@@ -35,19 +35,19 @@ public class Constants {
                 public static final Integer sensorID = 103;
                 public static final int rollerID = 43;
 
-                //TODO: get the correct encoder values for these positions
+                // level 0 = intake, levels 1-4 = scoring
                 public static final int levelElevator0 = 0;
-                public static final int levelElevator1 = 30;
-                public static final int levelElevator2 = 60;
-                public static final int levelElevator3 = 95;
-                public static final int levelElevator4 = 134;
+                public static final int levelElevator1 = 0;
+                public static final int levelElevator2 = 0;
+                public static final int levelElevator3 = -80;
+                public static final int levelElevator4 = -134;
 
                 // these too!
-                public static final double levelWrist0 = -6;
-                public static final int levelWrist1 = -112;
-                public static final int levelWrist2 = -117;
-                public static final int levelWrist3 = -118;
-                public static final int levelWrist4 = -112;
+                public static final double levelWrist0 = 0;
+                public static final int levelWrist1 = -45;
+                public static final int levelWrist2 = -45;
+                public static final int levelWrist3 = -45;
+                public static final int levelWrist4 = -90;
                 
 
         }
@@ -79,7 +79,7 @@ public class Constants {
         public static final class PIDs {
 
             public static  PIDController wristPID = new PIDController(
-                0.015, 
+                0.05, 
                 0.0001, 
                 0.0001
             );public static  PIDController elevatorPID = new PIDController(

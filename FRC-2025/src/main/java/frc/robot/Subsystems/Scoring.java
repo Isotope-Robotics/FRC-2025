@@ -45,7 +45,7 @@ public class Scoring extends SubsystemBase {
         elevatorConfig.idleMode(IdleMode.kBrake);
        wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
+        
         //limit switch
        // sensor = new DigitalInput(3);
         recalibratePosition();
@@ -59,13 +59,14 @@ public class Scoring extends SubsystemBase {
         //         isResetting = false;
         //     }
         // }else{
-            elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
+            elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition(), Constants.PIDs.elevatorPID.getSetpoint()));
             wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
        // }
     }
 
     public void recalibratePosition(){
         elevatorEncoder.setPosition(0);
+        wristEncoder.setPosition(0);
     }
 
     // Manual control lets the elevator be controlled from the driver2 (operator) left/right stick
@@ -78,18 +79,18 @@ public class Scoring extends SubsystemBase {
     }
 
     public void manualControlElevator(double speed) {
-        Constants.PIDs.elevatorPID.setSetpoint(elevatorEncoder.getPosition() - speed * 1000);
+        Constants.PIDs.elevatorPID.setSetpoint(elevatorEncoder.getPosition() - speed * 2000);
     }
 
     public void manualControlWrist(double speed) {
-      Constants.PIDs.wristPID.setSetpoint(wristEncoder.getPosition() + speed * 25);
+        Constants.PIDs.wristPID.setSetpoint(wristEncoder.getPosition() + speed * 10);
     }
 
     public double getElevatorEncoder() {
         return elevatorEncoder.getPosition();
     }
 
-    public double getAngleEncoder() {
+    public double getWristEncoder() {
         return wristEncoder.getPosition();
     }
 
@@ -108,6 +109,7 @@ public class Scoring extends SubsystemBase {
     }
 
     public void elevatorRun(int level) {
+        System.out.println("Running elevator..." + level);
         if (level == 0) {
             Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator0);
         } else if (level == 1) {
@@ -119,8 +121,9 @@ public class Scoring extends SubsystemBase {
         } else if (level == 4) {
             Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.levelElevator4);
         } else {
-            System.out.println("elevatorRun level incorrect, level value = " + level);
+            //System.out.println("elevatorRun level incorrect, level value = " + level);
         }
+        System.out.println("Elevator setpoint..." + Constants.PIDs.elevatorPID.getSetpoint());
     }
 
     public void wristRun(int level) {
