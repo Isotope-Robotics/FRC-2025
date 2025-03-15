@@ -362,7 +362,7 @@ public class Robot extends TimedRobot {
       //scoring.wristRun(3);
     } else if (Constants.Controllers.driver2.getPOV() == 90) { // D-pad Right
       scoring.elevatorRun(4);
-      scoring.wristRun(4);
+     // scoring.wristRun(4);
     } else if (Constants.Controllers.driver2.getLeftBumperButton()) { // Left Bumper
       scoring.elevatorRun(0);
       //scoring.wristRun(0);
@@ -377,7 +377,7 @@ public class Robot extends TimedRobot {
     
     if(scoring.isManualControl()) {
       scoring.manualControlElevator(-MathUtil.applyDeadband(Constants.Controllers.driver2.getLeftY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
-      scoring.manualControlWrist(-MathUtil.applyDeadband(Constants.Controllers.driver2.getRightY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
+      scoring.manualControlWrist(MathUtil.applyDeadband(Constants.Controllers.driver2.getRightY(), Constants.Controllers.driver2stickDeadband)); // Left Stick Y Axis
       System.out.println("manual control");
     }
     else {

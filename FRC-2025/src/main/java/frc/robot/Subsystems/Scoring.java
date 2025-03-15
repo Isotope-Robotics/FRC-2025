@@ -16,11 +16,11 @@ import frc.robot.Constants;
 
 public class Scoring extends SubsystemBase {
 
-    // public static SparkMax wrist;
+    public static SparkMax wrist;
     public static SparkMax elevator;
-    // public static SparkMax roller;
+    public static SparkMax roller;
     // public static DigitalInput sensor;
-    // public static RelativeEncoder wristEncoder;
+    public static RelativeEncoder wristEncoder;
     public static RelativeEncoder elevatorEncoder;
     public static boolean manualControl;
     public static boolean isResetting = true;
@@ -30,20 +30,20 @@ public class Scoring extends SubsystemBase {
 
     public Scoring(int angleID, int elevatorID, int rollerID, int sensorID) {
         // Motor Declarations
-        // wrist = new SparkMax(angleID, MotorType.kBrushless);
+        wrist = new SparkMax(angleID, MotorType.kBrushless);
         elevator = new SparkMax(elevatorID, MotorType.kBrushless);
-        // roller = new SparkMax(rollerID, MotorType.kBrushless);
+        roller = new SparkMax(rollerID, MotorType.kBrushless);
         // sensor = new DigitalInput(sensorID);
         // Encoder Declarations
-        // // wristEncoder = wrist.getEncoder();
+         wristEncoder = wrist.getEncoder();
         elevatorEncoder = elevator.getEncoder();
         // Motor Configurations
         SparkMaxConfig elevatorConfig = new SparkMaxConfig();
-        // SparkMaxConfig wristConfig = new SparkMaxConfig();
+        SparkMaxConfig wristConfig = new SparkMaxConfig();
 
-    //    wristConfig.idleMode(IdleMode.kBrake);
+       wristConfig.idleMode(IdleMode.kBrake);
         elevatorConfig.idleMode(IdleMode.kBrake);
-    // //    wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevator.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //limit switch
@@ -60,7 +60,7 @@ public class Scoring extends SubsystemBase {
         //     }
         // }else{
             elevator.set(Constants.PIDs.elevatorPID.calculate(elevatorEncoder.getPosition()));
-            // // // wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
+            wrist.set(Constants.PIDs.wristPID.calculate(wristEncoder.getPosition()));
        // }
     }
 
@@ -78,11 +78,11 @@ public class Scoring extends SubsystemBase {
     }
 
     public void manualControlElevator(double speed) {
-        Constants.PIDs.elevatorPID.setSetpoint(elevatorEncoder.getPosition() - speed * 25);
+        Constants.PIDs.elevatorPID.setSetpoint(elevatorEncoder.getPosition() - speed * 1000);
     }
 
     public void manualControlWrist(double speed) {
-        // // if (speed != 0) Constants.PIDs.wristPID.setSetpoint(wristEncoder.getPosition() + speed * 25);
+      Constants.PIDs.wristPID.setSetpoint(wristEncoder.getPosition() + speed * 25);
     }
 
     public double getElevatorEncoder() {
@@ -90,21 +90,21 @@ public class Scoring extends SubsystemBase {
     }
 
     public double getAngleEncoder() {
-        return 0.0; // wristEncoder.getPosition();
+        return wristEncoder.getPosition();
     }
 
     // Turns on Roller on scoring mecanism
     public void runRollerIn(double speed) {
-        // roller.set(-speed);
+         roller.set(-speed);
     }
 
     public void runRollerOut(double speed) {
         System.out.println("Running roller out...");
-        // roller.set(speed);
+         roller.set(speed);
     }
 
     public void stopRoller() {
-        // roller.set(0);
+        roller.set(0);
     }
 
     public void elevatorRun(int level) {
@@ -125,24 +125,24 @@ public class Scoring extends SubsystemBase {
 
     public void wristRun(int level) {
         if (level == 0) {
-            // // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist0);
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist0);
         } else if (level == 1) {
-            // // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist1);
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist1);
         } else if (level == 2) {
-            // // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist2);
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist2);
         } else if (level == 3) {
-            // // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist3);
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist3);
         } else if (level == 4) {
-            // // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist4);
+            Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.levelWrist4);
         } else {
-            // System.err.println("wristRun level incorrect, level value = " + level);
+            System.err.println("wristRun level incorrect, level value = " + level);
         }
     }
 
     public void clearStickyFaults() {
-        // wrist.clearFaults();
+        wrist.clearFaults();
         elevator.clearFaults();
-        // roller.clearFaults();
+        roller.clearFaults();
     }
 
 
