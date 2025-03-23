@@ -35,7 +35,7 @@ public class Scoring extends SubsystemBase {
         roller = new SparkMax(rollerID, MotorType.kBrushless);
         // sensor = new DigitalInput(sensorID);
         // Encoder Declarations
-         wristEncoder = wrist.getEncoder();
+        wristEncoder = wrist.getEncoder();
         elevatorEncoder = elevator.getEncoder();
         // Motor Configurations
         SparkMaxConfig elevatorConfig = new SparkMaxConfig();
@@ -100,7 +100,6 @@ public class Scoring extends SubsystemBase {
     }
 
     public void runRollerOut(double speed) {
-        System.out.println("Running roller out...");
          roller.set(speed);
     }
 
@@ -148,45 +147,6 @@ public class Scoring extends SubsystemBase {
         roller.clearFaults();
     }
 
-
-    // public void elevatorReset() {
-    //     goToLevel(0);
-    // }
-
-    // Set elevator and anlge to levels with encoder ticks
-
-    // private void goToLevel(int l) {
-    //    // Constants.PIDs.wristPID.setSetpoint(Constants.Scoring.elevatorAngles[l]);
-    //     Constants.PIDs.elevatorPID.setSetpoint(Constants.Scoring.elevatorLevels[l]);
-    // }
-
-    // public void elevatorUp() {
-    //     if (elevatorLevel > 3) {
-    //         elevatorLevel = 3;
-    //     }
-    //     goToLevel(elevatorLevel+1);
-        
-    // }
-
-    // public void elevatorDown() {
-    //     if (elevatorLevel < 1) {
-    //         elevatorLevel = 1;
-    //     }
-    //     goToLevel(elevatorLevel-1);
-        
-    // }
-
-    // public void setLevel(int l) {
-    //     elevatorLevel = Math.max(Math.min(l,4),0);
-    //     if (elevatorLevel < 0) {
-    //         elevatorLevel = 0;
-    //     }
-    //     if (elevatorLevel > 4) {
-    //         elevatorLevel = 4;
-    //     }
-    //     goToLevel(l);
-    // }
-
     public static Scoring getInstance() {
         if (m_Instance == null)
             m_Instance = new Scoring(Constants.Scoring.wristID, Constants.Scoring.elevatorID,
@@ -194,5 +154,4 @@ public class Scoring extends SubsystemBase {
         return m_Instance;
     }
     
-
 }

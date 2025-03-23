@@ -29,16 +29,7 @@ public class Robot extends TimedRobot {
   // Swerve Drive Varibles
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   public Swerve swerve;
-  // public Climber climber;
   public Scoring scoring;
-
-  public int POVPressTime;
-
-  public boolean isCoralReady = false;
-
-  // 0 represents that the intake is ready
-  public int coralPhase = 0;
-  
   
     /**
      * This function is run when the robot is first started up and should be used
@@ -47,16 +38,12 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
       swerve = Swerve.getInstance();
-      // climber = Climber.getInstance();
-      scoring = Scoring.getInstance();
-      // intake = Intake.getInstance();
-      // intakeArm = IntakeArm.getInstance();
       
+      scoring = Scoring.getInstance();
+
       robotContainer = new RobotContainer();
       
       scoring.clearStickyFaults();
-      // intake.clearStickyFaults();
-      // intakeArm.clearStickyFaults();
     }
     
   
@@ -125,8 +112,6 @@ public class Robot extends TimedRobot {
       swerve.zeroHeading();
 
       RobotTelemetry();
-        scoring.elevatorRun(0);
-        // scoring.wristRun(0);
     }
   
     /** This function is called periodically during operator control. */
@@ -140,11 +125,6 @@ public class Robot extends TimedRobot {
       Driver2Controls();
 
       RobotTelemetry();
-
-      SmartDashboard.putNumber("Elevator Encoder",scoring.getElevatorEncoder());
-      //SmartDashboard.putNumber("Angle Encoder", scoring.getAngleEncoder());
-
-    
     }
 
   /** This function is called once when the robot is disabled. */
@@ -228,11 +208,11 @@ public class Robot extends TimedRobot {
 
     // System.out.println("raw angle: " + currentGyro + ", mapped angle: " +
     // mappedAngle + ", april tag error: " + error);
-  }*/
+  }
 
   public void stopAligning(){
     swerve.isAligning = false;
-  }
+  }*/
 
 
   private void Driver1Controls() {
@@ -251,10 +231,6 @@ public class Robot extends TimedRobot {
     double rot = -MathUtil.applyDeadband(Constants.Controllers.driver1.getRawAxis(3),
         Constants.Controllers.stickDeadband * speedfactor * (Constants.Controllers.driver1.getRawButton(7) ? 0 : 1));
     
-    // Queue robot's trajectory
-    
-    // Stop rotaton
-    
     swerve.drive(
       new ChassisSpeeds(xSpeed*Constants.Swerve.maxSpeed,ySpeed*Constants.Swerve.maxSpeed, rot * Constants.Swerve.maxAngularVelocity),
       
@@ -263,7 +239,7 @@ public class Robot extends TimedRobot {
 
     //Controls for auto-aligning robot
 
-    if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
+    /*if (Constants.Controllers.driver1.getRawButtonPressed(4)) { // Align right reef
       swerve.AlignRobot(new Pose2d(-0.013,-0.6,new Rotation2d(180)));
     } 
     if (Constants.Controllers.driver1.getRawButtonPressed(3)) { // Align left reef
@@ -274,11 +250,11 @@ public class Robot extends TimedRobot {
     }
     /*if(Constants.Controllers.driver1.getRawButton(6)) { // Hang from climber
       limelightAprilTagAim(false);
-    }*/
+    }
     if (Constants.Controllers.driver1.getRawButton(2)) { // cancel all autonomous actions
       swerve.zeroHeading();
        System.out.println("Gyro reset");
-    } 
+    } */
   }
 
 
@@ -341,19 +317,14 @@ public class Robot extends TimedRobot {
        scoring.runRollerOut(Constants.Controllers.driver2.getRightTriggerAxis() * 0.7);
      } else if (Constants.Controllers.driver2.getLeftTriggerAxis() > 0.1) { // Left Trigger Variable Suck
        scoring.runRollerIn(Constants.Controllers.driver2.getLeftTriggerAxis() * 0.7);
-     } else if (Constants.Controllers.driver2.getBButton()) {
-      scoring.runRollerOut(0.2);
-    } else if (Constants.Controllers.driver2.getXButton()) {
-      scoring.runRollerIn(0.6);
     } else {
-      scoring.stopRoller();
+      scoring.runRollerIn(0.2);
     }
+
     if (Constants.Controllers.driver2.getPOV() == 180) { // D-pad Down
-      
       scoring.elevatorRun(0);
       scoring.wristRun(0);
     } else if (Constants.Controllers.driver2.getPOV() == 270) { // D-pad Left
-      
       scoring.elevatorRun(2);
       scoring.wristRun(2);
     } else if (Constants.Controllers.driver2.getPOV() == 0) { // D-pad Up
